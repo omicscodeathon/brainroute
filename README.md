@@ -58,14 +58,7 @@ is crucial for targeting the mTOR pathway and other CNS-relevant mechanisms.
 
 ## Workflow
 
-```mermaid
-graph TD
-    A[Data Curation] --> B[SMILES Extraction]
-    B --> C[Descriptor Calculation]
-    C --> D[Data Integration]
-    D --> E[Machine Learning Modeling]
-    E --> F[Prediction & Analysis]
-```
+![workflow flowchart](neurogate.png).
 
 ---
 
