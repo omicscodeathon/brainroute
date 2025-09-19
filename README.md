@@ -3,8 +3,9 @@
 ![Project](https://img.shields.io/badge/Project-mtoralzml-lightblue)
 ![Python](https://img.shields.io/badge/python-3.12-blue.svg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![GitHub contributors](https://img.shields.io/github/contributors/yourusername/mtoralzml.svg)](https://GitHub.com/yourusername/mtoralzml/graphs/contributors/)
-[![Github tag](https://badgen.net/github/tag/yourusername/mtoralzml)](https://github.com/yourusername/mtoralzml/tags/)
+![GitHub Repo stars](https://img.shields.io/github/stars/omicscodeathon/mtoralzml)
+[![GitHub contributors](https://img.shields.io/github/contributors/omicscodeathon/mtoralzml.svg)](https://GitHub.com/omicscodeathon/mtoralzml/graphs/contributors/)
+[![Github tag](https://badgen.net/github/tag/omicscodeathon/mtoralzml)](https://github.com/omicscodeathon/mtoralzml/tags/)
 
 **mtoralzml** is an open-source computational pipeline for predicting blood-brain barrier (BBB) permeability of mTOR inhibitors, with a focus on Alzheimer’s disease drug discovery. The project integrates cheminformatics and machine learning to streamline candidate selection and accelerate CNS drug development.
 
