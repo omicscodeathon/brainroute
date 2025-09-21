@@ -26,7 +26,7 @@ This project proposes NeuroGate, an open-source, reproducible computational plat
 across a variety of therapeutic areas—but will demonstrate its capabilities through case studies in neurodegenerative disease drug discovery, such as Alzheimer’s disease (AD), where BBB penetration
 is crucial for targeting the mTOR pathway and other CNS-relevant mechanisms.
 
-![workflow flowchart](neurogate.png).
+---
 
 ## Table of Contents
 
