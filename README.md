@@ -61,7 +61,7 @@ is crucial for targeting the mTOR pathway and other CNS-relevant mechanisms.
 
 ## Workflow
 
-![workflow flowchart](neurogate.png).
+![workflow flowchart](workflow/neurogate.png).
 
 ---
 
