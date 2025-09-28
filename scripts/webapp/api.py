@@ -1,5 +1,8 @@
 import requests
 
+from rdkit import Chem
+from rdkit.Chem import rdMolDescriptors
+
 def get_chembl_info(compound_input):
     """
     Given a compound name or SMILES, fetch information from ChEMBL.
@@ -42,6 +45,10 @@ def get_chembl_info(compound_input):
     }
 
     return info
+
+
+
+#connect LLM api 
 
 
 def get_smiles(molecule_name):
@@ -87,6 +94,12 @@ def get_smiles(molecule_name):
     #if nothing found 
     raise ValueError(f"Couldn't find information on NCBI PubChem or ChEMBL for '{molecule_name}'.")
 
+
+def get_name_from_smiles(smiles):
+    mol = Chem.MolFromSmiles(smiles)
+    name = rdMolDescriptors.CalcMolFormula(mol)
+    
+    return name
 
 # # Example usage
 # compound_name = "Aspirin"
