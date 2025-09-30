@@ -4,6 +4,7 @@ from rdkit import Chem
 from rdkit.Chem import Draw, Descriptors, Crippen, Lipinski
 import requests
 import re
+import pandas as pd
 import urllib.parse
 
 
@@ -13,6 +14,7 @@ import os
 
 from api import get_smiles
 from api import get_chembl_info
+from models import XGB_model, KNN_model, scaler
 
 
 # model_names = ['KNN', 'SVM', 'RF', 'LR', 'XGB']
@@ -143,15 +145,31 @@ if st.button("Submit"):
                 mol = Chem.MolFromSmiles(smiles) if smiles else None
             except Exception as e:
                 st.error(f"Error loading: {e}")
-
+                
+                
         if mol:
+            descr = pd.DataFrame([Descriptors.CalcMolDescriptors(mol)])
+            
+            scale = scaler()
+            descr = scale.transform(descr)
+            # xgb = XGB_model()
+            knn = KNN_model()
+            # pred = xgb.predict(descr)
+            pred = knn.predict(descr)
+            # confidence = xgb.predict_proba(descr)
+            confidence = knn.predict_proba(descr)
+            
+            bbb_prediction = "BBB+" if pred[0] == 1 else "BBB-"
+            conf_score = confidence[0][pred[0]] * 100
+            
+
             mw = Descriptors.MolWt(mol)
             logp = Crippen.MolLogP(mol)
             hbd = Lipinski.NumHDonors(mol)
             hba = Lipinski.NumHAcceptors(mol)
 
-            #test prediction - replace with model implementation 
-            bbb_prediction = "BBB+" if logp > 2 and mw < 450 else "BBB-"
+            # #test prediction - replace with model implementation 
+            # bbb_prediction = "BBB+" if logp > 2 and mw < 450 else "BBB-"
 
             # --- Layout: Two Columns ---
             col1, col2 = st.columns([1, 1.5])
@@ -167,7 +185,9 @@ if st.button("Submit"):
                 st.markdown(f"**LogP:** {logp:.2f}")
                 st.markdown(f"**H-Bond Donors:** {hbd}")
                 st.markdown(f"**H-Bond Acceptors:** {hba}")
-                st.markdown(f"**BBB Prediction:** :blue[{bbb_prediction}]") #test 
+                st.markdown(f"**BBB Prediction:** :blue[{bbb_prediction}]")
+                st.markdown(f"**Confidence Score:** {conf_score:.2f}%")
+                #test 
                 if info:
                     st.markdown(f"**Molecule Type: {info['Molecule Type']}**")
                     st.markdown(f"**Max Phase : {info['Max Phase']}**")
