@@ -13,18 +13,19 @@
 
 ## Overview
 
-Predicting Blood-Brain Barrier-Permeable mTOR Inhibitors for Alzheimer’s Disease Using Machine Learning
+NeuroGate
 
-The blood–brain barrier (BBB) is a highly selective physiological interface that regulates the transport of molecules between the bloodstream and the central nervous system (CNS). BBB permeability
-is a decisive factor in determining whether a therapeutic compound can reach its CNS target. Many potential drug candidates fail late in development due to inadequate BBB penetration, causing
-substantial financial and time losses.
+NeuroGate is an interactive platform designed to predict the blood–brain barrier (BBB) permeability of small molecules, addressing a key challenge in central nervous system (CNS) drug discovery. The BBB acts as a highly selective barrier, limiting the entry of therapeutic agents into the brain, which complicates the development of treatments for neurodegenerative diseases.
 
-Predicting BBB permeability early in the drug discovery process can streamline candidate selection, reduce attrition rates, and focus experimental resources on the most promising molecules. While
-existing computational tools exist, many lack transparency, reproducibility, or the ability to handle domain-specific datasets.
+NeuroGate combines machine learning models and neural network approaches with molecular datasets to predict BBB permeability accurately. Traditional models like K-Nearest Neighbors (KNN) have demonstrated high predictive performance (F1 score: 92%), highlighting the value of classical methods, particularly for limited or complex datasets.
 
-This project proposes NeuroGate, an open-source, reproducible computational platform for predicting BBB permeability. The platform is designed to be general-purpose—capable of evaluating molecules
-across a variety of therapeutic areas—but will demonstrate its capabilities through case studies in neurodegenerative disease drug discovery, such as Alzheimer’s disease (AD), where BBB penetration
-is crucial for targeting the mTOR pathway and other CNS-relevant mechanisms.
+The platform integrates a large language model (LLM) to provide contextual, molecule-specific insights. For each compound, users can ask questions and receive answers informed by predicted BBB permeability, confidence scores, and molecular properties such as molecular weight and lipophilicity. All interactions, predictions, and chat histories can be downloaded as CSV files for offline analysis and research documentation.
+
+NeuroGate offers a user-friendly interface built with Python Streamlit, featuring a responsive design, custom CSS styling, and session-based caching to ensure fast loading of models and prediction results. This makes the platform intuitive, interactive, and suitable for researchers exploring CNS drug candidates.
+
+To showcase its practical utility, NeuroGate was applied to mTOR pathway inhibitors, relevant to Alzheimer’s disease pathology, allowing researchers to rapidly assess BBB permeability and prioritize therapeutic candidates for further investigation.
+
+Overall, NeuroGate provides a comprehensive, interdisciplinary pipeline for accelerating preclinical CNS research, combining predictive modeling with contextual AI-driven insights to support drug discovery.
 
 ---
 
