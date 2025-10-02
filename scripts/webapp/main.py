@@ -21,7 +21,7 @@ from config import PAGE_CONFIG, PROMPT_TEMPLATES, HF_API_TOKEN
 # -------------------------
 st.set_page_config(**PAGE_CONFIG)
 
-# Custom CSS for better UI
+# Custom CSS for better UI with improved chat interface
 st.markdown("""
 <style>
     .main-header {
@@ -55,34 +55,92 @@ st.markdown("""
         border-radius: 5px;
         border-left: 4px solid #007bff;
     }
+    
+    /* Enhanced Chat Interface Styles */
     .chat-container {
-        max-width: 800px;
-        margin: 0 auto;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 10px;
         padding: 1rem;
-        border-radius: 8px;
-        background-color: #4c4c57;
-    }
-    .chat-message {
-        padding: 0.5rem;
-        margin: 0.5rem 0;
-        border-radius: 0.5rem;
-    }
-    .user-message {
-        background-color: #454554;
-        margin-left: 2rem;
-        text-align: right;
-    }
-    .assistant-message {
-        background-color: #3d3d54;
-        margin-right: 2rem;
-    }
-    .chat-container {
-        max-height: 400px;
+        margin-bottom: 1rem;
+        max-height: 500px;
         overflow-y: auto;
-        border: 1px solid #ddd;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .chat-message {
+        padding: 0.75rem 1rem;
+        border-radius: 12px;
+        max-width: 80%;
+        word-wrap: break-word;
+        animation: slideIn 0.3s ease-out;
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .user-message {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        margin-left: auto;
+        border-bottom-right-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .assistant-message {
+        background-color: white;
+        color: #2c3e50;
+        margin-right: auto;
+        border: 1px solid #e1e8ed;
+        border-bottom-left-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .message-timestamp {
+        font-size: 0.7rem;
+        opacity: 0.7;
+        margin-top: 0.25rem;
+    }
+    
+    .chat-empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: #6c757d;
+    }
+    
+    .chat-input-container {
+        background-color: white;
+        border: 2px solid #dee2e6;
+        border-radius: 10px;
         padding: 1rem;
-        border-radius: 0.5rem;
-        background-color: #fafafa;
+        margin-top: 1rem;
+    }
+    
+    .quick-question-btn {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        margin: 0.25rem;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 0.9rem;
+    }
+    
+    .quick-question-btn:hover {
+        background-color: #e9ecef;
+        border-color: #adb5bd;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -108,8 +166,8 @@ if 'prediction_results' not in st.session_state:
     st.session_state.prediction_results = None
 if 'chat_history' not in st.session_state:
     st.session_state.chat_history = []
-if 'chat_input' not in st.session_state:
-    st.session_state.chat_input = ""
+if 'chat_input_text' not in st.session_state:
+    st.session_state.chat_input_text = ""
 
 
 # -------------------------
@@ -147,26 +205,65 @@ def add_to_chat(role, message):
         'timestamp': datetime.now().strftime('%H:%M:%S')
     })
 
-def display_chat_history():
-    """Display chat history in a nice format"""
+def display_chat_interface():
+    """Display chat interface with messages above and input below"""
+    st.markdown("### 💬 Chat History")
+    
+    # Chat messages container
     if st.session_state.chat_history:
         st.markdown('<div class="chat-container">', unsafe_allow_html=True)
         for chat in st.session_state.chat_history:
             if chat['role'] == 'user':
                 st.markdown(f'''
                 <div class="chat-message user-message">
-                    <strong>You ({chat['timestamp']}):</strong><br>
-                    {chat['message']}
+                    <div><strong>You</strong></div>
+                    <div>{chat['message']}</div>
+                    <div class="message-timestamp">{chat['timestamp']}</div>
                 </div>
                 ''', unsafe_allow_html=True)
             else:
                 st.markdown(f'''
                 <div class="chat-message assistant-message">
-                    <strong>🦙 Llama 3 ({chat['timestamp']}):</strong><br>
-                    {chat['message']}
+                    <div><strong>🦙 Llama 3</strong></div>
+                    <div>{chat['message']}</div>
+                    <div class="message-timestamp">{chat['timestamp']}</div>
                 </div>
                 ''', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
+    else:
+        st.markdown('''
+        <div class="chat-container">
+            <div class="chat-empty-state">
+                <h4>👋 Start a conversation!</h4>
+                <p>Ask me anything about your molecule's BBB properties, drug potential, or related research.</p>
+            </div>
+        </div>
+        ''', unsafe_allow_html=True)
+
+def process_chat_question(question, compound_name, prediction, confidence):
+    """Process a chat question and generate response"""
+    add_to_chat("user", question)
+    
+    tokenizer, model = st.session_state.ai_model
+    
+    # Create context-aware prompt
+    context_prompt = f"""You are discussing {compound_name} with a researcher. 
+    Key context: This molecule is predicted to be {prediction} for BBB penetration with {confidence:.1f}% confidence.
+    Molecular properties: MW={st.session_state.prediction_results['properties']['mw']:.1f}, LogP={st.session_state.prediction_results['properties']['logp']:.2f}
+    
+    Question: {question}
+    
+    Please provide a helpful, accurate response focusing on pharmacology and drug discovery aspects."""
+    
+    with st.spinner("🦙 Llama 3 is thinking..."):
+        response, ai_error = generate_ai_response(tokenizer, model, context_prompt)
+    
+    if ai_error:
+        add_to_chat("assistant", f"❌ Sorry, I encountered an error: {ai_error}")
+    elif response:
+        add_to_chat("assistant", response)
+    else:
+        add_to_chat("assistant", "❓ I couldn't generate a response. Please try rephrasing your question.")
 
 # -------------------------
 # Model Loading Section
@@ -596,7 +693,7 @@ if st.session_state.models_loaded:
 
 
 # -------------------------
-# AI Chat Section - Enhanced Chat Feature
+# AI Chat Section - Enhanced Chat Interface with Input Below
 # -------------------------
 if st.session_state.prediction_results:
     st.markdown("---")
@@ -625,7 +722,7 @@ if st.session_state.prediction_results:
                         st.session_state.ai_model = (tokenizer, model)
                         st.session_state.ai_loaded = True
                         st.success("✅ Connected to Llama 3 API!")
-                        # Don't use st.rerun() here to preserve results
+                        st.rerun()
             
             with col2:
                 st.info("🦙 Chat with AI about your molecule's BBB properties, drug potential, and more!")
@@ -640,99 +737,87 @@ if st.session_state.prediction_results:
             
             st.success(f"🦙 **Llama 3 is ready!** Ask anything about **{compound_name}** (Predicted: {prediction}, Confidence: {confidence:.1f}%)")
             
-            # Quick action buttons
-            st.markdown("**Quick Questions:**")
+            # Display chat history first (messages above)
+            display_chat_interface()
+            
+            # Quick action buttons below chat
+            st.markdown("**💡 Quick Questions:**")
             col1, col2, col3, col4 = st.columns(4)
             
             with col1:
                 if st.button("💊 Drug Potential", key="drug_potential"):
-                    question = f"What is the drug potential of {compound_name} for CNS disorders? Consider its BBB penetration."
-                    st.session_state.chat_input = question
-            
+                    st.session_state.chat_input_text = f"What is the drug potential of {compound_name} for CNS disorders? Consider its BBB penetration."
+                    st.rerun()
+        
             with col2:
                 if st.button("🧪 Properties", key="properties"):
-                    question = f"Explain the key molecular properties of {compound_name} that affect its BBB penetration."
-                    st.session_state.chat_input = question
-            
+                    st.session_state.chat_input_text = f"Explain the key molecular properties of {compound_name} that affect its BBB penetration."
+                    st.rerun()
+        
             with col3:
                 if st.button("⚠️ Side Effects", key="side_effects"):
-                    question = f"What are the potential side effects and safety concerns for {compound_name}?"
-                    st.session_state.chat_input = question
-            
+                    st.session_state.chat_input_text = f"What are the potential side effects and safety concerns for {compound_name}?"
+                    st.rerun()
+        
             with col4:
                 if st.button("🔬 Research", key="research"):
-                    question = f"What current research exists on {compound_name} for brain-related diseases?"
-                    st.session_state.chat_input = question
+                    st.session_state.chat_input_text = f"What current research exists on {compound_name} for brain-related diseases?"
+                    st.rerun()
+                
+            # # Process pending question if exists
+            # if st.session_state.pending_question:
+            #     question = st.session_state.pending_question
+            #     st.session_state.pending_question = None
+            #     process_chat_question(question, compound_name, prediction, confidence)
+            #     st.rerun()
             
-            # Chat input
-            col_input, col_send = st.columns([4, 1])
+            # Chat input container at the bottom with improved styling
+            st.markdown('<div class="chat-input-container">', unsafe_allow_html=True)
             
-            with col_input:
-                chat_question = st.text_input(
-                    "Ask Llama 3 about your molecule:",
-                    value=st.session_state.chat_input,
-                    placeholder=f"e.g., How does {compound_name} work in the brain?",
-                    key="chat_input_field"
-                )
+            # Use form for better UX
+            with st.form(key="chat_form", clear_on_submit=True):
+                col_input, col_send, col_clear = st.columns([6, 1, 1])
+                
+                with col_input:
+                    chat_question = st.text_input(
+                        "Your message:",
+                        value=st.session_state.chat_input_text,
+                        placeholder=f"e.g., How does {compound_name} work in the brain?",
+                        label_visibility="collapsed",
+                        key="chat_input_field"
+                    )
+                
+                with col_send:
+                    send_clicked = st.form_submit_button("📤 Send", type="primary", use_container_width=True)
+                
+                with col_clear:
+                    clear_clicked = st.form_submit_button("🗑️", use_container_width=True)
             
-            with col_send:
-                send_clicked = st.button("Send 📤", type="primary", key="send_chat")
+            st.markdown('</div>', unsafe_allow_html=True)
             
-            # Clear the session state input after displaying
-            if st.session_state.chat_input:
-                st.session_state.chat_input = ""
-            
-            # Process chat
-            if send_clicked and chat_question.strip():
-                add_to_chat("user", chat_question)
-                
-                # Create context-aware prompt
-                context_prompt = f"""You are discussing {compound_name} with a researcher. 
-                Key context: This molecule is predicted to be {prediction} for BBB penetration with {confidence:.1f}% confidence.
-                Molecular properties: MW={st.session_state.prediction_results['properties']['mw']:.1f}, LogP={st.session_state.prediction_results['properties']['logp']:.2f}
-                
-                Question: {chat_question}
-                
-                Please provide a helpful, accurate response focusing on pharmacology and drug discovery aspects."""
-                
-                with st.spinner("🦙 Llama 3 is thinking..."):
-                    response, ai_error = generate_ai_response(tokenizer, model, context_prompt)
-                
-                if ai_error:
-                    add_to_chat("assistant", f"❌ Sorry, I encountered an error: {ai_error}")
-                elif response:
-                    add_to_chat("assistant", response)
-                else:
-                    add_to_chat("assistant", "❓ I couldn't generate a response. Please try rephrasing your question.")
-                
-                # Clear the input field by rerunning
+            # Handle clear button
+            if clear_clicked:
+                st.session_state.chat_history = []
                 st.rerun()
             
-            # Display chat history
+            # Handle send button
+            if send_clicked and chat_question.strip():
+                process_chat_question(chat_question, compound_name, prediction, confidence)
+                st.rerun()
+            
+            # Export chat history
             if st.session_state.chat_history:
-                st.markdown("### 💬 Chat History")
-                display_chat_history()
-                
-                # Chat controls
-                col1, col2, col3 = st.columns([1, 1, 2])
-                with col1:
-                    if st.button("🗑️ Clear Chat", key="clear_chat"):
-                        st.session_state.chat_history = []
-                        st.rerun()
-                
-                with col2:
-                    # Export chat
-                    if st.session_state.chat_history:
-                        chat_df = pd.DataFrame([
-                            {
-                                'Timestamp': chat['timestamp'],
-                                'Role': chat['role'].title(),
-                                'Message': chat['message'],
-                                'Molecule': compound_name
-                            }
-                            for chat in st.session_state.chat_history
-                        ])
-                        st.markdown(create_download_link(chat_df, f"chat_history_{compound_name}", "csv"), unsafe_allow_html=True)
+                with st.expander("📥 Export Chat History"):
+                    chat_df = pd.DataFrame([
+                        {
+                            'Timestamp': chat['timestamp'],
+                            'Role': chat['role'].title(),
+                            'Message': chat['message'],
+                            'Molecule': compound_name
+                        }
+                        for chat in st.session_state.chat_history
+                    ])
+                    st.markdown(create_download_link(chat_df, f"chat_history_{compound_name}", "csv"), unsafe_allow_html=True)
             
             # Alternative research options
             st.markdown("---")
