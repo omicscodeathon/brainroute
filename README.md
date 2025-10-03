@@ -1,4 +1,4 @@
-# mtoralzml
+# NeuroGate
 
 ![Project](https://img.shields.io/badge/Project-mtoralzml-lightblue)
 ![Python](https://img.shields.io/badge/python-3.12-blue.svg)
@@ -7,13 +7,11 @@
 [![GitHub contributors](https://img.shields.io/github/contributors/omicscodeathon/mtoralzml.svg)](https://GitHub.com/omicscodeathon/mtoralzml/graphs/contributors/)
 [![Github tag](https://badgen.net/github/tag/omicscodeathon/mtoralzml)](https://github.com/omicscodeathon/mtoralzml/tags/)
 
-**mtoralzml** is an open-source computational pipeline for predicting blood-brain barrier (BBB) permeability of mTOR inhibitors, with a focus on Alzheimer’s disease drug discovery. The project integrates cheminformatics and machine learning to streamline candidate selection and accelerate CNS drug development.
+**NeuroGate** is an open-source computational platform designed to predict blood–brain barrier (BBB) permeability of drug candidates, leveraging artificial intelligence to accelerate drug discovery. The project serves as a resource for advancing research in central nervous system (CNS) therapeutics and supporting the development of novel treatment strategies. 
 
 ---
 
 ## Overview
-
-NeuroGate
 
 NeuroGate is an interactive platform designed to predict the blood–brain barrier (BBB) permeability of small molecules, addressing a key challenge in central nervous system (CNS) drug discovery. The BBB acts as a highly selective barrier, limiting the entry of therapeutic agents into the brain, which complicates the development of treatments for neurodegenerative diseases.
 
@@ -35,7 +33,6 @@ Overall, NeuroGate provides a comprehensive, interdisciplinary pipeline for acce
 - [Workflow](#workflow)
 - [Getting Started](#getting-started)
 - [Data Sources](#data-sources)
-- [Descriptor Calculation](#descriptor-calculation)
 - [Modeling & Analysis](#modeling--analysis)
 - [Results](#results)
 - [Reproducibility](#reproducibility)
@@ -47,16 +44,15 @@ Overall, NeuroGate provides a comprehensive, interdisciplinary pipeline for acce
 
 ## Objectives
 
-- [x] Data Integration – Aggregate and harmonize high-quality BBB permeability datasets from multiple public sources.
-- [x] Calculate molecular descriptors (RDKit, Mordred)
-- [x] Integrate BBB permeability data
-- [x] Model Development – Build multiple machine learning architectures for BBB classification, from traditional QSAR approaches to deep learning methods.
-- [x] Evaluate machine learning models for BBB prediction
-- [x] Uncertainty Quantification – Incorporate prediction confidence and applicability domain detection for safer decision-making.
-- [x] Interpretability – Provide mechanistic insights into which molecular features drive BBB penetration predictions.
-- [x] Build platform (Web application) to predict BBB permeability
-- [x] Platform Deployment – Create a publicly accessible web interface and API for molecule evaluation.
-- [x] Domain Demonstration – Apply the platform to mTOR inhibitors and other Alzheimer’s-related compounds as a real-world neurodegenerative disease use case.
+## Objectives
+
+- [x] Develop **NeuroGate**, a predictive pipeline for assessing blood–brain barrier (BBB) permeability of small molecules in CNS drug discovery.  
+- [x] Aggregate and harmonize high-quality BBB datasets and calculate molecular descriptors (RDKit, Mordred).  
+- [x] Build and evaluate predictive models using **machine learning and neural network approaches**.  
+- [x] Provide **uncertainty estimates and interpretability features**, highlighting which molecular properties drive predictions.  
+- [x] Create an **interactive web platform** with a chat feature, enabling researchers to explore predictions, confidence scores, and contextual insights about molecules of interest.  
+- [x] Demonstrate utility through application to **mTOR inhibitors** as a case study in neurodegenerative disease research.  
+
 
 ---
 
@@ -123,6 +119,46 @@ Molecular data for blood-brain barrier (BBB) penetration were obtained from two 
 - PubChem BioAssays (AID 628 and related BBB assays)
 - DrugBank CNS/non-CNS drug lists
 - Literature datasets of brain/plasma ratios for known drugs
+
+### Modeling and Analysis
+
+The modeling pipeline began with data curation and preprocessing of blood–brain barrier (BBB) permeability datasets. SMILES strings and molecular identifiers were harmonized, and missing values in descriptor matrices were addressed. Data wrangling was handled using Pandas and NumPy.
+
+For feature generation, molecular descriptors were calculated using multiple cheminformatics toolkits:
+
+* RDKit (https://www.rdkit.org/) for fundamental chemical descriptors (molecular weight, LogP, hydrogen bond donors/acceptors, etc.).
+
+* Mordred for an extended set of 1D/2D descriptors.
+
+* PaDEL-Descriptor for additional QSAR features.
+
+These descriptor matrices were then combined and standardized using scikit-learn’s StandardScaler to ensure comparability across features.
+
+For model development, an initial benchmark was performed with LazyPredict, which quickly screened a wide range of algorithms to identify high-performing candidates. Based on this evaluation, targeted models were developed and tuned, including:
+
+* K-Nearest Neighbors (KNN)
+* Support Vector Machine (SVM)
+* Random Forests (RF)
+* Logistic Regression (LR)
+* XGBoost (XGB)
+* Multilayer Perceptron (MLP) (implemented with TensorFlow)
+
+Model performance was evaluated on a held-out test set, with metrics including accuracy, precision, recall, and F1-score. Among classical models, KNN achieved particularly strong performance (F1-score: 0.92), highlighting the effectiveness of traditional approaches for BBB classification when working with limited and heterogeneous datasets.
+
+This workflow integrates classical QSAR methods with modern neural architectures, enabling both predictive robustness and biological interpretability in the BBB permeability prediction task.
+
+### Results 
+
+Our evaluation demonstrated strong predictive performance across multiple models for BBB permeability classification. The K-Nearest Neighbors (KNN) model achieved the highest performance with an F1-score of 0.92, while other approaches such as Random Forests and Neural Networks also showed reliable accuracy and robustness.
+
+Beyond predictive modeling, we successfully developed and deployed NeuroGate as an interactive web platform. The system integrates with external resources including the Hugging Face inference API (for large language model–driven insights), ChEMBL (for bioactivity data), and the PubMed API (for literature retrieval). The interface, built in Streamlit and deployed via Hugging Face Spaces, enables researchers to evaluate molecules, explore predictions, and interact with contextual LLM-powered explanations in a user-friendly environment.
+
+### Reproducibility
+
+The workflow implemented in NeuroGate is fully reproducible. Users can follow the steps outlined below to clone the repository, install dependencies, and run the provided scripts and notebooks to recreate the modeling pipeline or extend it with new datasets and features. The platform has been designed for transparency and modularity, making it easy for researchers to build upon and adapt for their own projects. We also plan to continue improving the platform by refining models, expanding datasets, and enhancing the interactive interface.
+
+
+
 
 ### Domain-Specific Case Study Data
 
