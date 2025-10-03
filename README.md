@@ -93,8 +93,15 @@ Molecular data for blood-brain barrier (BBB) penetration were obtained from two 
 
 2. **Install dependencies**
 
+Intel - 
+
    ```bash
    pip install -r requirements.txt
+   ```
+Apple silicon - 
+
+ ```bash
+   pip install -r requirements_macos.txt
    ```
 
 3. **Run descriptor calculation scripts**
@@ -157,7 +164,7 @@ Beyond predictive modeling, we successfully developed and deployed NeuroGate as 
 
 The workflow implemented in NeuroGate is fully reproducible. Users can follow the steps outlined below to clone the repository, install dependencies, and run the provided scripts and notebooks to recreate the modeling pipeline or extend it with new datasets and features. The platform has been designed for transparency and modularity, making it easy for researchers to build upon and adapt for their own projects. We also plan to continue improving the platform by refining models, expanding datasets, and enhancing the interactive interface.
 
-
+Please install all requirements based on your machine with the instructions mentioned above. 
 
 
 ### Domain-Specific Case Study Data
