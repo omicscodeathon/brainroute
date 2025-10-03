@@ -31,11 +31,11 @@ Overall, NeuroGate provides a comprehensive, interdisciplinary pipeline for acce
 
 - [Objectives](#objectives)
 - [Workflow](#workflow)
-      - [Data collection](#Data-collection)
-      - [Molecular Descriptors Calculations](#Molecular-Descriptors-Calculations)
-      - [Data Preprocessing](#Data-Preprocessing)
-      - [Model Development](#Model-Development)
-      - [
+  - [Data collection](#data-collection)
+  - [Molecular Descriptors Calculations](#molecular-descriptors-calculations)
+  - [Data Preprocessing](#data-preprocessing)
+  - [Model Development](#model-development)
+  - [platform Development](#platform-development)
 - [Getting Started](#getting-started)
 - [Data Sources](#data-sources)
 - [Modeling & Analysis](#modeling--analysis)
