@@ -64,8 +64,28 @@ Overall, NeuroGate provides a comprehensive, interdisciplinary pipeline for acce
 
 ![workflow flowchart](workflow/neurogate.png).
 
----
+### 1. Data collection
+Molecular data for blood-brain barrier (BBB) penetration were obtained from two publicly available repositories: <a href="https://github.com/theochem/B3DB/blob/main/B3DB/B3DB_regression.tsv">B3DB</a>   and MoleculeNet (moleculenet reference) . Both datasets provide curated annotations of compounds with experimentally determined BBB permeability status (BBB+ vs BBB-). Simplified Molecular-Input Line-Entry System (SMILES)  strings were used as the primary chemical representation. An initial amount of 9857 molecules were pulled from  both data sources, 6523 BBB permeable molecules(BBB+) and 3334 BBB  impermeable molecules(BBB-). 
 
+### 2. Molecular Descriptors Calculations
+
+   - Molecular descriptors of the [molecules](data/B3BD/smiles.smi) were calculated using [RDKIT](https://www.rdkit.org/docs/GettingStartedInPython.html) version 25.03.6.
+   - The descriptors were calculated using the ['RDKIT_descriptors'](scripts/RDKIT_descriptors.py) python script.
+   - A total of 217 physicochemical and topological descriptors were gotten for each molecule, capturing lipophilicity, polar surface area, molecular weight, hydrogen bonding potential, and other                properties relevant to BBB permeability.
+
+### 3. Data Preprocessing
+
+   - Duplicate smiles were removed
+   - entries with completely missing descriptors were dropped
+   - Other issing descriptors were filled with zero(0)
+   - Data was standardized to have zero mean and unit standard deviation using [StandardScaler()](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.StandardScaler.html) to enable          models converge quickly.
+   - Balanced out BBB+ and BBB- classes in data by generating synthetic data for BBB minority class using [SMOTE](https://imbalanced-learn.org/stable/references/generated/imblearn.over_sampling.SMOTE.html) 
+   - After preprocessing, the number of molecules in data was brought to 12716; 6358 BBB permeable and 6358 BBB impermeable.
+
+### 4. 
+     
+---
+ 
 ## Getting Started
 
 1. **Clone the repository**
