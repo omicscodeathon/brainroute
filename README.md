@@ -31,6 +31,11 @@ Overall, NeuroGate provides a comprehensive, interdisciplinary pipeline for acce
 
 - [Objectives](#objectives)
 - [Workflow](#workflow)
+      - [Data collection](#Data-collection)
+      - [Molecular Descriptors Calculations](#Molecular-Descriptors-Calculations)
+      - [Data Preprocessing](#Data-Preprocessing)
+      - [Model Development](#Model-Development)
+      - [
 - [Getting Started](#getting-started)
 - [Data Sources](#data-sources)
 - [Modeling & Analysis](#modeling--analysis)
@@ -58,6 +63,59 @@ Overall, NeuroGate provides a comprehensive, interdisciplinary pipeline for acce
 ## Workflow
 
 ![workflow flowchart](workflow/neurogate.png)
+
+
+### 1. Data collection
+Molecular data for blood-brain barrier (BBB) penetration were obtained from two publicly available repositories: <a href="https://github.com/theochem/B3DB/blob/main/B3DB/B3DB_regression.tsv">B3DB</a>   and MoleculeNet (moleculenet reference) . Both datasets provide curated annotations of compounds with experimentally determined BBB permeability status (BBB+ vs BBB-). Simplified Molecular-Input Line-Entry System (SMILES)  strings were used as the primary chemical representation. An initial amount of 9857 molecules were pulled from  both data sources, 6523 BBB permeable molecules(BBB+) and 3334 BBB  impermeable molecules(BBB-). 
+
+### 2. Molecular Descriptors Calculations
+
+   - Molecular descriptors of the [molecules](data/B3BD/smiles.smi) were calculated using [RDKIT](https://www.rdkit.org/docs/GettingStartedInPython.html) version 25.03.6.
+   - The descriptors were calculated using the ['RDKIT_descriptors'](scripts/RDKIT_descriptors.py) python script.
+   - A total of 217 physicochemical and topological descriptors were gotten for each molecule, capturing lipophilicity, polar surface area, molecular weight, hydrogen bonding potential, and other                properties relevant to BBB permeability.
+
+### 3. Data Preprocessing
+
+   - Duplicate smiles were removed
+   - entries with completely missing descriptors were dropped
+   - Other issing descriptors were filled with zero(0)
+   - Data was standardized to have zero mean and unit standard deviation using [StandardScaler()](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.StandardScaler.html) to enable          models converge quickly.
+   - Balanced out BBB+ and BBB- classes in data by generating synthetic data for BBB minority class using [SMOTE](https://imbalanced-learn.org/stable/references/generated/imblearn.over_sampling.SMOTE.html) 
+   - After preprocessing, the number of molecules in data was brought to 12716; 6358 BBB permeable and 6358 BBB impermeable.
+
+### 4. Model Development
+
+- The dataset was split to training set (which was further split during training of XGBoost and DL models 80:20 fo rtrain and test) and test set (which served as an external data) in the ration 80:20 respectively'
+- An initial benchmark was performed with [LazyPredict](https://pypi.org/project/lazypredict/), which quickly screened a wide range of algorithms to identify high-performing candidates from Accuracy, balanced Accuracy, ROC-AUC and F1 score. Based on this evaluation, targeted [models](output/models) were developed and tuned, including:
+  
+    * K-Nearest Neighbors (KNN)
+    * Support Vector Machine (SVM)
+    * Random Forests (RF)
+    * Logistic Regression (LR)
+    * XGBoost (XGB)
+    * Multilayer Perceptron (MLP) (implemented with TensorFlow)
+     
+- The data was split using [Stratified k-fold](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.StratifiedKFold.html) splitting  to preserve the percentage of samples for each class. Models were cross validated and performance was evaluated on a held-out test set, with metrics including Accuracy, F1-score, Precision, Recall, Specificity, ROC-AUC, PR-AUC and matthews correlation coef(MCC) [metrics](figures/model_plots/eval_metrics.png)
+- The model's ability to generalize on unseen data was assessed on the test data(external data) using the F1-score, Precision, Recall, ROC-AUC, PR-AUC and matthews correlation coef(MCC) [metrics](figures/model_plots/gen_metrics)
+- Among classical models, KNN and XGB achieved particularly strong performance (F1-score: 0.91), highlighting the effectiveness of traditional approaches for BBB classification when working with limited and heterogeneous datasets.
+
+This workflow integrates classical QSAR methods with modern neural architectures, enabling both predictive robustness and biological interpretability in BBB permeability prediction task.
+
+
+### 5. Platform Development
+
+- The main user interface platform was built using the [Streamlit library]([reference](https://streamlit.io/)) available for the Python language. To retrieve information about the user input molecule, we used ChEMBL web services [API](https://www.ebi.ac.uk/chembl/) and PubChem [PUG REST API](https://pubchem.ncbi.nlm.nih.gov/docs/pug-rest).
+- The platform user interface was developed using the Python Streamlit library, enabling easy deployment and interactive web applications. We used custom CSS styling to create a visually appealing and organized layout.
+- The Platform works as such;
+        - takes as input SMILES or Compound name
+        - calculate descriptors and grabs information about compound from CHEMBL and PubChem at the background
+        - Predict BBB permeability of compound
+        - performs Uncertainty quantification 
+        - displays results and relevant information about compound
+        - provides option for batch processing of compounds/smiles, download of prediction results etc.
+- To help users learn more about the molecule of interest, we integrated a Large Language Model (LLM) namedly [Llama3-8B-Instruct](https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct) with our platform. Users can prompt the model to explain results, for information about molecules and other details of interest to user.
+- Llama model params were set to a max of 250 tokes, to comply with our free API usage tier while ensuring necessary responses, temperature to 0.7 to introduce some variability in responses, while maintaining factual consistency and  top-p to 0.9, enabling us to balance diversity and coherence in model responses.
+
 
 ---
  
@@ -98,27 +156,6 @@ Apple silicon -
 ---
 
 ## Data Sources
-
-### 1. Data collection
-Molecular data for blood-brain barrier (BBB) penetration were obtained from two publicly available repositories: <a href="https://github.com/theochem/B3DB/blob/main/B3DB/B3DB_regression.tsv">B3DB</a>   and MoleculeNet (moleculenet reference) . Both datasets provide curated annotations of compounds with experimentally determined BBB permeability status (BBB+ vs BBB-). Simplified Molecular-Input Line-Entry System (SMILES)  strings were used as the primary chemical representation. An initial amount of 9857 molecules were pulled from  both data sources, 6523 BBB permeable molecules(BBB+) and 3334 BBB  impermeable molecules(BBB-). 
-
-### 2. Molecular Descriptors Calculations
-
-   - Molecular descriptors of the [molecules](data/B3BD/smiles.smi) were calculated using [RDKIT](https://www.rdkit.org/docs/GettingStartedInPython.html) version 25.03.6.
-   - The descriptors were calculated using the ['RDKIT_descriptors'](scripts/RDKIT_descriptors.py) python script.
-   - A total of 217 physicochemical and topological descriptors were gotten for each molecule, capturing lipophilicity, polar surface area, molecular weight, hydrogen bonding potential, and other                properties relevant to BBB permeability.
-
-### 3. Data Preprocessing
-
-   - Duplicate smiles were removed
-   - entries with completely missing descriptors were dropped
-   - Other issing descriptors were filled with zero(0)
-   - Data was standardized to have zero mean and unit standard deviation using [StandardScaler()](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.StandardScaler.html) to enable          models converge quickly.
-   - Balanced out BBB+ and BBB- classes in data by generating synthetic data for BBB minority class using [SMOTE](https://imbalanced-learn.org/stable/references/generated/imblearn.over_sampling.SMOTE.html) 
-   - After preprocessing, the number of molecules in data was brought to 12716; 6358 BBB permeable and 6358 BBB impermeable.
-
-### 4. 
-
 ### Core BBB Permeability data
 
 - MoleculeNet BBBp (2,059 compounds, BBB+/– labels)
@@ -126,32 +163,7 @@ Molecular data for blood-brain barrier (BBB) penetration were obtained from two 
 - DrugBank CNS/non-CNS drug lists
 - Literature datasets of brain/plasma ratios for known drugs
 
-## Modeling & Analysis
-
-The modeling pipeline began with data curation and preprocessing of blood–brain barrier (BBB) permeability datasets. SMILES strings and molecular identifiers were harmonized, and missing values in descriptor matrices were addressed. Data wrangling was handled using Pandas and NumPy.
-
-For feature generation, molecular descriptors were calculated using multiple cheminformatics toolkits:
-
-* RDKit (https://www.rdkit.org/) for fundamental chemical descriptors (molecular weight, LogP, hydrogen bond donors/acceptors, etc.).
-
-* Mordred for an extended set of 1D/2D descriptors.
-
-* PaDEL-Descriptor for additional QSAR features.
-
-These descriptor matrices were then combined and standardized using scikit-learn’s StandardScaler to ensure comparability across features.
-
-For model development, an initial benchmark was performed with LazyPredict, which quickly screened a wide range of algorithms to identify high-performing candidates. Based on this evaluation, targeted models were developed and tuned, including:
-
-* K-Nearest Neighbors (KNN)
-* Support Vector Machine (SVM)
-* Random Forests (RF)
-* Logistic Regression (LR)
-* XGBoost (XGB)
-* Multilayer Perceptron (MLP) (implemented with TensorFlow)
-
-Model performance was evaluated on a held-out test set, with metrics including accuracy, precision, recall, and F1-score. Among classical models, KNN achieved particularly strong performance (F1-score: 0.92), highlighting the effectiveness of traditional approaches for BBB classification when working with limited and heterogeneous datasets.
-
-This workflow integrates classical QSAR methods with modern neural architectures, enabling both predictive robustness and biological interpretability in the BBB permeability prediction task.
+--- 
 
 ## Results 
 
