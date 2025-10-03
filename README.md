@@ -168,9 +168,20 @@ Please install all requirements based on your machine with the instructions ment
 
 ## Case Study
 
-- ChEMBL bioactivity datasets for mTOR inhibitors (Target CHEMBL2842)
-- BindingDB mTOR ligand binding affinities
-- Alzheimer’s-related small molecule datasets from AD Knowledge Portal and PubChem
+The Mtor cellular pathway is a crucial pathway that acts as a central regulator for cell metabolism, growth, proliferation, and survival. Because it integrates signals from various upstream pathways (like growth factors and nutrients), inhibiting the main mTOR kinase can simultaneously block numerous downstream cellular processes. This makes it a powerful target for therapies, particularly in oncology. However, this broad inhibition can also lead to significant side effects, trigger complex feedback loops within cells, or result in only partial pathway inhibition.
+
+The study concludes that none of the 26 approved mTOR inhibitors analyzed are predicted to cross the Blood-Brain Barrier, highlighting a major challenge in developing drugs for brain-related conditions that involve this pathway.
+
+Technical Specifications & Workflow
+The analysis in the notebook is carried out using Python with several key libraries:
+
+- pandas: Used for data manipulation and to load the dataset of mTOR inhibitors.
+- rdkit: A cheminformatics toolkit used to process the chemical structures from their SMILES strings and calculate molecular descriptors.
+- joblib: Used to load pre-trained machine learning models.
+- tensorflow.keras: Employed for loading a pre-trained Multi-Layer Perceptron (MLP) neural network model.
+
+The workflow involves loading the molecules, calculating their chemical properties (descriptors), and then feeding these properties into various predictive models (KNN, SVM, Random Forest, etc.) to assess BBB permeability. 
+**The batch processing functionality of the platform allows users to complete such studies with the UI itself. Users can upload CSV files and generate cumulative results.**
 
 ## Contributions 
 
