@@ -109,17 +109,31 @@ def process_batch_molecules(input_data, input_type, models):
     results = []
     
     if input_type == "csv":
-        # Expected CSV columns: either 'smiles' or 'name' or both
-        if 'smiles' in input_data.columns:
-            molecules = input_data['smiles'].tolist()
-            names = input_data.get('name', molecules).tolist()
+    # Expected CSV columns: either 'smiles'/'Smiles' or 'name'/'Name' or both
+    # Check for smiles column (case-insensitive)
+        smiles_col = None
+        name_col = None
+    
+        for col in input_data.columns:
+            if col.lower() == 'smiles':
+                smiles_col = col
+            elif col.lower() == 'name':
+                name_col = col
+    
+        if smiles_col:
+            molecules = input_data[smiles_col].tolist()
+            if name_col:
+                names = input_data[name_col].tolist()
+            else:
+                names = molecules
             input_method = 'smiles'
-        elif 'name' in input_data.columns:
-            molecules = input_data['name'].tolist()
+        elif name_col:
+            molecules = input_data[name_col].tolist()
             names = molecules
             input_method = 'name'
+    
         else:
-            return [], "CSV must contain either 'smiles' or 'name' column"
+            return [], "CSV must contain either 'smiles'/'Smiles' or 'name'/'Name' column"
     else:
         # Text input - one per line
         lines = input_data.strip().split('\n')
