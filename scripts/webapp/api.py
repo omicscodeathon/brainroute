@@ -48,7 +48,6 @@ def get_chembl_info(compound_input):
 
 
 
-#connect LLM api 
 
 
 def get_smiles(molecule_name):

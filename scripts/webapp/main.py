@@ -15,6 +15,7 @@ from utils import (load_ml_models, load_ai_model, create_chatgpt_link, generate_
 from prediction import (predict_bbb_penetration_with_uncertainty, calculate_molecular_properties, 
                        process_batch_molecules)
 from config import PAGE_CONFIG, PROMPT_TEMPLATES, HF_API_TOKEN
+from database.quickstart import add_to_database_threaded
 
 # -------------------------
 # Page Config & Initial Setup
@@ -410,6 +411,10 @@ if st.session_state.models_loaded:
         # Display results if available (persistent across interactions)
         if st.session_state.prediction_results:
             results = st.session_state.prediction_results
+            try: 
+                add_to_database_threaded(results)
+            except Exception as e:
+                st.toast(f"Failed to add compound to database:{e}", icon="⚠️")
             st.success("✅ Analysis complete!")
             
             # Results layout
