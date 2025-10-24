@@ -1,3 +1,4 @@
 # Ignore files related to
 database/
-old/
+.streamlit/
+__pycache__/
