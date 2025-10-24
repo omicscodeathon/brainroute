@@ -62,7 +62,7 @@ Overall, BrainRoute provides a comprehensive, interdisciplinary pipeline for acc
 
 ## Workflow
 
-workflow/BrainRoute_workflow.png
+[(workflow/BrainRoute_workflow.png)  ](https://github.com/omicscodeathon/mtoralzml/blob/main/workflow/BrainRoute_workflow.png?raw=true)
 
 ### 1. Data collection
 Molecular data for blood-brain barrier (BBB) penetration were obtained from two publicly available repositories: <a href="https://github.com/theochem/B3DB/blob/main/B3DB/B3DB_regression.tsv">B3DB</a>   and MoleculeNet (moleculenet reference) . Both datasets provide curated annotations of compounds with experimentally determined BBB permeability status (BBB+ vs BBB-). Simplified Molecular-Input Line-Entry System (SMILES)  strings were used as the primary chemical representation. An initial amount of 9857 molecules were pulled from  both data sources, 6523 BBB permeable molecules(BBB+) and 3334 BBB  impermeable molecules(BBB-). 
