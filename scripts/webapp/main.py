@@ -15,6 +15,7 @@ from utils import (load_ml_models, load_ai_model, create_chatgpt_link, generate_
 from prediction import (predict_bbb_penetration_with_uncertainty, calculate_molecular_properties, 
                        process_batch_molecules)
 from config import PAGE_CONFIG, PROMPT_TEMPLATES, HF_API_TOKEN
+from database.quickstart import add_to_database_threaded
 
 # -------------------------
 # Page Config & Initial Setup
@@ -410,6 +411,10 @@ if st.session_state.models_loaded:
         # Display results if available (persistent across interactions)
         if st.session_state.prediction_results:
             results = st.session_state.prediction_results
+            try: 
+                add_to_database_threaded(results)
+            except Exception as e:
+                st.toast(f"Failed to add compound to database:{e}", icon="⚠️")
             st.success("✅ Analysis complete!")
             
             # Results layout
@@ -543,12 +548,11 @@ if st.session_state.models_loaded:
                 height=150
             )
             
-            if text_input.strip():
+            if text_input and text_input.strip():
                 batch_input = text_input.strip()
                 input_type = "text"
                 lines = [line.strip() for line in text_input.strip().split('\n') if line.strip()]
                 st.success(f"✅ {len(lines)} molecules ready for processing")
-        
         # Process batch
         if batch_input is not None:
             if st.button("🚀 Process Batch", type="primary"):
@@ -679,19 +683,14 @@ if st.session_state.models_loaded:
             
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
             
-            col1, col2, col3, col4 = st.columns(4)
+            col1, col2, col3 = st.columns(3)
             with col1:
                 st.markdown(create_download_link(filtered_df, f"bbb_batch_results_{timestamp}", "csv"), unsafe_allow_html=True)
             with col2:
                 st.markdown(create_download_link(filtered_df, f"bbb_batch_results_{timestamp}", "excel"), unsafe_allow_html=True)
             with col3:
                 st.markdown(create_download_link(filtered_df, f"bbb_batch_results_{timestamp}", "json"), unsafe_allow_html=True)
-            with col4:
-                # Full detailed results
-                full_results_df = pd.DataFrame(st.session_state.batch_results)
-                st.markdown(create_download_link(full_results_df, f"bbb_detailed_results_{timestamp}", "csv"), unsafe_allow_html=True)
-
-
+         
 # -------------------------
 # AI Chat Section - Enhanced Chat Interface with Input Below
 # -------------------------
@@ -732,6 +731,7 @@ if st.session_state.prediction_results:
         
         if tokenizer and model:
             compound_name = st.session_state.prediction_results['name']
+            comp = st.session_state.prediction_results['info']['ChEMBL ID']
             prediction = st.session_state.prediction_results['pred_result']['prediction']
             confidence = st.session_state.prediction_results['pred_result']['confidence']
             
@@ -833,7 +833,7 @@ if st.session_state.prediction_results:
                 st.markdown(f"[📚 PubMed Search]({pubmed_link})")
             
             with col3:
-                chembl_link = f"https://www.ebi.ac.uk/chembl/compound_report_card/{compound_name}/"
+                chembl_link = f"https://www.ebi.ac.uk/chembl/compound_report_card/{comp}/"
                 st.markdown(f"[🧬 ChEMBL Database]({chembl_link})")
 
 

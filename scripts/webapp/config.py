@@ -1,4 +1,4 @@
-import os
+import streamlit as st
 
 # Model Configuration
 MODEL_PATHS = {
@@ -13,7 +13,7 @@ USE_HF_INFERENCE_API = True
 DEFAULT_MODEL = "KNN"
 
 # Hugging Face API Configuration
-HF_API_TOKEN = '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'
+HF_API_TOKEN = st.secrets["HF_TOKEN"]
 
 # Generation Parameters for OpenAI client
 API_GENERATION_CONFIG = {
