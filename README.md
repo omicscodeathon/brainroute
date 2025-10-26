@@ -1,11 +1,4 @@
-# 🧠 BrainRoute
-
-<div align="center">
-
-![BrainRoute Banner](workflow/neurogate.png)
-
-**An Open Machine Learning Platform for Blood–Brain Barrier Permeability Prediction with Neurodegenerative Disease Applications.**
-**This project serves as a resource for advancing research in central nervous system (CNS) therapeutics and supporting the development of novel treatment strategies.**
+# NeuroGate
 
 ![Project](https://img.shields.io/badge/Project-mtoralzml-lightblue)
 [![Python](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/)
@@ -13,270 +6,69 @@
 [![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io)
 [![GitHub Repo stars](https://img.shields.io/github/stars/omicscodeathon/mtoralzml)](https://github.com/omicscodeathon/mtoralzml)
 [![GitHub contributors](https://img.shields.io/github/contributors/omicscodeathon/mtoralzml.svg)](https://GitHub.com/omicscodeathon/mtoralzml/graphs/contributors/)
-[![DOI](https://img.shields.io/badge/DOI-10.1101%2F2025.xxx-blue)](https://doi.org/10.1101/2025.xxx)
+[![Github tag](https://badgen.net/github/tag/omicscodeathon/mtoralzml)](https://github.com/omicscodeathon/mtoralzml/tags/)
 
-[🚀 Live Demo](https://huggingface.co/spaces/Nnobody/brainroute) • [📖 Documentation](#-table-of-contents) • [💬 Discussions](https://github.com/omicscodeathon/mtoralzml/discussions) • [🐛 Report Bug](https://github.com/omicscodeathon/mtoralzml/issues)
-
-</div>
-
----
-
-## 📋 Table of Contents
-
-- [Overview](#-overview)
-- [Key Features](#-key-features)
-- [Scientific Background](#-scientific-background)
-- [Installation](#-installation)
-- [Quick Start](#-quick-start)
-- [Workflow](#-workflow)
-- [Models & Performance](#-models--performance)
-- [Platform Features](#-platform-features)
-- [Case Study: mTOR Inhibitors](#-case-study-mtor-inhibitors)
-- [Results & Benchmarking](#-results--benchmarking)
-- [API Reference](#-api-reference)
-- [Troubleshooting](#-troubleshooting)
-- [Contributing](#-contributing)
-- [Citation](#-citation)
-- [Acknowledgments](#-acknowledgments)
-- [License](#-license)
+**NeuroGate** is an open-source computational platform designed to predict blood–brain barrier (BBB) permeability of drug candidates, leveraging artificial intelligence to accelerate drug discovery. The project serves as a resource for advancing research in central nervous system (CNS) therapeutics and supporting the development of novel treatment strategies.
 
 ---
 
 ## 🎯 Overview
 
-**BrainRoute** (also referred to as **NeuroGate** in the web interface) is an open-source, AI-powered computational platform designed to predict blood-brain barrier (BBB) permeability of small molecules, addressing one of the most critical challenges in central nervous system (CNS) drug discovery.
+NeuroGate is an interactive platform designed to predict the blood–brain barrier (BBB) permeability of small molecules, addressing a key challenge in central nervous system (CNS) drug discovery. The BBB acts as a highly selective barrier, limiting the entry of therapeutic agents into the brain, which complicates the development of treatments for neurodegenerative diseases.
 
-The blood-brain barrier acts as a highly selective physiological interface that restricts ~98% of small molecules and nearly all large molecules from entering the brain. This creates a significant bottleneck in developing therapeutics for neurodegenerative diseases, CNS infections, brain tumors, and other neurological conditions.
+NeuroGate combines machine learning models and neural network approaches with molecular datasets to predict BBB permeability accurately. Traditional models like K-Nearest Neighbors (KNN) have demonstrated high predictive performance (F1 score: 92%), highlighting the value of classical methods, particularly for limited or complex datasets.
 
-### Why BrainRoute?
+The platform integrates a large language model (LLM) to provide contextual, molecule-specific insights. For each compound, users can ask questions and receive answers informed by predicted BBB permeability, confidence scores, and molecular properties such as molecular weight and lipophilicity. All interactions, predictions, and chat histories can be downloaded as CSV files for offline analysis and research documentation.
 
-- 🎯 **High Accuracy**: KNN model achieves **92% F1-score**, outperforming many deep learning approaches
-- 🔬 **Uncertainty Quantification**: Ensemble-based confidence scoring for reliable predictions
-- 🤖 **AI-Augmented Insights**: Integrated Llama 3 LLM for contextual molecular information
-- 📊 **Batch Processing**: Analyze hundreds of compounds simultaneously
-- 🌐 **User-Friendly Interface**: No coding required - accessible via web browser
-- 📖 **Open Science**: Fully reproducible with curated datasets and transparent methods
-- 💊 **Clinically Relevant**: Applied to real-world case studies (mTOR inhibitors, Alzheimer's disease)
+NeuroGate offers a user-friendly interface built with Python Streamlit, featuring a responsive design, custom CSS styling, and session-based caching to ensure fast loading of models and prediction results. This makes the platform intuitive, interactive, and suitable for researchers exploring CNS drug candidates.
+
+To showcase its practical utility, NeuroGate was applied to mTOR pathway inhibitors, relevant to Alzheimer’s disease pathology, allowing researchers to rapidly assess BBB permeability and prioritize therapeutic candidates for further investigation.
+
+Overall, NeuroGate provides a comprehensive, interdisciplinary pipeline for accelerating preclinical CNS research, combining predictive modeling with contextual AI-driven insights to support drug discovery.
 
 ---
 
-## ✨ Key Features
+## Table of Contents
 
-### 🔮 Predictive Modeling
-
-- **Multiple ML Algorithms**: KNN, XGBoost, SVM, Random Forest, Logistic Regression
-- **Deep Learning**: BERT-based SMILES encoder with transfer learning
-- **Ensemble Predictions**: Combines multiple models for robust outputs
-- **Uncertainty Estimation**: Model agreement metrics and confidence intervals
-
-### 💻 Interactive Platform
-
-- **Single Molecule Analysis**: Input by compound name or SMILES string
-- **Batch Processing**: Upload CSV files with multiple compounds
-- **Real-time Predictions**: Fast inference with pre-trained models
-- **Molecular Visualization**: 2D structure rendering with RDKit
-- **Property Calculation**: Automatic computation of MW, LogP, TPSA, HBA/HBD
-
-### 🤖 AI-Powered Knowledge Discovery
-
-- **LLM Integration**: Chat with Llama 3 about your molecules
-- **Contextual Insights**: Get mechanism of action, drug potential, side effects
-- **Literature Integration**: Links to PubMed, ChEMBL, and PubChem
-- **Export Capabilities**: Download predictions and chat histories
-
-### 🗄️ Curated Database
-
-- **React-based Interface**: Interactive molecular database browser
-- **9,857+ Molecules**: Annotated with BBB permeability data
-- **Real-time Structure Rendering**: Client-side RDKit.js integration
-- **Search & Filter**: Find molecules by properties or predictions
+- [Objectives](#objectives)
+- [Workflow](#workflow)
+  - [Data collection](#1-data-collection)
+  - [Molecular Descriptors Calculations](#2-molecular-descriptors-calculations)
+  - [Data Preprocessing](#3-data-preprocessing)
+  - [Model Development](#m4-odel-development)
+  - [platform Development](#5-platform-development)
+- [Getting Started](#getting-started)
+- [Data Sources](#data-sources)
+- [Modeling & Analysis](#modeling--analysis)
+- [Results](#results)
+- [Reproducibility](#reproducibility)
+- [Domain-Specific Case Study Data](#case-study)
+- [Contributions](#contributions)
+- [License](#license)
+- [Citation](#citation)
 
 ---
 
-## 🧬 Scientific Background
+## Objectives
 
-### The BBB Challenge in CNS Drug Discovery
-
-The blood-brain barrier (BBB) is formed by specialized brain microvascular endothelial cells connected by tight junctions, supported by pericytes and astrocytes. It serves as a critical neuroprotective mechanism but simultaneously represents the most significant obstacle in CNS therapeutics development.
-
-**Key Statistics:**
-
-- ~98% of small molecule drugs cannot cross the BBB
-- Nearly 100% of large molecule biologics are excluded
-- BBB penetration failure is a leading cause of late-stage drug development attrition
-- Estimated cost: $2-3 billion per failed CNS drug candidate
-
-### Current Approaches & Limitations
-
-Traditional BBB prediction methods rely on:
-
-1. **Physicochemical heuristics** (Lipinski's rules, polar surface area)
-2. **In vitro assays** (PAMPA-BBB, MDCK-MDR1)
-3. **In vivo methods** (brain/plasma ratio, microdialysis)
-
-**Limitations:**
-
-- Resource-intensive and time-consuming
-- Low throughput for early-stage screening
-- High inter-assay variability
-- Limited predictive accuracy for novel scaffolds
-- Expensive (~$10,000-50,000 per compound tested)
-
-### BrainRoute's Innovation
-
-BrainRoute addresses these limitations by:
-
-- Leveraging heterogeneous datasets (B3DB, MoleculeNet) for robust training
-- Implementing uncertainty-aware predictions with ensemble methods
-- Providing interpretable features and molecular property analysis
-- Offering open-source, reproducible workflows
-- Integrating LLM for knowledge augmentation and mechanism exploration
-
-**Clinical Relevance:**
-Applied to neurodegenerative diseases (Alzheimer's, Parkinson's), neuro-oncology, infectious diseases (meningitis, encephalitis), and toxicology assessment.
-
----
-
-## 🚀 Installation
-
-### Prerequisites
-
-- Python 3.8+ (3.12 recommended)
-- pip or conda package manager
-- 8GB RAM minimum (16GB recommended for batch processing)
-- Modern web browser (Chrome, Firefox, Safari, Edge)
-
-### Option 1: Standard Installation (Intel/AMD)
-
-```bash
-# Clone the repository
-git clone https://github.com/omicscodeathon/mtoralzml.git
-cd mtoralzml
-
-# Create virtual environment (recommended)
-python -m venv brainroute_env
-source brainroute_env/bin/activate  # On Windows: brainroute_env\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
-```
-
-### Option 2: Apple Silicon (M1/M2/M3)
-
-```bash
-# Clone and navigate
-git clone https://github.com/omicscodeathon/mtoralzml.git
-cd mtoralzml
-
-# Create conda environment (recommended for M-series chips)
-conda create -n brainroute python=3.12
-conda activate brainroute
-
-# Install dependencies
-pip install -r requirements_macos.txt
-```
-
-### Option 3: Docker Installation
-
-```bash
-# Pull the Docker image
-docker pull ghcr.io/omicscodeathon/brainroute:latest
-
-# Run the container
-docker run -p 8501:8501 ghcr.io/omicscodeathon/brainroute:latest
-```
-
-### Verify Installation
-
-```bash
-# Test imports
-python -c "import rdkit; import streamlit; import sklearn; print('✓ Installation successful!')"
-
-# Run tests
-pytest tests/
-```
-
----
-
-## ⚡ Quick Start
-
-### Launch the Web Application
-
-```bash
-# Navigate to project directory
-cd mtoralzml
-
-# Start Streamlit app
-streamlit run scripts/webapp/main.py
-```
-
-The application will open automatically in your browser at `http://localhost:8501`
-
-### Command-Line Prediction (Python API)
-
-```python
-from rdkit import Chem
-from scripts.webapp.prediction import predict_bbb_penetration_with_uncertainty
-from scripts.webapp.utils import load_ml_models
-
-# Load models
-models, _ = load_ml_models()
-
-# Predict BBB permeability
-smiles = "CC(=O)OC1=CC=CC=C1C(=O)O"  # Aspirin
-mol = Chem.MolFromSmiles(smiles)
-
-result, error = predict_bbb_penetration_with_uncertainty(mol, models)
-
-print(f"Prediction: {result['prediction']}")
-print(f"Confidence: {result['confidence']:.2f}%")
-print(f"Uncertainty: {result['uncertainty']:.2f}%")
-print(f"Model Agreement: {result['agreement']:.2f}%")
-```
-
-### Batch Processing Example
-
-```python
-import pandas as pd
-
-# Prepare data
-molecules = pd.DataFrame({
-    'name': ['Aspirin', 'Caffeine', 'Donepezil'],
-    'smiles': ['CC(=O)OC1=CC=CC=C1C(=O)O',
-               'CN1C=NC2=C1C(=O)N(C(=O)N2C)C',
-               'COc1ccc2c(c1)C(=O)c1ccccc1N2']
-})
-
-# Save to CSV
-molecules.to_csv('molecules_to_predict.csv', index=False)
-
-# Upload via web interface or use batch API
-from scripts.webapp.prediction import process_batch_molecules
-results, error = process_batch_molecules(molecules, 'csv', models)
-```
+- [x] Develop **NeuroGate**, a predictive pipeline for assessing blood–brain barrier (BBB) permeability of small molecules in CNS drug discovery.
+- [x] Aggregate and harmonize high-quality BBB datasets and calculate molecular descriptors (RDKit, Mordred).
+- [x] Build and evaluate predictive models using **machine learning and neural network approaches**.
+- [x] Provide **uncertainty estimates and interpretability features**, highlighting which molecular properties drive predictions.
+- [x] Create an **interactive web platform** with a chat feature, enabling researchers to explore predictions, confidence scores, and contextual insights about molecules of interest.
+- [x] Demonstrate utility through application to **mTOR inhibitors** as a case study in neurodegenerative disease research.
 
 ---
 
 ## 🔬 Workflow
 
-![BrainRoute Workflow](workflow/neurogate.png)
+![workflow flowchart](workflow/neurogate.png)
 
-### 1️⃣ Data Collection & Curation
+### 1. Data collection
 
-**Data Sources:**
+Molecular data for blood-brain barrier (BBB) penetration were obtained from two publicly available repositories: <a href="https://github.com/theochem/B3DB/blob/main/B3DB/B3DB_regression.tsv">B3DB</a> and MoleculeNet (moleculenet reference) . Both datasets provide curated annotations of compounds with experimentally determined BBB permeability status (BBB+ vs BBB-). Simplified Molecular-Input Line-Entry System (SMILES) strings were used as the primary chemical representation. An initial amount of 9857 molecules were pulled from both data sources, 6523 BBB permeable molecules(BBB+) and 3334 BBB impermeable molecules(BBB-).
 
-- [B3DB](https://github.com/theochem/B3DB) - 7,807 molecules with experimental BBB data
-- [MoleculeNet BBBP](https://moleculenet.org/datasets-1) - 2,059 binary classifications
-- Additional curated datasets from literature
-
-**Initial Dataset:**
-
-- **Total molecules**: 9,857
-- **BBB+** (permeable): 6,523 (66.2%)
-- **BBB-** (non-permeable): 3,334 (33.8%)
-- **Representation**: SMILES strings
-
-### 2️⃣ Molecular Descriptor Calculation
+### 2. Molecular Descriptors Calculations
 
 - Molecular descriptors of the [molecules](data/B3BD/smiles.smi) were calculated using [RDKIT](https://www.rdkit.org/docs/GettingStartedInPython.html) version 25.03.6.
 - The descriptors were calculated using the ['RDKIT_descriptors'](scripts/RDKIT_descriptors.py) python script.
@@ -958,319 +750,73 @@ We welcome contributions from the community! BrainRoute is an open-science proje
 3. **Run tests**
 
    ```bash
-   pytest tests/
-   python -m pylint scripts/
+   pip install -r requirements.txt
    ```
 
-4. **Submit a Pull Request**
-   - Clear description of changes
-   - Reference related issues
-   - Include screenshots for UI changes
+   Apple silicon -
 
-### Contribution Areas
-
-- 🧪 **Add new models**: Implement additional ML algorithms
-- 📊 **Improve visualizations**: Enhance plots and charts
-- 🗄️ **Expand database**: Curate additional BBB datasets
-- 📝 **Documentation**: Improve tutorials and examples
-- 🐛 **Bug fixes**: Report and fix issues
-- 🌍 **Translations**: Internationalization support
-- 🧬 **Case studies**: Apply to new disease areas
-
-### Code Style Guidelines
-
-```python
-# Use Black formatter
-black scripts/
-
-# Follow PEP 8
-pylint scripts/
-
-# Add docstrings
-def predict_bbb_penetration(mol, models):
-    """
-    Predict BBB permeability of a molecule.
-
-    Args:
-        mol (rdkit.Chem.Mol): RDKit molecule object
-        models (dict): Dictionary of trained models
-
-    Returns:
-        dict: Prediction results with confidence scores
-    """
-    pass
+```bash
+  pip install -r requirements_macos.txt
 ```
 
-### Contributor Recognition
+3. **Run descriptor calculation scripts**
 
-Contributors will be:
+   ```bash
+   python scripts/extract_smiles.py
+   python scripts/RDKIT_descriptors.py
+   python scripts/mordred_descr_cal.py
+   python scripts/PADEL_descriptor_cal.py
+   ```
 
-- Listed in [CONTRIBUTORS.md](CONTRIBUTORS.md)
-- Acknowledged in publications
-- Invited to co-author future papers (for significant contributions)
-
----
-
-## 📄 Citation
-
-If you use BrainRoute in your research, please cite:
-
-```bibtex
-@article{shirolkar2025brainroute,
-  title={BrainRoute: An Open Machine Learning Platform for Blood-Brain Barrier Permeability Prediction with Neurodegenerative Disease Applications},
-  author={Shirolkar, Soham and Cerere, Leah W. and Tem, Lewis and Ahmed, Noura E. and Some, Georges and Awe, Olaitan I.},
-  journal={bioRxiv},
-  year={2025},
-  doi={10.1101/2025.xxx},
-  url={https://github.com/omicscodeathon/mtoralzml}
-}
-```
-
-**APA Format:**
-Shirolkar, S., Cerere, L. W., Tem, L., Ahmed, N. E., Some, G., & Awe, O. I. (2025). BrainRoute: An Open Machine Learning Platform for Blood-Brain Barrier Permeability Prediction with Neurodegenerative Disease Applications. _bioRxiv_. https://doi.org/10.1101/2025.xxx
-
-**Vancouver Format:**
-Shirolkar S, Cerere LW, Tem L, Ahmed NE, Some G, Awe OI. BrainRoute: An Open Machine Learning Platform for Blood-Brain Barrier Permeability Prediction with Neurodegenerative Disease Applications. bioRxiv. 2025. doi:10.1101/2025.xxx
+4. **Explore and analyze data**
+   - Use the Jupyter notebooks in `notebooks/` for data curation and model building.
 
 ---
 
-## 🙏 Acknowledgments
+## Data Sources
 
-### Funding & Support
+### Core BBB Permeability data
 
-This work was supported by:
-
-- **National Institutes of Health (NIH)** - Office of Data Science Strategy (ODSS)
-- **Institute for Genomic Medicine Research** - West Hartford, CT, USA
-- **African Society for Bioinformatics and Computational Biology (ASBCB)**
-- **Omics Codeathon** - October 2025
-
-### Data Sources
-
-We gratefully acknowledge:
-
-- **B3DB** - Curated BBB permeability database
-- **MoleculeNet** - Benchmark datasets for molecular ML
-- **ChEMBL** - European Bioinformatics Institute (EBI)
-- **PubChem** - National Center for Biotechnology Information (NCBI)
-- **Therapeutics Data Commons** - Harvard Medical School
-
-### Open-Source Tools
-
-BrainRoute builds upon:
-
-- **RDKit** - Cheminformatics toolkit
-- **scikit-learn** - Machine learning library
-- **Streamlit** - Web application framework
-- **PyTorch** - Deep learning framework
-- **Hugging Face** - LLM infrastructure and model hosting
-- **Plotly** - Interactive visualizations
-
-### Contributors
-
-<table>
-  <tr>
-    <td align="center">
-      <a href="https://github.com/sohamshirolkar">
-        <img src="https://github.com/sohamshirolkar.png" width="100px;" alt="Soham Shirolkar"/>
-        <br /><sub><b>Soham Shirolkar</b></sub>
-      </a>
-      <br />Project Lead, Lead Developer
-    </td>
-    <td align="center">
-      <a href="https://github.com/leahcerere">
-        <img src="https://github.com/leahcerere.png" width="100px;" alt="Leah Cerere"/>
-        <br /><sub><b>Leah W. Cerere</b></sub>
-      </a>
-      <br />Visualization & Documentation
-    </td>
-    <td align="center">
-      <a href="https://github.com/lewistem">
-        <img src="https://github.com/lewistem.png" width="100px;" alt="Lewis Tem"/>
-        <br /><sub><b>Lewis Tem</b></sub>
-      </a>
-      <br />Lead Developer
-    </td>
-    <td align="center">
-      <a href="https://github.com/nouraahmed">
-        <img src="https://github.com/nouraahmed.png" width="100px;" alt="Noura Ahmed"/>
-        <br /><sub><b>Noura E. Ahmed</b></sub>
-      </a>
-      <br />Visualization & Documentation
-    </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <a href="https://github.com/georgessome">
-        <img src="https://github.com/georgessome.png" width="100px;" alt="Georges Some"/>
-        <br /><sub><b>Georges Some</b></sub>
-      </a>
-      <br />Supervision
-    </td>
-    <td align="center">
-      <a href="https://github.com/olaitanawe">
-        <img src="https://github.com/olaitanawe.png" width="100px;" alt="Olaitan Awe"/>
-        <br /><sub><b>Olaitan I. Awe</b></sub>
-      </a>
-      <br />Project Supervision
-    </td>
-  </tr>
-</table>
-
-### Special Thanks
-
-- **Omics Codeathon Organizers** - For providing the platform and resources
-- **Peer Reviewers** - For valuable feedback and suggestions
-- **Open-Source Community** - For tools and inspiration
-- **Beta Testers** - For helping refine the platform
+- MoleculeNet BBBp (2,059 compounds, BBB+/– labels)
+- PubChem BioAssays (AID 628 and related BBB assays)
+- DrugBank CNS/non-CNS drug lists
+- Literature datasets of brain/plasma ratios for known drugs
 
 ---
 
-## 📜 License
+## Results
 
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+Our evaluation demonstrated strong predictive performance across multiple models for BBB permeability classification. The K-Nearest Neighbors (KNN) model achieved the highest performance with an F1-score of 0.92, while other approaches such as Random Forests and Neural Networks also showed reliable accuracy and robustness.
 
-```
-MIT License
+Beyond predictive modeling, we successfully developed and deployed NeuroGate as an interactive web platform. The system integrates with external resources including the Hugging Face inference API (for large language model–driven insights), ChEMBL (for bioactivity data), and the PubMed API (for literature retrieval). The interface, built in Streamlit and deployed via Hugging Face Spaces, enables researchers to evaluate molecules, explore predictions, and interact with contextual LLM-powered explanations in a user-friendly environment.
 
-Copyright (c) 2025 BrainRoute Team
+## Reproducibility
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+The workflow implemented in NeuroGate is fully reproducible. Users can follow the steps outlined below to clone the repository, install dependencies, and run the provided scripts and notebooks to recreate the modeling pipeline or extend it with new datasets and features. The platform has been designed for transparency and modularity, making it easy for researchers to build upon and adapt for their own projects. We also plan to continue improving the platform by refining models, expanding datasets, and enhancing the interactive interface.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+Please install all requirements based on your machine with the instructions mentioned above.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
+## Case Study
 
-### Open Science Commitment
+The Mtor cellular pathway is a crucial pathway that acts as a central regulator for cell metabolism, growth, proliferation, and survival. Because it integrates signals from various upstream pathways (like growth factors and nutrients), inhibiting the main mTOR kinase can simultaneously block numerous downstream cellular processes. This makes it a powerful target for therapies, particularly in oncology. However, this broad inhibition can also lead to significant side effects, trigger complex feedback loops within cells, or result in only partial pathway inhibition.
 
-BrainRoute is committed to:
+The study concludes that none of the 26 approved mTOR inhibitors analyzed are predicted to cross the Blood-Brain Barrier, highlighting a major challenge in developing drugs for brain-related conditions that involve this pathway.
 
-- ✅ Open-source code (GitHub)
-- ✅ Open data (curated datasets publicly available)
-- ✅ Open access publications (preprints on bioRxiv)
-- ✅ Reproducible workflows (documented pipelines)
-- ✅ Community contributions (welcoming pull requests)
+Technical Specifications & Workflow
+The analysis in the notebook is carried out using Python with several key libraries:
+
+- pandas: Used for data manipulation and to load the dataset of mTOR inhibitors.
+- rdkit: A cheminformatics toolkit used to process the chemical structures from their SMILES strings and calculate molecular descriptors.
+- joblib: Used to load pre-trained machine learning models.
+- tensorflow.keras: Employed for loading a pre-trained Multi-Layer Perceptron (MLP) neural network model.
+
+The workflow involves loading the molecules, calculating their chemical properties (descriptors), and then feeding these properties into various predictive models (KNN, SVM, Random Forest, etc.) to assess BBB permeability.
+**The batch processing functionality of the platform allows users to complete such studies with the UI itself. Users can upload CSV files and generate cumulative results.**
+
+## Contributions
+
+## License
+
+## Citation
 
 ---
-
-## 🔮 Roadmap & Future Development
-
-### Version 1.0 (Current) ✅
-
-- [x] Core prediction models (KNN, XGBoost, SVM, RF, LR)
-- [x] Streamlit web interface
-- [x] Llama 3 LLM integration
-- [x] Batch processing capability
-- [x] ChEMBL/PubChem API integration
-- [x] Uncertainty quantification
-- [x] mTOR case study
-
-### Version 1.5 (Q2 2025) 🚧
-
-- [ ] REST API for programmatic access
-- [ ] Docker containerization
-- [ ] Expanded descriptor sets (Mordred, PaDEL)
-- [ ] Model explainability (SHAP values)
-- [ ] Additional case studies (Parkinson's, brain tumors)
-- [ ] User authentication system
-- [ ] Molecule sketcher integration
-
-### Version 2.0 (Q4 2025) 🔮
-
-- [ ] Graph Neural Networks (GNN) models
-- [ ] Multi-task learning (BBB + toxicity + bioavailability)
-- [ ] Active learning for data-efficient training
-- [ ] P-glycoprotein efflux prediction
-- [ ] BBB dysfunction modeling (disease states)
-- [ ] Integration with molecular docking tools
-- [ ] Mobile application (iOS/Android)
-
-### Long-term Vision (2026+) 🌟
-
-- [ ] Federated learning for privacy-preserving data sharing
-- [ ] Generative models for BBB-permeable molecule design
-- [ ] Clinical trial integration
-- [ ] Regulatory approval pathway documentation
-- [ ] Partnerships with pharmaceutical companies
-- [ ] Educational modules for drug discovery courses
-
----
-
-## 📊 Project Statistics
-
-<div align="center">
-
-![GitHub repo size](https://img.shields.io/github/repo-size/omicscodeathon/mtoralzml)
-![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/omicscodeathon/mtoralzml)
-![Lines of code](https://img.shields.io/tokei/lines/github/omicscodeathon/mtoralzml)
-![GitHub last commit](https://img.shields.io/github/last-commit/omicscodeathon/mtoralzml)
-![GitHub issues](https://img.shields.io/github/issues/omicscodeathon/mtoralzml)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/omicscodeathon/mtoralzml)
-
-</div>
-
----
-
-## 📞 Contact & Support
-
-### Lead Authors
-
-**Soham Shirolkar**
-
-- 📧 Email: sohamshirolkar24@gmail.com
-- 🔗 ORCID: [0009-0004-4798-899X](https://orcid.org/0009-0004-4798-899X)
-- 🏛️ Affiliation: University of South Florida
-
-**Olaitan I. Awe**
-
-- 📧 Email: laitanawe@gmail.com
-- 🔗 ORCID: [0000-0002-4257-3611](https://orcid.org/0000-0002-4257-3611)
-- 🏛️ Affiliation: Institute for Genomic Medicine Research & ASBCB
-
-### Project Links
-
-- 🌐 **Currated Database**: [brainroute-db](https://mr-nnobody.github.io/brainroute-db)
-- 💻 **GitHub**: [github.com/omicscodeathon/mtoralzml](https://github.com/omicscodeathon/mtoralzml)
-- 🚀 **Live Demo**: [HuggingFace Spaces](https://huggingface.co/Nnoboody/brainroute)
-- 📖 **Documentation**: [GitHub Wiki](https://github.com/omicscodeathon/mtoralzml/wiki)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/omicscodeathon/mtoralzml/discussions)
-- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/omicscodeathon/mtoralzml/issues)
-
-## 🌟 Star History
-
-<div align="center">
-
-[![Star History Chart](https://api.star-history.com/svg?repos=omicscodeathon/mtoralzml&type=Date)](https://star-history.com/#omicscodeathon/mtoralzml&Date)
-
-</div>
-
----
-
-<div align="center">
-
-**Made with ❤️ by the BrainRoute Team**
-
-_Accelerating CNS Drug Discovery Through Open Science_
-
-[⬆ Back to Top](#-brainroute)
-
----
-
-**© 2025 BrainRoute Team. All rights reserved.**
-
-_If you find this project useful, please consider giving it a ⭐ on GitHub!_
-
-</div>
