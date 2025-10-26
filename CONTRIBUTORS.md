@@ -9,8 +9,8 @@ Thank you to everyone who has contributed to BrainRoute! This project is made po
 <table>
   <tr>
     <td align="center" width="200">
-      <a href="https://github.com/sohamshirolkar">
-        <img src="https://github.com/sohamshirolkar.png" width="100px;" alt="Soham Shirolkar"/><br />
+      <a href="https://github.com/soham2400">
+        <img src="https://github.com/soham2400.png" width="100px;" alt="Soham Shirolkar"/><br />
         <sub><b>Soham Shirolkar</b></sub>
       </a><br />
       <sub>🔬 Lead Developer & Corresponding Author</sub><br />
@@ -19,8 +19,8 @@ Thank you to everyone who has contributed to BrainRoute! This project is made po
       <sub>📧 sohamshirolkar24@gmail.com</sub>
     </td>
     <td align="center" width="200">
-      <a href="https://github.com/leahcerere">
-        <img src="https://github.com/leahcerere.png" width="100px;" alt="Leah W. Cerere"/><br />
+      <a href="https://github.com/leacere">
+        <img src="https://github.com/leacere.png" width="100px;" alt="Leah W. Cerere"/><br />
         <sub><b>Leah W. Cerere</b></sub>
       </a><br />
       <sub>📊 Visualization & Manuscript Writing</sub><br />
@@ -28,8 +28,8 @@ Thank you to everyone who has contributed to BrainRoute! This project is made po
       <sub>Mount Kenya University, Kenya</sub>
     </td>
     <td align="center" width="200">
-      <a href="https://github.com/lewistem">
-        <img src="https://github.com/lewistem.png" width="100px;" alt="Lewis Tem"/><br />
+      <a href="https://github.com/Mr-Nnobody">
+        <img src="https://github.com/Mr-Nnobody.png" width="100px;" alt="Lewis Tem"/><br />
         <sub><b>Lewis Tem</b></sub>
       </a><br />
       <sub>💻 Lead Developer</sub><br />
@@ -48,16 +48,8 @@ Thank you to everyone who has contributed to BrainRoute! This project is made po
       <sub>Munster Technological University, Ireland</sub>
     </td>
     <td align="center" width="200">
-      <a href="https://github.com/georgessome">
-        <img src="https://github.com/georgessome.png" width="100px;" alt="Georges Some"/><br />
-        <sub><b>Georges Some</b></sub>
-      </a><br />
-      <sub>👨‍🏫 Supervision</sub><br />
-      <sub>📧 somegeorges2@gmail.com</sub>
-    </td>
-    <td align="center" width="200">
-      <a href="https://github.com/olaitanawe">
-        <img src="https://github.com/olaitanawe.png" width="100px;" alt="Olaitan I. Awe"/><br />
+      <a href="https://github.com/laitanawe">
+        <img src="https://github.com/laitanawe.png" width="100px;" alt="Olaitan I. Awe"/><br />
         <sub><b>Olaitan I. Awe</b></sub>
       </a><br />
       <sub>👨‍🏫 Project Supervision & Mentorship</sub><br />
