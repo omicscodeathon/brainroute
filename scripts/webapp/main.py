@@ -9,13 +9,13 @@ import plotly.graph_objects as go
 from datetime import datetime
 
 # Local imports
-from api import get_smiles, get_chembl_info
+from api import get_formula, get_smiles, get_chembl_info
 from utils import (load_ml_models, load_ai_model, create_chatgpt_link, generate_ai_response, 
                    create_download_link, format_batch_results_for_display, create_summary_stats)
 from prediction import (predict_bbb_penetration_with_uncertainty, calculate_molecular_properties, 
                        process_batch_molecules)
 from config import PAGE_CONFIG, PROMPT_TEMPLATES, HF_API_TOKEN
-from database.quickstart import add_to_database_threaded
+from database.quickstart import add_to_database_batch_threaded, add_to_database_threaded
 
 # -------------------------
 # Page Config & Initial Setup
@@ -296,16 +296,21 @@ st.markdown('<div class="main-header"><h1>🧠 NeuroGate</h1><p>Blood-Brain Barr
 # Processing Mode Selection
 # -------------------------
 if st.session_state.models_loaded:
-    st.subheader("🎯 Processing Mode")
-    
-    processing_mode = st.radio(
-        "Choose processing mode:",
-        ["Single Molecule", "Batch Processing"],
-        horizontal=True,
-        key="proc_mode"
-    )
-    
-    st.session_state.processing_mode = processing_mode.lower().replace(" ", "_")
+    c1, c2 = st.columns(2)
+    with c1:
+        st.subheader("🎯 Processing Mode")
+        
+        processing_mode = st.radio(
+            "Choose processing mode:",
+            ["Single Molecule", "Batch Processing"],
+            horizontal=True,
+            key="proc_mode"
+        )
+        
+        st.session_state.processing_mode = processing_mode.lower().replace(" ", "_")
+    with c2:
+        st.subheader("Access database")
+        st.button("Database")
 
     # -------------------------
     # Single Molecule Processing
@@ -385,6 +390,7 @@ if st.session_state.models_loaded:
                         # Get ChEMBL info
                         with st.spinner("📚 Fetching compound information..."):
                             info = get_chembl_info(user_input)
+                            formula = get_formula(smiles)
                         
                         # Make prediction with uncertainty
                         with st.spinner("🤖 Making BBB prediction with uncertainty analysis..."):
@@ -405,6 +411,7 @@ if st.session_state.models_loaded:
                                     'info': info,
                                     'mol': mol,
                                     'smiles': smiles,
+                                    'formula': formula,
                                     'name': user_input
                                 }
 
@@ -581,6 +588,11 @@ if st.session_state.models_loaded:
         
         # Display batch results
         if st.session_state.batch_results:
+            try: 
+                add_to_database_batch_threaded(results)
+            except Exception as e:
+                st.toast(f"Failed to add compounds to database:{e}", icon="⚠️")
+            st.success("✅ Analysis complete!")
             st.markdown("---")
             st.subheader("📊 Batch Results")
             
