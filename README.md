@@ -257,7 +257,7 @@ results, error = process_batch_molecules(molecules, 'csv', models)
 
 ## 🔬 Workflow
 
-![BrainRoute Workflow](workflow/brainroute_workflow.png)
+![BrainRoute Workflow](workflow/BrainRoute_workflow.png)
 
 ### 1️⃣ Data Collection & Curation
 
