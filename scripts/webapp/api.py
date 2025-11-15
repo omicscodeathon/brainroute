@@ -100,6 +100,12 @@ def get_name_from_smiles(smiles):
     
     return name
 
+# calculate molecular formula from smiles
+def get_formula(smiles):
+    mol = Chem.MolFromSmiles(smiles)
+    formula = rdMolDescriptors.CalcMolFormula(mol)
+    return formula
+
 # # Example usage
 # compound_name = "Aspirin"
 # compound_info = get_chembl_info(compound_name)

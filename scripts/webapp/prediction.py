@@ -6,6 +6,8 @@ from rdkit.Chem import Descriptors, Crippen, Lipinski
 from config import DEFAULT_MODEL
 import logging
 
+from api import get_chembl_info, get_formula
+
 logger = logging.getLogger(__name__)
 
 def predict_bbb_penetration_with_uncertainty(mol, models):
@@ -156,7 +158,7 @@ def process_batch_molecules(input_data, input_type, models):
             
             # If not SMILES, try as name
             if not mol and input_method in ['name', 'mixed']:
-                from scripts.webapp.lewis.api import get_smiles
+                from scripts.webapp.api import get_smiles
                 try:
                     smiles = get_smiles(molecule)
                     mol = Chem.MolFromSmiles(smiles) if smiles else None
@@ -166,12 +168,16 @@ def process_batch_molecules(input_data, input_type, models):
             if mol and smiles:
                 # Make prediction with uncertainty
                 pred_result, error = predict_bbb_penetration_with_uncertainty(mol, models)
-                
+                info = get_chembl_info(smiles)
+                formula = get_formula(smiles)
                 if error:
                     results.append({
+                        'chembl_id': info.get('ChEMBL ID') if info else None,
+                        'mol': mol,
                         'input': molecule,
-                        'name': actual_name,
+                        'name': info.get('Name') if info else actual_name if actual_name else 'Unknown',
                         'smiles': smiles,
+                        'formula': formula,
                         'status': 'Error',
                         'error': error,
                         'prediction': None,
@@ -182,11 +188,13 @@ def process_batch_molecules(input_data, input_type, models):
                 else:
                     # Calculate properties
                     properties = calculate_molecular_properties(mol)
-                    
                     result = {
+                        'chembl_id': info.get('ChEMBL ID') if info else None,
+                        'mol': mol,
                         'input': molecule,
-                        'name': actual_name,
+                        'name': info.get('Name') if info else actual_name if actual_name else 'Unknown',
                         'smiles': smiles,
+                        'formula': formula,
                         'status': 'Success',
                         'error': None,
                         'prediction': pred_result['prediction'],
@@ -211,9 +219,12 @@ def process_batch_molecules(input_data, input_type, models):
                     results.append(result)
             else:
                 results.append({
+                    'chembl_id': None,
+                    'mol': None,
                     'input': molecule,
                     'name': actual_name,
                     'smiles': None,
+                    'formula': None,
                     'status': 'Error',
                     'error': 'Could not process molecule',
                     'prediction': None,
@@ -224,9 +235,12 @@ def process_batch_molecules(input_data, input_type, models):
                 
         except Exception as e:
             results.append({
+                'chembl_id': None,
+                'mol': None,
                 'input': molecule,
                 'name': names[i] if i < len(names) else molecule,
                 'smiles': None,
+                'formula': None,
                 'status': 'Error',
                 'error': str(e),
                 'prediction': None,
