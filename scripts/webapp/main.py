@@ -12,7 +12,7 @@ from datetime import datetime
 from api import get_formula, get_smiles, get_chembl_info
 from utils import (load_ml_models, load_ai_model, create_chatgpt_link, generate_ai_response, 
                    create_download_link, format_batch_results_for_display, create_summary_stats)
-from prediction import (predict_bbb_penetration_with_uncertainty, calculate_molecular_properties, 
+from prediction import (predict_bbb_padel, predict_bbb_penetration_with_uncertainty, calculate_molecular_properties, 
                        process_batch_molecules)
 from config import PAGE_CONFIG, PROMPT_TEMPLATES, HF_API_TOKEN
 from database.quickstart import add_to_database_batch_threaded, add_to_database_threaded
@@ -26,7 +26,7 @@ st.set_page_config(**PAGE_CONFIG)
 st.markdown("""
 <style>
     .main-header {
-        text-align: center;
+        text-align: center
         padding: 1rem 0;
         background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
         border-radius: 10px;
@@ -329,7 +329,7 @@ if not st.session_state.models_loaded:
 # -------------------------
 # Header
 # -------------------------
-st.markdown('<div class="main-header"><h1>🧠 NeuroGate</h1><p>Blood-Brain Barrier Penetration Classifier<br>This tool allows you to explore molecules and predict their Blood-Brain Barrier (BBB) penetration.<br>Neurogate will classify your molecule as BBB+ or BBB- and provide additional information about the molecule for further drug discovery research!</p></div>', unsafe_allow_html=True)
+st.markdown('<div class="main-header"><h1 style="text-align:center;">🧠 BrainRoute</h1><p style="text-align:center;">Blood-Brain Barrier Penetration Classifier<br>This tool allows you to explore molecules and predict their Blood-Brain Barrier (BBB) penetration.<br>BrainRoute will classify your molecule as BBB+ or BBB- and provide additional information about the molecule for further drug discovery research!</p></div>', unsafe_allow_html=True)
 
 
 # -------------------------
@@ -433,20 +433,18 @@ if st.session_state.models_loaded:
                             formula = get_formula(smiles)
                         
                         # Make prediction with uncertainty
-                        with st.spinner("🤖 Making BBB prediction with uncertainty analysis..."):
-                            pred_result, pred_error = predict_bbb_penetration_with_uncertainty(
-                                mol, st.session_state.models
+                        with st.spinner("🤖 Making BBB prediction with PaDEL-based models..."):
+                            padel_preds, padel_confs, padel_error = predict_bbb_padel(
+                                smiles, st.session_state.models
                             )
-                        
-                        if pred_error:
-                            st.error(f"❌ Prediction error: {pred_error}")
+                        if padel_error:
+                            st.error(f"❌ PaDEL model prediction error: {padel_error}")
                         else:
                             properties = calculate_molecular_properties(mol)
-                            
                             if properties:
-                                # Store results in session state
                                 st.session_state.prediction_results = {
-                                    'pred_result': pred_result,
+                                    'padel_preds': padel_preds,
+                                    'padel_confs': padel_confs,
                                     'properties': properties,
                                     'info': info,
                                     'mol': mol,
@@ -483,38 +481,20 @@ if st.session_state.models_loaded:
                             st.markdown(f"**{key}:** {value}")
             
             with col2:
-                st.subheader("📊 Prediction Results")
-                
-                # Main prediction with uncertainty
-                pred_color = "green" if results['pred_result']['prediction'] == "BBB+" else "red"
-                st.markdown(f"### 🎯 Prediction: <span style='color:{pred_color}'>{results['pred_result']['prediction']}</span>", unsafe_allow_html=True)
-                
-                # Confidence and uncertainty metrics
-                col_a, col_b, col_c = st.columns(3)
-                with col_a:
-                    st.metric("Confidence", f"{results['pred_result']['confidence']:.1f}%")
-                with col_b:
-                    uncertainty_class = get_uncertainty_class(results['pred_result']['uncertainty'])
-                    st.markdown(f"**Uncertainty:** <span class='{uncertainty_class}'>{results['pred_result']['uncertainty']:.1f}%</span>", unsafe_allow_html=True)
-                with col_c:
-                    st.metric("Model Agreement", f"{results['pred_result']['agreement']:.1f}%")
-                
-                # Uncertainty interpretation
-                uncertainty_text = get_uncertainty_interpretation(results['pred_result']['uncertainty'])
-                st.info(f"🔍 **Uncertainty Analysis:** {uncertainty_text}")
-                
-                # Individual model results
-                with st.expander("🔧 Individual Model Results"):
-                    individual_df = []
-                    for model_name, confidence in results['pred_result']['individual_confidences'].items():
-                        pred_class = results['pred_result']['individual_predictions'][model_name]
-                        individual_df.append({
-                            'Model': model_name,
-                            'Prediction': "BBB+" if pred_class == 1 else "BBB-",
-                            'BBB+ Prob': f"{confidence[1]:.3f}",
-                            'BBB- Prob': f"{confidence[0]:.3f}"
-                        })
-                    st.dataframe(pd.DataFrame(individual_df))
+                st.subheader("📊 PaDEL Model Predictions")
+                padel_preds = results['padel_preds']
+                padel_confs = results['padel_confs']
+                model_table = []
+                for model in ['KNN', 'LGBM', 'ET']:
+                    pred = padel_preds.get(model, None)
+                    conf = padel_confs.get(model, None)
+                    pred_label = 'BBB+' if pred == 1 else 'BBB-' if pred == 0 else 'N/A'
+                    model_table.append({
+                        'Model': model,
+                        'Prediction': pred_label,
+                        'Confidence (%)': f"{conf:.1f}" if conf is not None else 'N/A'
+                    })
+                st.dataframe(pd.DataFrame(model_table))
                 
                 # Molecular properties
                 st.markdown("#### 🧪 Molecular Properties")
@@ -532,13 +512,23 @@ if st.session_state.models_loaded:
             
             # Export single result
             with st.expander("📥 Export Results"):
+                # Compute ensemble/majority prediction
+                preds = list(results['padel_preds'].values())
+                if preds:
+                    ensemble_pred = 'BBB+' if preds.count(1) >= preds.count(0) else 'BBB-'
+                else:
+                    ensemble_pred = 'N/A'
+                # Prepare export data with all model predictions/confidences
                 result_data = {
                     'Name': results['name'],
                     'SMILES': results['smiles'],
-                    'Prediction': results['pred_result']['prediction'],
-                    'Confidence (%)': results['pred_result']['confidence'],
-                    'Uncertainty (%)': results['pred_result']['uncertainty'],
-                    'Agreement (%)': results['pred_result']['agreement'],
+                    'KNN Prediction': 'BBB+' if results['padel_preds'].get('KNN') == 1 else 'BBB-',
+                    'KNN Confidence (%)': results['padel_confs'].get('KNN'),
+                    'LGBM Prediction': 'BBB+' if results['padel_preds'].get('LGBM') == 1 else 'BBB-',
+                    'LGBM Confidence (%)': results['padel_confs'].get('LGBM'),
+                    'ET Prediction': 'BBB+' if results['padel_preds'].get('ET') == 1 else 'BBB-',
+                    'ET Confidence (%)': results['padel_confs'].get('ET'),
+                    'Ensemble Prediction': ensemble_pred,
                     'Molecular Weight': results['properties']['mw'],
                     'LogP': results['properties']['logp'],
                     'HBD': results['properties']['hbd'],
@@ -547,9 +537,7 @@ if st.session_state.models_loaded:
                     'Rotatable Bonds': results['properties']['rotatable_bonds'],
                     'Timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 }
-                
                 export_df = pd.DataFrame([result_data])
-                
                 col_exp1, col_exp2, col_exp3 = st.columns(3)
                 with col_exp1:
                     st.markdown(create_download_link(export_df, f"bbb_prediction_{results['name']}", "csv"), unsafe_allow_html=True)
@@ -784,9 +772,15 @@ if st.session_state.prediction_results:
         if tokenizer and model:
             compound_name = st.session_state.prediction_results['name']
             comp = st.session_state.prediction_results['info']['ChEMBL ID']
-            prediction = st.session_state.prediction_results['pred_result']['prediction']
-            confidence = st.session_state.prediction_results['pred_result']['confidence']
-            
+            # Use ensemble/majority prediction for chat context
+            preds = list(st.session_state.prediction_results['padel_preds'].values())
+            if preds:
+                prediction = 'BBB+' if preds.count(1) >= preds.count(0) else 'BBB-'
+            else:
+                prediction = 'N/A'
+            # Use average confidence for chat context
+            confs = [c for c in st.session_state.prediction_results['padel_confs'].values() if c is not None]
+            confidence = sum(confs) / len(confs) if confs else 0.0
             st.success(f"🦙 **Llama 3 is ready!** Ask anything about **{compound_name}** (Predicted: {prediction}, Confidence: {confidence:.1f}%)")
             
             # Display chat history first (messages above)

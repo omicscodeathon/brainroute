@@ -5,10 +5,14 @@ from rdkit import Chem
 from rdkit.Chem import Descriptors, Crippen, Lipinski
 from config import DEFAULT_MODEL
 import logging
+from sklearn.preprocessing import StandardScaler
 
 from api import get_chembl_info, get_formula
+from utils import calculate_padel_descriptors, calculate_padel_descriptors_batch
 
 logger = logging.getLogger(__name__)
+
+# PADEL_JAR_PATH = '../../notebooks/padel.sh'  # Adjust if needed
 
 def predict_bbb_penetration_with_uncertainty(mol, models):
     """Predict BBB penetration with uncertainty quantification using multiple models"""
@@ -143,9 +147,13 @@ def process_batch_molecules(input_data, input_type, models):
         names = molecules
         input_method = 'mixed'  # Could be names or SMILES
     
+    # Extract all valid SMILES first
+    valid_smiles = []
+    valid_indices = []
+    molecule_info = []  # Store associated info
+    
     for i, molecule in enumerate(molecules):
         try:
-            # Determine if it's SMILES or name
             mol = None
             smiles = None
             actual_name = names[i] if i < len(names) else molecule
@@ -166,58 +174,16 @@ def process_batch_molecules(input_data, input_type, models):
                     pass
             
             if mol and smiles:
-                # Make prediction with uncertainty
-                pred_result, error = predict_bbb_penetration_with_uncertainty(mol, models)
-                info = get_chembl_info(smiles)
-                formula = get_formula(smiles)
-                if error:
-                    results.append({
-                        'chembl_id': info.get('ChEMBL ID') if info else None,
-                        'mol': mol,
-                        'input': molecule,
-                        'name': info.get('Name') if info else actual_name if actual_name else 'Unknown',
-                        'smiles': smiles,
-                        'formula': formula,
-                        'status': 'Error',
-                        'error': error,
-                        'prediction': None,
-                        'confidence': None,
-                        'uncertainty': None,
-                        'agreement': None
-                    })
-                else:
-                    # Calculate properties
-                    properties = calculate_molecular_properties(mol)
-                    result = {
-                        'chembl_id': info.get('ChEMBL ID') if info else None,
-                        'mol': mol,
-                        'input': molecule,
-                        'name': info.get('Name') if info else actual_name if actual_name else 'Unknown',
-                        'smiles': smiles,
-                        'formula': formula,
-                        'status': 'Success',
-                        'error': None,
-                        'prediction': pred_result['prediction'],
-                        'confidence': pred_result['confidence'],
-                        'uncertainty': pred_result['uncertainty'],
-                        'agreement': pred_result['agreement'],
-                        'num_models': pred_result['num_models']
-                    }
-                    
-                    # Add molecular properties
-                    if properties:
-                        result.update({
-                            'molecular_weight': properties['mw'],
-                            'logp': properties['logp'],
-                            'hbd': properties['hbd'],
-                            'hba': properties['hba'],
-                            'tpsa': properties['tpsa'],
-                            'rotatable_bonds': properties['rotatable_bonds'],
-                            'heavy_atoms': properties['heavy_atoms']
-                        })
-                    
-                    results.append(result)
+                valid_smiles.append(smiles)
+                valid_indices.append(i)
+                molecule_info.append({
+                    'mol': mol,
+                    'smiles': smiles,
+                    'input': molecule,
+                    'name': actual_name
+                })
             else:
+                # Add error result immediately
                 results.append({
                     'chembl_id': None,
                     'mol': None,
@@ -232,7 +198,6 @@ def process_batch_molecules(input_data, input_type, models):
                     'uncertainty': None,
                     'agreement': None
                 })
-                
         except Exception as e:
             results.append({
                 'chembl_id': None,
@@ -249,4 +214,192 @@ def process_batch_molecules(input_data, input_type, models):
                 'agreement': None
             })
     
+    # Batch calculate PaDEL descriptors for all valid SMILES
+    if valid_smiles:
+        try:
+            padel_df, failed_indices = calculate_padel_descriptors_batch(valid_smiles)
+            # Ensure all columns are numeric
+            padel_df = padel_df.apply(pd.to_numeric, errors='coerce').fillna(0) #converts to int - if NaN then 0 
+            expected_features = models.get('feature_names')
+            if expected_features:
+                from utils import safe_align_features
+                padel_df, align_error = safe_align_features(padel_df, expected_features, "batch")
+                if align_error:
+                    return [], f"Feature alignment failed: {align_error}"
+            # Scale batch descriptors
+            padel_df = scale_descriptors(padel_df, models)
+            
+            # Make predictions for each molecule
+            for idx, (smiles, info) in enumerate(zip(valid_smiles, molecule_info)):
+                if idx in failed_indices or padel_df.iloc[idx].isna().all():
+                    results.append({
+                        'chembl_id': None,
+                        'mol': info['mol'],
+                        'input': info['input'],
+                        'name': info['name'],
+                        'smiles': smiles,
+                        'formula': get_formula(smiles),
+                        'status': 'Error',
+                        'error': 'Descriptor calculation failed',
+                        'prediction': None,
+                        'confidence': None,
+                        'uncertainty': None,
+                        'agreement': None
+                    })
+                    continue
+                
+                try:
+                    # Get single row for this molecule
+                    single_padel = padel_df.iloc[[idx]].drop(columns=['Name'], errors='ignore')
+                    
+                    # Make predictions with all models
+                    predictions = {}
+                    confidences = {}
+                    
+                    for model_name in ['KNN', 'LGBM', 'ET']:
+                        if model_name in models:
+                            try:
+                                model = models[model_name]
+                                pred = model.predict(single_padel)
+                                
+                                if hasattr(model, 'predict_proba'):
+                                    conf = model.predict_proba(single_padel)
+                                    confidence = conf[0][1] * 100 if conf.shape[1] > 1 else conf[0][0] * 100
+                                else:
+                                    confidence = None
+                                
+                                predictions[model_name] = int(pred[0])
+                                confidences[model_name] = confidence
+                            except Exception as e:
+                                logger.warning(f"Model {model_name} failed for molecule {idx}: {str(e)}")
+                                continue
+                    
+                    if not predictions:
+                        raise ValueError("All models failed")
+                    
+                    # Calculate ensemble prediction
+                    pred_values = list(predictions.values())
+                    avg_pred = sum(pred_values) / len(pred_values)
+                    ensemble_pred = "BBB+" if avg_pred >= 0.5 else "BBB-"
+                    
+                    # Calculate average confidence
+                    valid_confs = [c for c in confidences.values() if c is not None]
+                    avg_confidence = sum(valid_confs) / len(valid_confs) if valid_confs else 50.0
+                    
+                    # Calculate agreement
+                    agreement = (sum(pred_values) / len(pred_values)) * 100
+                    if agreement < 50:
+                        agreement = 100 - agreement
+                    
+                    # Get ChEMBL info
+                    chembl_info = get_chembl_info(smiles)
+                    formula = get_formula(smiles)
+                    properties = calculate_molecular_properties(info['mol'])
+                    
+                    result = {
+                        'chembl_id': chembl_info.get('ChEMBL ID') if chembl_info else None,
+                        'mol': info['mol'],
+                        'input': info['input'],
+                        'name': chembl_info.get('Name') if chembl_info else info['name'],
+                        'smiles': smiles,
+                        'formula': formula,
+                        'status': 'Success',
+                        'error': None,
+                        'prediction': ensemble_pred,
+                        'confidence': avg_confidence,
+                        'uncertainty': 0,  # You can calculate this from model disagreement
+                        'agreement': agreement,
+                        'num_models': len(predictions)
+                    }
+                    
+                    if properties:
+                        result.update({
+                            'molecular_weight': properties['mw'],
+                            'logp': properties['logp'],
+                            'hbd': properties['hbd'],
+                            'hba': properties['hba'],
+                            'tpsa': properties['tpsa'],
+                            'rotatable_bonds': properties['rotatable_bonds'],
+                            'heavy_atoms': properties['heavy_atoms']
+                        })
+                    
+                    results.append(result)
+                    
+                except Exception as e:
+                    results.append({
+                        'chembl_id': None,
+                        'mol': info['mol'],
+                        'input': info['input'],
+                        'name': info['name'],
+                        'smiles': smiles,
+                        'formula': get_formula(smiles),
+                        'status': 'Error',
+                        'error': f'Prediction failed: {str(e)}',
+                        'prediction': None,
+                        'confidence': None,
+                        'uncertainty': None,
+                        'agreement': None
+                    })
+        
+        except Exception as e:
+            logger.error(f"Batch processing failed: {str(e)}")
+            return [], f"Batch descriptor calculation failed: {str(e)}"
+    
     return results, None
+
+def scale_descriptors(input_df, models):
+    """
+    Scale input descriptor DataFrame using the StandardScaler saved in models dict.
+    Returns scaled DataFrame. If scaler not found, returns input_df unchanged.
+    """
+    scaler = models.get('scaler', None)
+    if scaler is not None:
+        scaled = scaler.transform(input_df)
+        return pd.DataFrame(scaled, columns=input_df.columns, index=input_df.index)
+    else:
+        logger.warning("WARNING!!! - No scaler found in models dict. Returning unscaled descriptors.")
+        return input_df
+
+def predict_bbb_padel(smiles, models):
+    """
+    Predict BBB penetration using PaDEL descriptors and the provided models (KNN, LGBM, ET).
+    Returns a dict of predictions and confidences for each model.
+    """
+    try:
+        # Calculate PaDEL descriptors using padelpy
+        padel_df = calculate_padel_descriptors(smiles)
+        padel_df = padel_df.drop(columns=['Name'], errors='ignore')
+        # Ensure all columns are numeric
+        padel_df = padel_df.apply(pd.to_numeric, errors='coerce').fillna(0)
+        expected_features = models.get('feature_names')
+        if expected_features:
+            from utils import safe_align_features
+            padel_df, align_error = safe_align_features(padel_df, expected_features, smiles[:20])
+            if align_error:
+                return None, None, align_error
+        # Scale descriptors using StandardScaler
+        padel_df = scale_descriptors(padel_df, models)
+        predictions = {}
+        confidences = {}
+        for model_name in ['KNN', 'LGBM', 'ET']:
+            if model_name in models:
+                try:
+                    model = models[model_name]
+                    pred = model.predict(padel_df)
+                    if hasattr(model, 'predict_proba'):
+                        conf = model.predict_proba(padel_df)
+                        confidence = conf[0].max() * 100
+                    else:
+                        confidence = None
+                    predictions[model_name] = int(pred[0])
+                    confidences[model_name] = confidence
+                except Exception as e:
+                    logger.warning(f"Model {model_name} prediction failed: {str(e)}")
+                    continue
+        if not predictions:
+            return None, None, "All models failed to make predictions"
+        return predictions, confidences, None
+    except Exception as e:
+        error_msg = f"PaDEL prediction failed: {str(e)}"
+        logger.error(error_msg)
+        return None, None, error_msg
