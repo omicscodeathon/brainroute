@@ -1014,10 +1014,10 @@ Contributors will be:
 If you use BrainRoute in your research, please cite:
 
 ```bibtex
-@article{shirolkar2025brainroute,
+@article{shirolkar2026brainroute,
   title={BrainRoute: An Open Machine Learning Platform for Blood-Brain Barrier Permeability Prediction with Neurodegenerative Disease Applications},
   author={Shirolkar, Soham and Cerere, Leah W. and Tem, Lewis and Ahmed, Noura E. and Some, Georges and Awe, Olaitan I.},
-  journal={bioRxiv},
+  journal={Springernature},
   year={2026},
   doi={10.1101/2026.xxx},
   url={https://github.com/omicscodeathon/brainroute}
@@ -1025,10 +1025,10 @@ If you use BrainRoute in your research, please cite:
 ```
 
 **APA Format:**
-Shirolkar, S., Cerere, L. W., Tem, L., Ahmed, N. E., Some, G., & Awe, O. I. (2025). BrainRoute: An Open Machine Learning Platform for Blood-Brain Barrier Permeability Prediction with Neurodegenerative Disease Applications. _bioRxiv_. https://doi.org/10.1101/2026.xxx
+Shirolkar, S., Cerere, L. W., Tem, L., Ahmed, N. E., Some, G., & Awe, O. I. (2026). BrainRoute: An Open Machine Learning Platform for Blood-Brain Barrier Permeability Prediction with Neurodegenerative Disease Applications. _Springernature_. https://doi.org/10.1101/2026.xxx
 
 **Vancouver Format:**
-Shirolkar S, Cerere LW, Tem L, Ahmed NE, Some G, Awe OI. BrainRoute: An Open Machine Learning Platform for Blood-Brain Barrier Permeability Prediction with Neurodegenerative Disease Applications. bioRxiv. 2025. doi:10.1101/2026.xxx
+Shirolkar S, Cerere LW, Tem L, Ahmed NE, Some G, Awe OI. BrainRoute: An Open Machine Learning Platform for Blood-Brain Barrier Permeability Prediction with Neurodegenerative Disease Applications. Springernature. 2026. doi:10.1101/2026.xxx
 
 ---
 
@@ -1170,8 +1170,8 @@ BrainRoute is committed to:
 
 ### Version 1.5 (Q2 2025) 🚧
 
-- [ ] REST API for programmatic access
-- [ ] Docker containerization
+- [x] REST API for programmatic access
+- [x] Docker containerization
 - [ ] Expanded descriptor sets (Mordred, PaDEL)
 - [ ] Model explainability (SHAP values)
 - [ ] Additional case studies (Parkinson's, brain tumors)
@@ -1234,7 +1234,7 @@ BrainRoute is committed to:
 
 - 🌐 **Curated Database**: [brainroutedb](https://omicscodeathon.github.io/brainroutedb)
 - 💻 **GitHub**: [github.com/omicscodeathon/brainroute](https://github.com/omicscodeathon/brainroute)
-- 🚀 **Live Demo**: [HuggingFace Spaces](https://huggingface.co/Nnoboody/brainroute)
+- 🚀 **Live Demo**: [BrainRoute Deployment](https://igmr.org/software/brainroute)
 - 📖 **Documentation**: [GitHub Wiki](https://github.com/omicscodeathon/mtoralzml/wiki)
 - 💬 **Discussions**: [GitHub Discussions](https://github.com/omicscodeathon/brainroute/discussions)
 - 🐛 **Bug Reports**: [GitHub Issues](https://github.com/omicscodeathon/brainroute/issues)
@@ -1259,7 +1259,7 @@ _Accelerating CNS Drug Discovery Through Open Science_
 
 ---
 
-**© 2025 BrainRoute Team. All rights reserved.**
+**© 2026 BrainRoute Team. All rights reserved.**
 
 _If you find this project useful, please consider giving it a ⭐ on GitHub!_
 
