@@ -1025,10 +1025,10 @@ If you use BrainRoute in your research, please cite:
 ```
 
 **APA Format:**
-Shirolkar, S., Cerere, L. W., Tem, L., Ahmed, N. E., Some, G., & Awe, O. I. (2025). BrainRoute: An Open Machine Learning Platform for Blood-Brain Barrier Permeability Prediction with Neurodegenerative Disease Applications. _bioRxiv_. https://doi.org/10.1101/2025.xxx
+Shirolkar, S., Cerere, L. W., Tem, L., Ahmed, N. E., Some, G., & Awe, O. I. (2025). BrainRoute: An Open Machine Learning Platform for Blood-Brain Barrier Permeability Prediction with Neurodegenerative Disease Applications. _bioRxiv_. https://doi.org/10.1101/2026.xxx
 
 **Vancouver Format:**
-Shirolkar S, Cerere LW, Tem L, Ahmed NE, Some G, Awe OI. BrainRoute: An Open Machine Learning Platform for Blood-Brain Barrier Permeability Prediction with Neurodegenerative Disease Applications. bioRxiv. 2025. doi:10.1101/2025.xxx
+Shirolkar S, Cerere LW, Tem L, Ahmed NE, Some G, Awe OI. BrainRoute: An Open Machine Learning Platform for Blood-Brain Barrier Permeability Prediction with Neurodegenerative Disease Applications. bioRxiv. 2025. doi:10.1101/2026.xxx
 
 ---
 
@@ -1232,7 +1232,7 @@ BrainRoute is committed to:
 
 ### Project Links
 
-- 🌐 **Currated Database**: [brainroute-db](https://mr-nnobody.github.io/brainroute-db)
+- 🌐 **Curated Database**: [brainroutedb](https://omicscodeathon.github.io/brainroutedb)
 - 💻 **GitHub**: [github.com/omicscodeathon/brainroute](https://github.com/omicscodeathon/brainroute)
 - 🚀 **Live Demo**: [HuggingFace Spaces](https://huggingface.co/Nnoboody/brainroute)
 - 📖 **Documentation**: [GitHub Wiki](https://github.com/omicscodeathon/mtoralzml/wiki)
