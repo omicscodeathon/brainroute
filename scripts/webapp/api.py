@@ -48,7 +48,6 @@ def get_chembl_info(compound_input):
 
 
 
-#connect LLM api 
 
 
 def get_smiles(molecule_name):
@@ -100,6 +99,12 @@ def get_name_from_smiles(smiles):
     name = rdMolDescriptors.CalcMolFormula(mol)
     
     return name
+
+# calculate molecular formula from smiles
+def get_formula(smiles):
+    mol = Chem.MolFromSmiles(smiles)
+    formula = rdMolDescriptors.CalcMolFormula(mol)
+    return formula
 
 # # Example usage
 # compound_name = "Aspirin"

@@ -9,12 +9,13 @@ import plotly.graph_objects as go
 from datetime import datetime
 
 # Local imports
-from api import get_smiles, get_chembl_info
+from api import get_formula, get_smiles, get_chembl_info
 from utils import (load_ml_models, load_ai_model, create_chatgpt_link, generate_ai_response, 
                    create_download_link, format_batch_results_for_display, create_summary_stats)
 from prediction import (predict_bbb_penetration_with_uncertainty, calculate_molecular_properties, 
                        process_batch_molecules)
 from config import PAGE_CONFIG, PROMPT_TEMPLATES, HF_API_TOKEN
+from database.quickstart import add_to_database_batch_threaded, add_to_database_threaded
 
 # -------------------------
 # Page Config & Initial Setup
@@ -55,27 +56,30 @@ st.markdown("""
         border-radius: 5px;
         border-left: 4px solid #007bff;
     }
-    
-    /* Enhanced Chat Interface Styles */
-    .chat-container {
-        background-color: #f8f9fa;
-        border: 1px solid #dee2e6;
-        border-radius: 10px;
-        padding: 1rem;
-        margin-bottom: 1rem;
-        max-height: 500px;
+
+    /* Target the Streamlit container to make it scrollable from the bottom */
+    [data-testid="stVerticalBlock"] > [style*="flex-direction: column;"] > [data-testid="stVerticalBlock"] {
         overflow-y: auto;
         display: flex;
         flex-direction: column;
-        gap: 0.75rem;
+    }
+    
+    /* Enhanced Chat Interface Styles */
+    .chat-container-inner {
+        display: flex;
+        flex-direction: column; /* Match the container's direction */
+        gap: 0rem;
     }
     
     .chat-message {
-        padding: 0.75rem 1rem;
-        border-radius: 12px;
-        max-width: 80%;
+        padding: 0.4rem 0.9rem; /* Reduced vertical padding for a shorter bubble */
+        border-radius: 18px;
+        width: fit-content; /* CRITICAL: Make bubble width dynamic */
+        max-width: 75%; /* Prevent bubbles from being too wide on large screens */
         word-wrap: break-word;
         animation: slideIn 0.3s ease-out;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        margin-bottom: 0.75rem; /* Add margin to the bottom of each message */
     }
     
     @keyframes slideIn {
@@ -90,20 +94,22 @@ st.markdown("""
     }
     
     .user-message {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #005c4b 0%, #008069 100%); /* WhatsApp green gradient */
         color: white;
-        margin-left: auto;
-        border-bottom-right-radius: 4px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        align-self: flex-end; /* Align to the right */
+        border-bottom-right-radius: 6px;
+        margin-left: auto; /* Push to the right */
+        margin-right: 0;
     }
     
     .assistant-message {
         background-color: white;
         color: #2c3e50;
-        margin-right: auto;
+        align-self: flex-start; /* Align to the left */
         border: 1px solid #e1e8ed;
-        border-bottom-left-radius: 4px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        border-bottom-left-radius: 6px;
+        margin-right: auto; /* Push to the left */
+        margin-left: 0;
     }
     
     .message-timestamp {
@@ -143,6 +149,39 @@ st.markdown("""
         border-color: #adb5bd;
     }
 </style>
+<script>
+    // JavaScript to scroll the chat container to the bottom on new messages
+    function scrollToBottom() {
+        // Find the specific scrollable container Streamlit creates
+        const chatContainer = window.parent.document.querySelector('[data-testid="stVerticalBlock"] > [style*="flex-direction: column;"] > [data-testid="stVerticalBlock"]');
+        if (chatContainer) {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+    }
+
+    // This is a bit of a hack to run the script after Streamlit has updated the DOM.
+    // We use a component that does nothing but trigger the script on re-render.
+    const streamlitDoc = window.parent.document;
+    if (!streamlitDoc.querySelector('.scroll-observer')) {
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.addedNodes.length) {
+                    scrollToBottom();
+                }
+            });
+        });
+        observer.observe(streamlitDoc.body, { childList: true, subtree: true });
+        
+        // Add a marker to prevent re-adding the observer
+        const marker = streamlitDoc.createElement('div');
+        marker.className = 'scroll-observer';
+        marker.style.display = 'none';
+        streamlitDoc.body.appendChild(marker);
+    }
+    
+    // Also run on initial load
+    window.addEventListener('load', scrollToBottom);
+</script>
 """, unsafe_allow_html=True)
 
 # -------------------------
@@ -209,9 +248,12 @@ def display_chat_interface():
     """Display chat interface with messages above and input below"""
     st.markdown("### 💬 Chat History")
     
-    # Chat messages container
-    if st.session_state.chat_history:
-        st.markdown('<div class="chat-container">', unsafe_allow_html=True)
+    # Use Streamlit's native container for robust scrolling
+    with st.container(height=600):
+        # The inner div helps with styling and message order
+        st.markdown('<div class="chat-container-inner">', unsafe_allow_html=True)
+        
+        # Display messages in standard chronological order (oldest first)
         for chat in st.session_state.chat_history:
             if chat['role'] == 'user':
                 st.markdown(f'''
@@ -229,21 +271,20 @@ def display_chat_interface():
                     <div class="message-timestamp">{chat['timestamp']}</div>
                 </div>
                 ''', unsafe_allow_html=True)
+        
+        if not st.session_state.chat_history:
+            st.markdown('''
+                <div class="chat-empty-state">
+                    <h4>👋 Start a conversation!</h4>
+                    <p>Ask me anything about your molecule's BBB properties, drug potential, or related research.</p>
+                </div>
+            ''')
+            
         st.markdown('</div>', unsafe_allow_html=True)
-    else:
-        st.markdown('''
-        <div class="chat-container">
-            <div class="chat-empty-state">
-                <h4>👋 Start a conversation!</h4>
-                <p>Ask me anything about your molecule's BBB properties, drug potential, or related research.</p>
-            </div>
-        </div>
-        ''', unsafe_allow_html=True)
 
 def process_chat_question(question, compound_name, prediction, confidence):
     """Process a chat question and generate response"""
-    add_to_chat("user", question)
-    
+    # This function now only generates the AI response
     tokenizer, model = st.session_state.ai_model
     
     # Create context-aware prompt
@@ -295,16 +336,21 @@ st.markdown('<div class="main-header"><h1>🧠 NeuroGate</h1><p>Blood-Brain Barr
 # Processing Mode Selection
 # -------------------------
 if st.session_state.models_loaded:
-    st.subheader("🎯 Processing Mode")
-    
-    processing_mode = st.radio(
-        "Choose processing mode:",
-        ["Single Molecule", "Batch Processing"],
-        horizontal=True,
-        key="proc_mode"
-    )
-    
-    st.session_state.processing_mode = processing_mode.lower().replace(" ", "_")
+    mode_col, db_col = st.columns(2)
+    with mode_col:
+        st.subheader("🎯 Processing Mode")
+        processing_mode = st.radio(
+            "Choose processing mode:",
+            ["Single Molecule", "Batch Processing"],
+            horizontal=True,
+            key="proc_mode",
+            label_visibility="collapsed"
+        )
+        
+        st.session_state.processing_mode = processing_mode.lower().replace(" ", "_")
+    with db_col:
+        st.info('Access Database')
+        st.link_button("🔗 Go to Database Site", "https://mr-nnobody.github.io/brainroute-db", use_container_width=True)
 
     # -------------------------
     # Single Molecule Processing
@@ -384,6 +430,7 @@ if st.session_state.models_loaded:
                         # Get ChEMBL info
                         with st.spinner("📚 Fetching compound information..."):
                             info = get_chembl_info(user_input)
+                            formula = get_formula(smiles)
                         
                         # Make prediction with uncertainty
                         with st.spinner("🤖 Making BBB prediction with uncertainty analysis..."):
@@ -404,12 +451,17 @@ if st.session_state.models_loaded:
                                     'info': info,
                                     'mol': mol,
                                     'smiles': smiles,
+                                    'formula': formula,
                                     'name': user_input
                                 }
 
         # Display results if available (persistent across interactions)
         if st.session_state.prediction_results:
             results = st.session_state.prediction_results
+            try: 
+                add_to_database_threaded(results)
+            except Exception as e:
+                st.toast(f"Failed to add compound to database:{e}", icon="⚠️")
             st.success("✅ Analysis complete!")
             
             # Results layout
@@ -543,12 +595,11 @@ if st.session_state.models_loaded:
                 height=150
             )
             
-            if text_input.strip():
+            if text_input and text_input.strip():
                 batch_input = text_input.strip()
                 input_type = "text"
                 lines = [line.strip() for line in text_input.strip().split('\n') if line.strip()]
                 st.success(f"✅ {len(lines)} molecules ready for processing")
-        
         # Process batch
         if batch_input is not None:
             if st.button("🚀 Process Batch", type="primary"):
@@ -577,6 +628,11 @@ if st.session_state.models_loaded:
         
         # Display batch results
         if st.session_state.batch_results:
+            try: 
+                add_to_database_batch_threaded(results)
+            except Exception as e:
+                st.toast(f"Failed to add compounds to database:{e}", icon="⚠️")
+            st.success("✅ Analysis complete!")
             st.markdown("---")
             st.subheader("📊 Batch Results")
             
@@ -679,19 +735,14 @@ if st.session_state.models_loaded:
             
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
             
-            col1, col2, col3, col4 = st.columns(4)
+            col1, col2, col3 = st.columns(3)
             with col1:
                 st.markdown(create_download_link(filtered_df, f"bbb_batch_results_{timestamp}", "csv"), unsafe_allow_html=True)
             with col2:
                 st.markdown(create_download_link(filtered_df, f"bbb_batch_results_{timestamp}", "excel"), unsafe_allow_html=True)
             with col3:
                 st.markdown(create_download_link(filtered_df, f"bbb_batch_results_{timestamp}", "json"), unsafe_allow_html=True)
-            with col4:
-                # Full detailed results
-                full_results_df = pd.DataFrame(st.session_state.batch_results)
-                st.markdown(create_download_link(full_results_df, f"bbb_detailed_results_{timestamp}", "csv"), unsafe_allow_html=True)
-
-
+         
 # -------------------------
 # AI Chat Section - Enhanced Chat Interface with Input Below
 # -------------------------
@@ -732,6 +783,7 @@ if st.session_state.prediction_results:
         
         if tokenizer and model:
             compound_name = st.session_state.prediction_results['name']
+            comp = st.session_state.prediction_results['info']['ChEMBL ID']
             prediction = st.session_state.prediction_results['pred_result']['prediction']
             confidence = st.session_state.prediction_results['pred_result']['confidence']
             
@@ -802,8 +854,15 @@ if st.session_state.prediction_results:
             
             # Handle send button
             if send_clicked and chat_question.strip():
-                process_chat_question(chat_question, compound_name, prediction, confidence)
+                # 1. Immediately add user message and rerun
+                add_to_chat("user", chat_question)
                 st.rerun()
+            
+            # 2. If the last message was from the user, generate AI response
+            if st.session_state.chat_history and st.session_state.chat_history[-1]['role'] == 'user':
+                last_question = st.session_state.chat_history[-1]['message']
+                process_chat_question(last_question, compound_name, prediction, confidence)
+                st.rerun() # Rerun again to display the new AI message
             
             # Export chat history
             if st.session_state.chat_history:
@@ -833,7 +892,7 @@ if st.session_state.prediction_results:
                 st.markdown(f"[📚 PubMed Search]({pubmed_link})")
             
             with col3:
-                chembl_link = f"https://www.ebi.ac.uk/chembl/compound_report_card/{compound_name}/"
+                chembl_link = f"https://www.ebi.ac.uk/chembl/compound_report_card/{comp}/"
                 st.markdown(f"[🧬 ChEMBL Database]({chembl_link})")
 
 
