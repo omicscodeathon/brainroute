@@ -19,18 +19,16 @@ logger = logging.getLogger(__name__)
 
 @st.cache_resource(show_spinner=False)
 def load_ml_models():
-    """Load ML models once and cache them with proper error handling"""
+    """Load ML models once and cache them with proper error handling, including feature names."""
     models = {}
     errors = []
-    
+    import joblib
+    import os
     progress_bar = st.progress(0)
     status_text = st.empty()
-    
     total_models = len(MODEL_PATHS)
-    
     for i, (model_name, model_path) in enumerate(MODEL_PATHS.items()):
         try:
-            import joblib
             status_text.text(f"Loading {model_name} model...")
             models[model_name] = joblib.load(model_path)
             progress_bar.progress((i + 1) / total_models)
@@ -39,10 +37,17 @@ def load_ml_models():
             error_msg = f"Failed to load {model_name}: {str(e)}"
             errors.append(error_msg)
             logger.error(error_msg)
-    
+    # Load feature names
+    feature_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../output/models/feature_names.pkl'))
+    try:
+        models['feature_names'] = joblib.load(feature_path)
+        logger.info(f"Loaded feature names from {feature_path}")
+    except Exception as e:
+        error_msg = f"Could not load feature names: {e}"
+        errors.append(error_msg)
+        logger.error(error_msg)
     progress_bar.empty()
     status_text.empty()
-    
     return models, errors
 
 def check_hf_api_status():
@@ -312,3 +317,126 @@ def create_summary_stats(results):
     }
     
     return stats
+
+# def calculate_padel_descriptors(smiles, padel_jar_path='padel.sh', descriptors_output='padel_temp.csv'):
+#     """
+#     Calculate PaDEL descriptors for a given SMILES string using the PaDEL-Descriptor tool.
+#     Returns a pandas DataFrame with descriptor values for the molecule.
+#     """
+#     import subprocess
+#     import tempfile
+#     import os
+#     import pandas as pd
+
+#     # Write SMILES to a temporary file
+#     with tempfile.NamedTemporaryFile(mode='w', suffix='.smi', delete=False) as smi_file:
+#         smi_file.write(smiles + '\tMol1\n')
+#         smi_path = smi_file.name
+
+#     # Prepare output file
+#     with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as out_file:
+#         out_path = out_file.name
+
+#     # Run PaDEL-Descriptor via shell script (padel.sh should call the JAR with correct args)
+#     try:
+#         subprocess.run([padel_jar_path, '-removesalt', '-standardizenitro', '-fingerprints', '-descriptortypes', '', '-dir', smi_path, '-file', out_path], check=True)
+#         df = pd.read_csv(out_path)
+#         # Remove temp files
+#         os.remove(smi_path)
+#         os.remove(out_path)
+#         return df
+#     except Exception as e:
+#         # Clean up temp files
+#         if os.path.exists(smi_path):
+#             os.remove(smi_path)
+#         if os.path.exists(out_path):
+#             os.remove(out_path)
+#         raise RuntimeError(f"PaDEL descriptor calculation failed: {e}")
+
+def calculate_padel_descriptors(smiles):
+    """
+    Calculate PaDEL descriptors for a given SMILES string using padelpy.
+    Returns a pandas DataFrame with descriptor values.
+    """
+    try:
+        from padelpy import from_smiles
+        import pandas as pd
+        
+        # Calculate descriptors directly from SMILES
+        # This returns a pandas Series
+        descriptors = from_smiles(smiles, fingerprints=False, descriptors=True)
+        
+        # Convert to DataFrame (single row)
+        df = pd.DataFrame([descriptors])
+        
+        return df
+        
+    except Exception as e:
+        logger.error(f"PaDEL descriptor calculation failed for SMILES {smiles}: {str(e)}")
+        raise RuntimeError(f"PaDEL descriptor calculation failed: {e}")
+
+
+def calculate_padel_descriptors_batch(smiles_list):
+    """
+    Calculate PaDEL descriptors for multiple SMILES strings efficiently.
+    Returns a pandas DataFrame with descriptor values for all molecules.
+    """
+    try:
+        from padelpy import from_smiles
+        import pandas as pd
+        
+        all_descriptors = []
+        failed_indices = []
+        
+        for idx, smiles in enumerate(smiles_list):
+            try:
+                descriptors = from_smiles(smiles, fingerprints=False, descriptors=True)
+                all_descriptors.append(descriptors)
+            except Exception as e:
+                logger.warning(f"Failed to calculate descriptors for SMILES at index {idx}: {e}")
+                failed_indices.append(idx)
+                all_descriptors.append(None)
+        
+        # Convert to DataFrame
+        df = pd.DataFrame(all_descriptors)
+        
+        return df, failed_indices
+        
+    except Exception as e:
+        logger.error(f"Batch PaDEL descriptor calculation failed: {str(e)}")
+        raise RuntimeError(f"Batch descriptor calculation failed: {e}")
+
+def safe_align_features(input_df, expected_features, molecule_name="Unknown"):
+    """
+    Aligns the input descriptor DataFrame to match the expected features for model prediction.
+    Returns (aligned_df, error_message). If alignment fails or <90% overlap, returns (None, error_message).
+    """
+    import numpy as np
+    import logging
+    logger = logging.getLogger("safe_align_features")
+    
+    # Calculate overlap
+    input_features = set(input_df.columns)
+    expected_features_set = set(expected_features)
+    overlap = input_features & expected_features_set
+    overlap_pct = len(overlap) / len(expected_features_set) * 100 if expected_features_set else 0
+    missing = expected_features_set - input_features
+    extra = input_features - expected_features_set
+    
+    if overlap_pct < 90:
+        error = (f"Critical feature mismatch for {molecule_name}: "
+                 f"{len(overlap)}/{len(expected_features_set)} features present ({overlap_pct:.1f}%). "
+                 f"Missing: {sorted(list(missing))[:5]}... (total {len(missing)})")
+        logger.error(error)
+        return None, error
+    if missing:
+        logger.warning(f"{len(missing)} features missing for {molecule_name}. Filling with 0. Examples: {sorted(list(missing))[:5]}")
+    if extra:
+        logger.warning(f"{len(extra)} extra features in input for {molecule_name}. Examples: {sorted(list(extra))[:5]}")
+    # Align and fill missing with 0
+    aligned_df = input_df.reindex(columns=expected_features, fill_value=0)
+    return aligned_df, None
+
+
+
+

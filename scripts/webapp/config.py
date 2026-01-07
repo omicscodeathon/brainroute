@@ -2,9 +2,10 @@ import streamlit as st
 
 # Model Configuration
 MODEL_PATHS = {
-    'KNN': 'output/models/KNN_model.pkl',
-    'XGB': 'output/models/XGB_model.pkl',
-    'scaler': 'output/models/scaler.pkl',
+    'KNN': '../../output/models/padel_KNN_model.pkl',
+    'LGBM': '../../output/models/padel_LGBM_model.pkl',
+    'ET': '../../output/models/padel_ET_model.pkl',
+    'scaler': '../../output/models/scaler_padel.pkl',
 }
 
 # AI Model Configuration - Using OpenAI client with HF router
@@ -24,7 +25,7 @@ API_GENERATION_CONFIG = {
 
 # UI Configuration
 PAGE_CONFIG = {
-    'page_title': "NeuroGate",
+    'page_title': "BrainRoute",
     'page_icon': "🧪",
     'layout': "wide"
 }

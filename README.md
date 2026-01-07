@@ -13,7 +13,7 @@
 [![GitHub contributors](https://img.shields.io/github/contributors/omicscodeathon/mtoralzml.svg)](https://GitHub.com/omicscodeathon/mtoralzml/graphs/contributors/)
 [![DOI](https://img.shields.io/badge/DOI-10.1101%2F2025.xxx-blue)](https://doi.org/10.1101/2025.xxx)
 
-[🚀 Live Demo](https://huggingface.co/spaces/Nnobody/brainroute) • [📖 Documentation](#-table-of-contents) • [💬 Discussions](https://github.com/omicscodeathon/mtoralzml/discussions) • [🐛 Report Bug](https://github.com/omicscodeathon/mtoralzml/issues)
+[🚀 Live Demo](https://huggingface.co/spaces/Nnobody/brainroute) • [📖 Documentation](#-table-of-contents) • [💬 Discussions](https://github.com/omicscodeathon/brainroute/discussions) • [🐛 Report Bug](https://github.com/omicscodeathon/brainroute/issues)
 
 </div>
 
@@ -148,8 +148,8 @@ Applied to neurodegenerative diseases (Alzheimer's, Parkinson's), neuro-oncology
 
 ```bash
 # Clone the repository
-git clone https://github.com/omicscodeathon/mtoralzml.git
-cd mtoralzml
+git clone https://github.com/omicscodeathon/brainroute.git
+cd brainroute
 
 # Create virtual environment (recommended)
 python -m venv brainroute_env
@@ -163,8 +163,8 @@ pip install -r requirements.txt
 
 ```bash
 # Clone and navigate
-git clone https://github.com/omicscodeathon/mtoralzml.git
-cd mtoralzml
+git clone https://github.com/omicscodeathon/brainroute.git
+cd brainroute
 
 # Create conda environment (recommended for M-series chips)
 conda create -n brainroute python=3.12
@@ -202,7 +202,7 @@ pytest tests/
 
 ```bash
 # Navigate to project directory
-cd mtoralzml
+cd brainroute
 
 # Start Streamlit app
 streamlit run scripts/webapp/main.py
@@ -813,7 +813,7 @@ curl -X POST https://api.brainroute.io/predict \
 
 ```bash
 # Download pre-trained models
-wget https://github.com/omicscodeathon/mtoralzml/releases/download/v1.0/models.zip
+wget https://github.com/omicscodeathon/brainroute/releases/download/v1.0/models.zip
 unzip models.zip -d output/
 
 # Or train models from scratch
@@ -926,9 +926,9 @@ model.to(device)
 ### Getting Help
 
 - 📖 [Documentation](https://github.com/omicscodeathon/mtoralzml/wiki)
-- 💬 [GitHub Discussions](https://github.com/omicscodeathon/mtoralzml/discussions)
-- 🐛 [Report a Bug](https://github.com/omicscodeathon/mtoralzml/issues/new?template=bug_report.md)
-- ✨ [Feature Request](https://github.com/omicscodeathon/mtoralzml/issues/new?template=feature_request.md)
+- 💬 [GitHub Discussions](https://github.com/omicscodeathon/brainroute/discussions)
+- 🐛 [Report a Bug](https://github.com/omicscodeathon/brainroute/issues/new?template=bug_report.md)
+- ✨ [Feature Request](https://github.com/omicscodeathon/brainroute/issues/new?template=feature_request.md)
 - 📧 Email: sohamshirolkar24@gmail.com, leahcerere@gmail.com, lewistem@gmail.com, nemase00@gmail.com
 
 ---
@@ -942,8 +942,8 @@ We welcome contributions from the community! BrainRoute is an open-science proje
 1. **Fork the repository**
 
    ```bash
-   git clone https://github.com/yourusername/mtoralzml.git
-   cd mtoralzml
+   git clone https://github.com/yourusername/brainroute.git
+   cd brainroute
    git checkout -b feature/your-feature-name
    ```
 
@@ -1014,21 +1014,21 @@ Contributors will be:
 If you use BrainRoute in your research, please cite:
 
 ```bibtex
-@article{shirolkar2025brainroute,
+@article{shirolkar2026brainroute,
   title={BrainRoute: An Open Machine Learning Platform for Blood-Brain Barrier Permeability Prediction with Neurodegenerative Disease Applications},
   author={Shirolkar, Soham and Cerere, Leah W. and Tem, Lewis and Ahmed, Noura E. and Some, Georges and Awe, Olaitan I.},
-  journal={bioRxiv},
-  year={2025},
-  doi={10.1101/2025.xxx},
-  url={https://github.com/omicscodeathon/mtoralzml}
+  journal={Springernature},
+  year={2026},
+  doi={10.1101/2026.xxx},
+  url={https://github.com/omicscodeathon/brainroute}
 }
 ```
 
 **APA Format:**
-Shirolkar, S., Cerere, L. W., Tem, L., Ahmed, N. E., Some, G., & Awe, O. I. (2025). BrainRoute: An Open Machine Learning Platform for Blood-Brain Barrier Permeability Prediction with Neurodegenerative Disease Applications. _bioRxiv_. https://doi.org/10.1101/2025.xxx
+Shirolkar, S., Cerere, L. W., Tem, L., Ahmed, N. E., Some, G., & Awe, O. I. (2026). BrainRoute: An Open Machine Learning Platform for Blood-Brain Barrier Permeability Prediction with Neurodegenerative Disease Applications. _Springernature_. https://doi.org/10.1101/2026.xxx
 
 **Vancouver Format:**
-Shirolkar S, Cerere LW, Tem L, Ahmed NE, Some G, Awe OI. BrainRoute: An Open Machine Learning Platform for Blood-Brain Barrier Permeability Prediction with Neurodegenerative Disease Applications. bioRxiv. 2025. doi:10.1101/2025.xxx
+Shirolkar S, Cerere LW, Tem L, Ahmed NE, Some G, Awe OI. BrainRoute: An Open Machine Learning Platform for Blood-Brain Barrier Permeability Prediction with Neurodegenerative Disease Applications. Springernature. 2026. doi:10.1101/2026.xxx
 
 ---
 
@@ -1170,8 +1170,8 @@ BrainRoute is committed to:
 
 ### Version 1.5 (Q2 2025) 🚧
 
-- [ ] REST API for programmatic access
-- [ ] Docker containerization
+- [x] REST API for programmatic access
+- [x] Docker containerization
 - [ ] Expanded descriptor sets (Mordred, PaDEL)
 - [ ] Model explainability (SHAP values)
 - [ ] Additional case studies (Parkinson's, brain tumors)
@@ -1203,12 +1203,12 @@ BrainRoute is committed to:
 
 <div align="center">
 
-![GitHub repo size](https://img.shields.io/github/repo-size/omicscodeathon/mtoralzml)
-![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/omicscodeathon/mtoralzml)
-![Lines of code](https://img.shields.io/tokei/lines/github/omicscodeathon/mtoralzml)
-![GitHub last commit](https://img.shields.io/github/last-commit/omicscodeathon/mtoralzml)
-![GitHub issues](https://img.shields.io/github/issues/omicscodeathon/mtoralzml)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/omicscodeathon/mtoralzml)
+![GitHub repo size](https://img.shields.io/github/repo-size/omicscodeathon/brainroute)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/omicscodeathon/brainroute)
+![Lines of code](https://img.shields.io/tokei/lines/github/omicscodeathon/brainroute)
+![GitHub last commit](https://img.shields.io/github/last-commit/omicscodeathon/brainroute)
+![GitHub issues](https://img.shields.io/github/issues/omicscodeathon/brainroute)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/omicscodeathon/brainroute)
 
 </div>
 
@@ -1232,18 +1232,18 @@ BrainRoute is committed to:
 
 ### Project Links
 
-- 🌐 **Currated Database**: [brainroute-db](https://mr-nnobody.github.io/brainroute-db)
-- 💻 **GitHub**: [github.com/omicscodeathon/mtoralzml](https://github.com/omicscodeathon/mtoralzml)
-- 🚀 **Live Demo**: [HuggingFace Spaces](https://huggingface.co/Nnoboody/brainroute)
+- 🌐 **Curated Database**: [brainroutedb](https://omicscodeathon.github.io/brainroutedb)
+- 💻 **GitHub**: [github.com/omicscodeathon/brainroute](https://github.com/omicscodeathon/brainroute)
+- 🚀 **Live Demo**: [BrainRoute Deployment](https://igmr.org/software/brainroute)
 - 📖 **Documentation**: [GitHub Wiki](https://github.com/omicscodeathon/mtoralzml/wiki)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/omicscodeathon/mtoralzml/discussions)
-- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/omicscodeathon/mtoralzml/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/omicscodeathon/brainroute/discussions)
+- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/omicscodeathon/brainroute/issues)
 
 ## 🌟 Star History
 
 <div align="center">
 
-[![Star History Chart](https://api.star-history.com/svg?repos=omicscodeathon/mtoralzml&type=Date)](https://star-history.com/#omicscodeathon/mtoralzml&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=omicscodeathon/brainroute&type=Date)](https://star-history.com/#omicscodeathon/brainroute&Date)
 
 </div>
 
@@ -1259,7 +1259,7 @@ _Accelerating CNS Drug Discovery Through Open Science_
 
 ---
 
-**© 2025 BrainRoute Team. All rights reserved.**
+**© 2026 BrainRoute Team. All rights reserved.**
 
 _If you find this project useful, please consider giving it a ⭐ on GitHub!_
 
