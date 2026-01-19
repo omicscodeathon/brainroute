@@ -30,7 +30,12 @@ def load_ml_models():
     for i, (model_name, model_path) in enumerate(MODEL_PATHS.items()):
         try:
             status_text.text(f"Loading {model_name} model...")
-            models[model_name] = joblib.load(model_path)
+            
+            # FIXED: Convert relative path to absolute path based on this file's location
+            # This ensures paths work regardless of where you run the 'streamlit run' command from
+            abs_model_path = os.path.abspath(os.path.join(os.path.dirname(__file__), model_path))
+            
+            models[model_name] = joblib.load(abs_model_path)
             progress_bar.progress((i + 1) / total_models)
             logger.info(f"Successfully loaded {model_name} model")
         except Exception as e:

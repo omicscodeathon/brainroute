@@ -350,7 +350,7 @@ if st.session_state.models_loaded:
         st.session_state.processing_mode = processing_mode.lower().replace(" ", "_")
     with db_col:
         st.info('Access Database')
-        st.link_button("🔗 Go to Database Site", "https://mr-nnobody.github.io/brainroute-db", use_container_width=True)
+        st.link_button("🔗 Go to Database Site", "https://omicscodeathon.github.io/brainroutedb", use_container_width=True)
 
     # -------------------------
     # Single Molecule Processing
@@ -434,7 +434,7 @@ if st.session_state.models_loaded:
                         
                         # Make prediction with uncertainty
                         with st.spinner("🤖 Making BBB prediction with PaDEL-based models..."):
-                            padel_preds, padel_confs, padel_error = predict_bbb_padel(
+                            padel_preds, padel_confs, ensemble_pred, avg_conf, padel_error = predict_bbb_padel(
                                 smiles, st.session_state.models
                             )
                         if padel_error:
@@ -450,7 +450,9 @@ if st.session_state.models_loaded:
                                     'mol': mol,
                                     'smiles': smiles,
                                     'formula': formula,
-                                    'name': user_input
+                                    'name': user_input,
+                                    'prediction': ensemble_pred,
+                                    'confidence': avg_conf
                                 }
 
         # Display results if available (persistent across interactions)
@@ -482,6 +484,13 @@ if st.session_state.models_loaded:
             
             with col2:
                 st.subheader("📊 PaDEL Model Predictions")
+                
+                pred_col1, pred_col2 = st.columns(2)
+                with pred_col1:
+                    st.metric("Prediction", results['prediction'])
+                with pred_col2:
+                    st.metric("Confidence", f"{results['confidence']:.1f}")
+                
                 padel_preds = results['padel_preds']
                 padel_confs = results['padel_confs']
                 model_table = []

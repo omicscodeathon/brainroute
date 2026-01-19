@@ -362,7 +362,7 @@ def scale_descriptors(input_df, models):
 
 def predict_bbb_padel(smiles, models):
     """
-    Predict BBB penetration using PaDEL descriptors and the provided models (KNN, LGBM, ET).
+    Predict BBB penetration using PaDEL descriptors and the provided models (KNN, LGBM, EtT).
     Returns a dict of predictions and confidences for each model.
     """
     try:
@@ -376,7 +376,7 @@ def predict_bbb_padel(smiles, models):
             from utils import safe_align_features
             padel_df, align_error = safe_align_features(padel_df, expected_features, smiles[:20])
             if align_error:
-                return None, None, align_error
+                return None, None, None, None, align_error
         # Scale descriptors using StandardScaler
         padel_df = scale_descriptors(padel_df, models)
         predictions = {}
@@ -392,14 +392,24 @@ def predict_bbb_padel(smiles, models):
                     else:
                         confidence = None
                     predictions[model_name] = int(pred[0])
-                    confidences[model_name] = confidence
+                    confidences[model_name] = confidence 
+                    
+                    # Calculate ensemble prediction
+                    pred_values = list(predictions.values())
+                    avg_pred = sum(pred_values) / len(pred_values)
+                    ensemble_pred = "BBB+" if avg_pred >= 0.5 else "BBB-"
+                    
+                    # Calculate average confidence
+                    valid_confs = [c for c in confidences.values() if c is not None]
+                    avg_confidence = sum(valid_confs) / len(valid_confs) if valid_confs else 50.0
+                    
                 except Exception as e:
                     logger.warning(f"Model {model_name} prediction failed: {str(e)}")
                     continue
         if not predictions:
-            return None, None, "All models failed to make predictions"
-        return predictions, confidences, None
+            return None, None, None, None, "All models failed to make predictions"
+        return predictions, confidences, ensemble_pred, avg_confidence, None
     except Exception as e:
         error_msg = f"PaDEL prediction failed: {str(e)}"
         logger.error(error_msg)
-        return None, None, error_msg
+        return None, None, None, None, error_msg
