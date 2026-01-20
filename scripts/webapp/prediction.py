@@ -7,7 +7,7 @@ from config import DEFAULT_MODEL
 import logging
 from sklearn.preprocessing import StandardScaler
 
-from api import get_chembl_info, get_formula
+from api import get_chembl_info, get_formula, get_smiles
 from utils import calculate_padel_descriptors, calculate_padel_descriptors_batch
 
 logger = logging.getLogger(__name__)
@@ -166,7 +166,6 @@ def process_batch_molecules(input_data, input_type, models):
             
             # If not SMILES, try as name
             if not mol and input_method in ['name', 'mixed']:
-                from scripts.webapp.api import get_smiles
                 try:
                     smiles = get_smiles(molecule)
                     mol = Chem.MolFromSmiles(smiles) if smiles else None
