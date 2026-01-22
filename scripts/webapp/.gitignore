@@ -1,4 +1,3 @@
 # Ignore files related to
-database/
 .streamlit/
 __pycache__/
