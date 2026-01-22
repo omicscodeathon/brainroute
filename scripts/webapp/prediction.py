@@ -370,11 +370,13 @@ def predict_bbb_padel(smiles, models):
         padel_df = padel_df.drop(columns=['Name'], errors='ignore')
         # Ensure all columns are numeric
         padel_df = padel_df.apply(pd.to_numeric, errors='coerce').fillna(0)
+        padel_df = padel_df.replace([np.inf, -np.inf], 0) #large descriptor values fixed 
         expected_features = models.get('feature_names')
         if expected_features:
             from utils import safe_align_features
             padel_df, align_error = safe_align_features(padel_df, expected_features, smiles[:20])
             if align_error:
+                print(f"align_error: {align_error}")
                 return None, None, None, None, align_error
         # Scale descriptors using StandardScaler
         padel_df = scale_descriptors(padel_df, models)
