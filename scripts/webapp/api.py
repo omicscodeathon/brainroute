@@ -34,11 +34,18 @@ def get_chembl_info(compound_input):
 
     molecule_data = molecule_response.json()
 
+    # Prefer ChEMBL preferred name; fall back to user input when missing
+    pref_name = molecule_data.get("pref_name")
+    resolved_name = pref_name if pref_name else compound_input
+
+    # Canonical SMILES from ChEMBL if available
+    canonical_smiles = molecule_data.get("molecule_structures", {}).get("canonical_smiles")
+
     info = {
         "ChEMBL ID": chembl_id,
-        "Name": molecule_data.get("pref_name"),
+        "Name": resolved_name,
         "Molecule Type": molecule_data.get("molecule_type"),
-        "SMILES": molecule_data.get("molecule_structures", {}).get("canonical_smiles"),
+        "SMILES": canonical_smiles,
         "Max Phase": molecule_data.get("max_phase"),  # clinical trial phase
         "Mechanism of Action": molecule_data.get("mechanism_of_action"),
         "Therapeutic Indications": molecule_data.get("therapeutic_indication"),

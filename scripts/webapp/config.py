@@ -18,7 +18,7 @@ HF_API_TOKEN = st.secrets["HF_TOKEN"]
 
 # Generation Parameters for OpenAI client
 API_GENERATION_CONFIG = {
-    'max_new_tokens': 150,
+    'max_new_tokens': 500,
     'temperature': 0.7,
     'top_p': 0.9,
 }
