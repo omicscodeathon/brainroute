@@ -1,11 +1,28 @@
 import os
 import psycopg2
-from dotenv import load_dotenv
 import threading
 import numpy as np
 from rdkit.Chem import Descriptors
 
-load_dotenv()
+# Try to load from .env for local development, use st.secrets for Streamlit Cloud
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
+def get_database_url():
+    """Get database URL from environment or Streamlit secrets."""
+    # First try environment variable (local dev with .env)
+    db_url = os.getenv("DATABASE_URL")
+    if db_url:
+        return db_url
+    # Then try Streamlit secrets (cloud deployment)
+    try:
+        import streamlit as st
+        return st.secrets.get("DATABASE_URL")
+    except:
+        return None
 
 def convert_numpy_types(value):
   """Convert NumPy types to Python native types for database insertion."""
@@ -23,7 +40,11 @@ def add_to_database(results):
   """Adds a compound and its prediction results to the Neon database.
   """
   try:
-    conn = psycopg2.connect(os.getenv("DATABASE_URL"))
+    db_url = get_database_url()
+    if not db_url:
+      print("DATABASE_URL not configured")
+      return
+    conn = psycopg2.connect(db_url)
     cur = conn.cursor()
     
     prop = results.get('properties', {})
@@ -64,7 +85,11 @@ def add_to_database_batch(results):
   """Adds a batch of compounds and prediction results to the Neon database.
   """
   try:
-    conn = psycopg2.connect(os.getenv("DATABASE_URL"))
+    db_url = get_database_url()
+    if not db_url:
+      print("DATABASE_URL not configured")
+      return
+    conn = psycopg2.connect(db_url)
     cur = conn.cursor()
     
     insert_query = """
