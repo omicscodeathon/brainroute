@@ -39,7 +39,7 @@ st.markdown("""
     .floating-nav {
         position: fixed;
         top: 1rem;
-        right: 1.5rem;
+        left: 1.5rem;
         z-index: 1000;
     }
     
@@ -161,8 +161,8 @@ st.markdown("""
 
 # Floating Home button container
 st.markdown('<div class="floating-nav">', unsafe_allow_html=True)
-col1, col2 = st.columns([10, 1])
-with col2:
+col1, col2 = st.columns([1, 10])
+with col1:
     if st.button("Home", key="home_btn", type="secondary"):
         st.switch_page("main.py")
 st.markdown('</div>', unsafe_allow_html=True)

@@ -122,12 +122,16 @@ st.markdown("""
     /* Buttons - default style (nav buttons) */
     .stButton > button, .stLinkButton > a {
         background: #ffffff !important;
-        border: 1px solid #e0e0e0 !important;
+        border: 1px solid #000000 !important;
         border-radius: 8px !important;
         padding: 0.5rem 1.2rem !important;
         color: #000000 !important;
         font-family: 'Times New Roman', Times, serif !important;
         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08) !important;
+        height: 38px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
     }
     
     .stButton > button:hover, .stLinkButton > a:hover {
@@ -180,8 +184,7 @@ st.markdown("""
         border: 1px solid #cccccc;
         border-radius: 16px;
         padding: 2.5rem 3rem;
-        margin: 0.5rem 0 2rem 0;
-        text-align: center;
+        margin: 0.5rem 2rem 2rem 3rem;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
     }
     
@@ -431,13 +434,13 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Floating navigation buttons
-nav_cols = st.columns([8, 1, 1])
-with nav_cols[1]:
-    st.link_button("Database", "https://omicscodeathon.github.io/brainroutedb")
-with nav_cols[2]:
+# Floating navigation buttons - Tutorial left, Database right
+nav_cols = st.columns([1, 6, 1])
+with nav_cols[0]:
     if st.button("Tutorial", key="tutorial_btn"):
         st.switch_page("pages/tutorial.py")
+with nav_cols[2]:
+    st.link_button("Database", "https://omicscodeathon.github.io/brainroutedb")
 
 # -------------------------
 # Initialize Session State
@@ -580,7 +583,7 @@ if not st.session_state.models_loaded:
 # -------------------------
 st.markdown('''
 <div class="main-header">
-    <h1 style="text-align:center;">BrainRoute</h1>
+    <h1 style="text-align:center; margin-left: 1rem;">BrainRoute</h1>
     <p style="text-align:center;">Blood-Brain Barrier Penetration Classifier<br>This tool allows you to explore molecules and predict their Blood-Brain Barrier (BBB) penetration.<br>BrainRoute will classify your molecule as BBB+ or BBB- and provide additional information for further research.</p>
 </div>
 ''', unsafe_allow_html=True)
