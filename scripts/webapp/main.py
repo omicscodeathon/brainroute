@@ -2,7 +2,7 @@ import urllib
 import streamlit as st
 import sys
 from rdkit import Chem
-from rdkit.Chem import Draw
+from rdkit.Chem.Draw import rdMolDraw2D
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -719,10 +719,13 @@ if st.session_state.models_loaded:
             with col1:
                 st.markdown('<p class="section-title">Structure</p>', unsafe_allow_html=True)
                 try:
-                    mol_img = Draw.MolToImage(results['mol'], size=(300, 300))
-                    st.image(mol_img, caption="Molecule Structure")
-                except:
-                    st.error("Could not generate structure image")
+                    drawer = rdMolDraw2D.MolDraw2DSVG(300, 300)
+                    drawer.DrawMolecule(results['mol'])
+                    drawer.FinishDrawing()
+                    svg = drawer.GetDrawingText()
+                    st.image(svg, caption="Molecule Structure")
+                except Exception as e:
+                    st.info(f"Structure (SMILES): `{results['smiles']}`")
                 
                 if results['info']:
                     st.markdown('<p class="section-title">Compound Information</p>', unsafe_allow_html=True)
