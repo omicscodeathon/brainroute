@@ -1,0 +1,14 @@
+streamlit>=1.28.0
+pandas
+numpy
+rdkit
+plotly
+padelpy
+joblib
+scikit-learn
+lightgbm
+requests
+psycopg2-binary
+transformers
+torch
+huggingface_hub
