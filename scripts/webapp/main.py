@@ -174,15 +174,15 @@ st.markdown("""
     
     /* Header with glassmorphism */
     .main-header {
-        background: rgba(248, 248, 248, 0.8);
+        background: rgba(230, 230, 230, 0.85);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
-        border: 1px solid #e0e0e0;
+        border: 1px solid #cccccc;
         border-radius: 16px;
         padding: 2.5rem 3rem;
         margin: 0.5rem 0 2rem 0;
         text-align: center;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
     }
     
     .main-header h1 {
@@ -192,10 +192,9 @@ st.markdown("""
     }
     
     .main-header p {
-        font-size: 1.25rem;
-        line-height: 1.6;
-        max-width: 700px;
-        margin: 0 auto;
+        font-size: 0.95rem;
+        line-height: 1.8;
+        margin: 0;
     }
     
     /* Section headers */
@@ -214,17 +213,42 @@ st.markdown("""
     }
     
     /* Chat styling */
+    .chat-message {
+        max-width: 75%;
+        padding: 0.75rem 1rem;
+        border-radius: 12px;
+        margin-bottom: 0.75rem;
+    }
+    
     .user-message {
         background: #000000 !important;
+        margin-left: auto;
+        margin-right: 0;
+        border-bottom-right-radius: 4px;
     }
     
     .user-message, .user-message * {
         color: #ffffff !important;
+        text-align: right;
     }
     
     .assistant-message {
         background: #f0f0f0 !important;
         border: 1px solid #e0e0e0;
+        margin-left: 0;
+        margin-right: auto;
+        border-bottom-left-radius: 4px;
+    }
+    
+    .assistant-message, .assistant-message * {
+        color: #000000 !important;
+        text-align: left;
+    }
+    
+    .message-timestamp {
+        font-size: 0.7rem;
+        opacity: 0.7;
+        margin-top: 0.25rem;
     }
     
     .chat-empty-state {
@@ -479,23 +503,25 @@ def display_chat_interface():
     st.markdown('<p class="section-title">Chat History</p>', unsafe_allow_html=True)
     
     with st.container(height=500):
-        st.markdown('<div class="chat-container-inner">', unsafe_allow_html=True)
-        
         for chat in st.session_state.chat_history:
             if chat['role'] == 'user':
                 st.markdown(f'''
-                <div class="chat-message user-message">
-                    <div><strong>You</strong></div>
-                    <div>{chat['message']}</div>
-                    <div class="message-timestamp">{chat['timestamp']}</div>
+                <div style="display: flex; justify-content: flex-end;">
+                    <div class="chat-message user-message">
+                        <div><strong>You</strong></div>
+                        <div>{chat['message']}</div>
+                        <div class="message-timestamp">{chat['timestamp']}</div>
+                    </div>
                 </div>
                 ''', unsafe_allow_html=True)
             else:
                 st.markdown(f'''
-                <div class="chat-message assistant-message">
-                    <div><strong>Llama 3</strong></div>
-                    <div>{chat['message']}</div>
-                    <div class="message-timestamp">{chat['timestamp']}</div>
+                <div style="display: flex; justify-content: flex-start;">
+                    <div class="chat-message assistant-message">
+                        <div><strong>Llama 3</strong></div>
+                        <div>{chat['message']}</div>
+                        <div class="message-timestamp">{chat['timestamp']}</div>
+                    </div>
                 </div>
                 ''', unsafe_allow_html=True)
         
@@ -506,8 +532,6 @@ def display_chat_interface():
                     <p>Ask about your molecule's BBB properties, drug potential, or related research.</p>
                 </div>
             ''', unsafe_allow_html=True)
-            
-        st.markdown('</div>', unsafe_allow_html=True)
 
 def process_chat_question(question, compound_name, prediction, confidence):
     """Process a chat question and generate response"""
@@ -542,7 +566,7 @@ if not st.session_state.models_loaded:
         if models:
             st.session_state.models = models
             st.session_state.models_loaded = True
-            st.success(f"Successfully loaded prediction models!")
+            st.toast("Successfully loaded prediction models!")
         
         if errors:
             for error in errors:
@@ -556,9 +580,8 @@ if not st.session_state.models_loaded:
 # -------------------------
 st.markdown('''
 <div class="main-header">
-    <h1>BrainRoute</h1>
-    <p>Blood-Brain Barrier Penetration Classifier. Explore molecules and predict their BBB penetration. 
-    BrainRoute classifies molecules as BBB+ or BBB- and provides molecular information for drug discovery research.</p>
+    <h1 style="text-align:center;">BrainRoute</h1>
+    <p style="text-align:center;">Blood-Brain Barrier Penetration Classifier<br>This tool allows you to explore molecules and predict their Blood-Brain Barrier (BBB) penetration.<br>BrainRoute will classify your molecule as BBB+ or BBB- and provide additional information for further research.</p>
 </div>
 ''', unsafe_allow_html=True)
 
@@ -594,7 +617,7 @@ if st.session_state.models_loaded:
                 horizontal=True
             )
             st.markdown("""
-            <div style="background: rgba(248, 248, 248, 0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid #e0e0e0; border-radius: 12px; padding: 1rem 1.5rem; margin: 0.5rem 0; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);">
+            <div style="background: rgba(230, 230, 230, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid #cccccc; border-radius: 12px; padding: 1rem 1.5rem; margin: 0.5rem 0; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);">
                 <p style="margin: 0 0 0.5rem 0; font-weight: bold;">Examples:</p>
                 <p style="margin: 0 0 0.25rem 0;">Compound Name: aspirin, caffeine, morphine, donepezil</p>
                 <p style="margin: 0;">SMILES: <code style="background: #e8e8e8; padding: 2px 6px; border-radius: 4px; font-family: monospace;">CC(=O)OC1=CC=CC=C1C(=O)O</code> (aspirin)</p>
