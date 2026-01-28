@@ -38,8 +38,8 @@ def get_chembl_info(compound_input):
     pref_name = molecule_data.get("pref_name")
     resolved_name = pref_name if pref_name else compound_input
 
-    # Canonical SMILES from ChEMBL if available
-    canonical_smiles = molecule_data.get("molecule_structures", {}).get("canonical_smiles")
+    # Canonical SMILES from ChEMBL if available (handle None values)
+    canonical_smiles = (molecule_data.get("molecule_structures") or {}).get("canonical_smiles")
 
     info = {
         "ChEMBL ID": chembl_id,

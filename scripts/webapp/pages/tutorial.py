@@ -287,6 +287,8 @@ st.markdown("""
 
 st.markdown("### Limitations & Disclaimers")
 st.markdown("""
+- BrainRoute DataBase (BrainRouteDB) might not be updated at all times. Please wait till the synching is complete when loading the database for the first time.
+- BrainRouteDB does not contain our training data. Please check out our Github for more information regarding the training data.
 - Predictions are computational estimates and should be validated experimentally
 - Model accuracy depends on the chemical space of training data - novel scaffolds may have higher uncertainty
 - BBB penetration in vivo depends on many factors not captured by molecular descriptors (efflux transporters, metabolism, etc.)
@@ -296,7 +298,7 @@ st.markdown("""
 st.markdown("### Contact & Support")
 st.markdown("""
 BrainRoute was developed as part of the Omics-Codeathon project.
-- **GitHub:** [github.com/omicscodeathon](https://github.com/omicscodeathon)
+- **GitHub:** [github.com/omicscodeathon/brainroute](https://github.com/omicscodeathon/brainroute)
 - **Database:** [BrainRoute Database](https://omicscodeathon.github.io/brainroutedb)
 
 For bug reports, feature requests, or collaboration inquiries, please open an issue on our GitHub repository.
@@ -308,7 +310,7 @@ st.markdown("## Tips for Best Results")
 
 st.markdown("### Input Recommendations")
 st.markdown("""
-- **Use SMILES when possible:** SMILES strings provide unambiguous molecular identification and avoid name lookup failures
+- **Use SMILES when possible:** SMILES strings provide unambiguous molecular identification and avoid name lookup failures. Avoid single element molecules like "chlorine".
 - **Standardize structures:** Use parent compounds without salts, remove stereochemistry if not essential
 - **Check compound names:** Verify your compound name exists in PubChem or ChEMBL before submitting
 - **Batch processing:** For large datasets, break into batches of 50-100 molecules for optimal performance

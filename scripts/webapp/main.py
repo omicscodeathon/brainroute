@@ -380,6 +380,21 @@ st.markdown("""
         border-top-color: #000000 !important;
     }
     
+    .stSpinner, .stSpinner > div, [data-testid="stSpinner"] {
+        color: #000000 !important;
+    }
+    
+    [data-testid="stSpinner"] > div {
+        background-color: rgba(255, 255, 255, 0.9) !important;
+        padding: 1rem !important;
+        border-radius: 8px !important;
+    }
+    
+    [data-testid="stSpinner"] p, [data-testid="stSpinner"] span {
+        color: #000000 !important;
+        font-size: 1rem !important;
+    }
+    
     /* Progress bar */
     .stProgress > div > div {
         background-color: #000000 !important;
@@ -487,6 +502,16 @@ def get_uncertainty_interpretation(uncertainty):
     else:
         return "High uncertainty - Low confidence, consider additional validation"
 
+def show_loading(placeholder, message):
+    """Display a visible loading spinner with message"""
+    placeholder.markdown(f'''
+    <div style="background: #f0f0f0; border: 1px solid #cccccc; border-radius: 8px; padding: 1rem; margin: 1rem 0; display: flex; align-items: center; gap: 0.75rem;">
+        <div style="width: 20px; height: 20px; border: 3px solid #cccccc; border-top-color: #000000; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+        <span style="color: #000000; font-size: 1rem;">{message}</span>
+    </div>
+    <style>@keyframes spin {{ to {{ transform: rotate(360deg); }} }}</style>
+    ''', unsafe_allow_html=True)
+
 def clear_prediction_results():
     """Clear prediction results when analyzing a new molecule"""
     st.session_state.prediction_results = None
@@ -548,8 +573,10 @@ def process_chat_question(question, compound_name, prediction, confidence):
     
     Please provide a helpful, accurate response focusing on pharmacology and drug discovery aspects."""
     
-    with st.spinner("Llama 3 is thinking..."):
-        response, ai_error = generate_ai_response(tokenizer, model, context_prompt)
+    thinking_placeholder = st.empty()
+    show_loading(thinking_placeholder, "Llama 3 is thinking...")
+    response, ai_error = generate_ai_response(tokenizer, model, context_prompt)
+    thinking_placeholder.empty()
     
     if ai_error:
         add_to_chat("assistant", f"Sorry, I encountered an error: {ai_error}")
@@ -563,8 +590,17 @@ def process_chat_question(question, compound_name, prediction, confidence):
 # -------------------------
 if not st.session_state.models_loaded:
     with st.container():
-        with st.spinner("Loading prediction models..."):
-            models, errors = load_ml_models()
+        loading_placeholder = st.empty()
+        with loading_placeholder.container():
+            st.markdown('''
+            <div style="background: #f0f0f0; border: 1px solid #cccccc; border-radius: 8px; padding: 1rem; margin: 1rem 0; display: flex; align-items: center; gap: 0.75rem;">
+                <div style="width: 20px; height: 20px; border: 3px solid #cccccc; border-top-color: #000000; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                <span style="color: #000000; font-size: 1rem;">Loading prediction models...</span>
+            </div>
+            <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+            ''', unsafe_allow_html=True)
+        models, errors = load_ml_models()
+        loading_placeholder.empty()
         
         if models:
             st.session_state.models = models
@@ -647,50 +683,69 @@ if st.session_state.models_loaded:
                 clear_prediction_results()
                 st.session_state.last_analyzed_molecule = user_input
                 
-                with st.spinner("Processing molecule..."):
-                    mol = None
-                    smiles = None
-                    processing_error = None
+                process_placeholder = st.empty()
+                show_loading(process_placeholder, "Processing molecule...")
+                
+                mol = None
+                smiles = None
+                processing_error = None
+                
+                try:
+                    if input_mode == "SMILES String":
+                        mol = Chem.MolFromSmiles(user_input)
+                        smiles = user_input if mol else None
+                        if not mol:
+                            processing_error = "Invalid SMILES string"
+                    
+                    elif input_mode == "Compound Name":
+                        smiles = get_smiles(user_input)
+                        mol = Chem.MolFromSmiles(smiles) if smiles else None
+                        if not mol:
+                            processing_error = f"Could not find SMILES for '{user_input}'"
+                
+                except Exception as e:
+                    processing_error = f"Error processing input: {str(e)}"
+                
+                process_placeholder.empty()
+                
+                if processing_error:
+                    st.error(processing_error)
+                    chatgpt_link = create_chatgpt_link(user_input)
+                    st.markdown(f"Try asking [ChatGPT about {user_input}]({chatgpt_link}) for more information.")
+                
+                elif mol:
+                    st.session_state.current_molecule = {
+                        'mol': mol,
+                        'smiles': smiles,
+                        'name': user_input
+                    }
                     
                     try:
-                        if input_mode == "SMILES String":
-                            mol = Chem.MolFromSmiles(user_input)
-                            smiles = user_input if mol else None
-                            if not mol:
-                                processing_error = "Invalid SMILES string"
-                        
-                        elif input_mode == "Compound Name":
-                            smiles = get_smiles(user_input)
-                            mol = Chem.MolFromSmiles(smiles) if smiles else None
-                            if not mol:
-                                processing_error = f"Could not find SMILES for '{user_input}'"
-                    
+                        fetch_placeholder = st.empty()
+                        show_loading(fetch_placeholder, "Fetching compound information...")
+                        info = get_chembl_info(user_input)
+                        formula = get_formula(smiles)
+                        fetch_placeholder.empty()
                     except Exception as e:
-                        processing_error = f"Error processing input: {str(e)}"
-                    
-                    if processing_error:
-                        st.error(processing_error)
+                        fetch_placeholder.empty()
+                        st.error(f"Could not find '{user_input}' on PubChem or ChEMBL. Please avoid elements and/or ions as input.")
                         chatgpt_link = create_chatgpt_link(user_input)
                         st.markdown(f"Try asking [ChatGPT about {user_input}]({chatgpt_link}) for more information.")
+                        st.stop()
                     
-                    elif mol:
-                        st.session_state.current_molecule = {
-                            'mol': mol,
-                            'smiles': smiles,
-                            'name': user_input
-                        }
-                        
-                        with st.spinner("Fetching compound information..."):
-                            info = get_chembl_info(user_input)
-                            formula = get_formula(smiles)
-                        
-                        with st.spinner("Making BBB prediction with PaDEL-based models..."):
-                            padel_preds, padel_confs, ensemble_pred, avg_conf, padel_error = predict_bbb_padel(
-                                smiles, st.session_state.models
-                            )
-                        
+                    try:
+                        predict_placeholder = st.empty()
+                        show_loading(predict_placeholder, "Making BBB prediction with PaDEL-based models...")
+                        padel_preds, padel_confs, ensemble_pred, avg_conf, padel_error = predict_bbb_padel(
+                            smiles, st.session_state.models
+                        )
+                        predict_placeholder.empty()
+                            
                         if padel_error:
-                            st.error(f"PaDEL model prediction error: {padel_error}")
+                            st.error(f"Prediction unavailable for '{user_input}'. The input may be too simple (e.g., elements, ions) or unsupported. Please try a drug-like molecule.")
+                            chatgpt_link = create_chatgpt_link(user_input)
+                            st.markdown(f"Try asking [ChatGPT about {user_input}]({chatgpt_link}) for more information.")
+                            st.stop()
                         else:
                             properties = calculate_molecular_properties(mol)
                             if properties:
@@ -706,6 +761,12 @@ if st.session_state.models_loaded:
                                     'prediction': ensemble_pred,
                                     'confidence': avg_conf
                                 }
+                    except Exception as e:
+                        predict_placeholder.empty()
+                        st.error(f"Prediction unavailable for '{user_input}'. The input may be too simple (e.g., elements, ions) or unsupported. Please try a drug-like molecule.")
+                        chatgpt_link = create_chatgpt_link(user_input)
+                        st.markdown(f"Try asking [ChatGPT about {user_input}]({chatgpt_link}) for more information.")
+                        st.stop()
 
         # Display results if available
         if st.session_state.prediction_results:
@@ -848,26 +909,28 @@ if st.session_state.models_loaded:
         
         if batch_input is not None:
             if st.button("Process Batch", type="primary"):
-                with st.spinner("Processing batch molecules..."):
-                    
-                    if input_type == "csv":
-                        total_molecules = len(batch_input)
-                    else:
-                        total_molecules = len([line.strip() for line in batch_input.strip().split('\n') if line.strip()])
-                    
-                    progress_bar = st.progress(0)
-                    status_text = st.empty()
-                    
-                    results, batch_error = process_batch_molecules(batch_input, input_type, st.session_state.models)
-                    
-                    progress_bar.progress(100)
-                    status_text.empty()
-                    
-                    if batch_error:
-                        st.error(f"Batch processing error: {batch_error}")
-                    else:
-                        st.session_state.batch_results = results
-                        st.success(f"Batch processing complete. Processed {len(results)} molecules.")
+                batch_placeholder = st.empty()
+                show_loading(batch_placeholder, "Processing batch molecules...")
+                
+                if input_type == "csv":
+                    total_molecules = len(batch_input)
+                else:
+                    total_molecules = len([line.strip() for line in batch_input.strip().split('\n') if line.strip()])
+                
+                progress_bar = st.progress(0)
+                status_text = st.empty()
+                
+                results, batch_error = process_batch_molecules(batch_input, input_type, st.session_state.models)
+                
+                progress_bar.progress(100)
+                status_text.empty()
+                batch_placeholder.empty()
+                
+                if batch_error:
+                    st.error(f"Batch processing error: {batch_error}")
+                else:
+                    st.session_state.batch_results = results
+                    st.success(f"Batch processing complete. Processed {len(results)} molecules.")
         
         if st.session_state.batch_results:
             try: 
@@ -1021,8 +1084,10 @@ if st.session_state.prediction_results:
             col1, col2 = st.columns([2, 1])
             with col1:
                 if st.button("Connect to Llama 3", type="secondary"):
-                    with st.spinner("Connecting to Llama 3 via Hugging Face API..."):
-                        tokenizer, model, ai_error = load_ai_model()
+                    connect_placeholder = st.empty()
+                    show_loading(connect_placeholder, "Connecting to Llama 3 via Hugging Face API...")
+                    tokenizer, model, ai_error = load_ai_model()
+                    connect_placeholder.empty()
                         
                     if ai_error:
                         st.error(f"Failed to connect to AI model: {ai_error}")
