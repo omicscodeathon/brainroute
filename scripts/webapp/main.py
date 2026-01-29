@@ -79,14 +79,14 @@ st.markdown("""
     }
     
     [data-testid="stExpander"] summary {
-        background-color: #f8f8f8 !important;
+        background: linear-gradient(135deg, rgba(30, 100, 255, 0.18) 0%, rgba(90, 160, 255, 0.25) 100%) !important;
         color: #000000 !important;
         font-weight: bold !important;
         padding: 0.75rem 1rem !important;
     }
     
     [data-testid="stExpander"] summary:hover {
-        background-color: #eeeeee !important;
+        background: linear-gradient(135deg, rgba(30, 100, 255, 0.28) 0%, rgba(90, 160, 255, 0.38) 100%) !important;
     }
     
     [data-testid="stExpander"] summary span {
@@ -178,14 +178,14 @@ st.markdown("""
     
     /* Header with glassmorphism */
     .main-header {
-        background: rgba(230, 230, 230, 0.85);
+        background: linear-gradient(135deg, rgba(30, 100, 255, 0.28) 0%, rgba(80, 150, 255, 0.35) 50%, rgba(140, 190, 255, 0.3) 100%);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
-        border: 1px solid #cccccc;
+        border: 1px solid rgba(30, 100, 255, 0.35);
         border-radius: 16px;
         padding: 2.5rem 3rem;
         margin: 0.5rem 2rem 2rem 3rem;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+        box-shadow: 0 8px 32px rgba(30, 100, 255, 0.18);
     }
     
     .main-header h1 {
@@ -209,8 +209,8 @@ st.markdown("""
     
     /* Status indicators */
     .status-success {
-        background: #f0f0f0;
-        border-left: 3px solid #000000;
+        background: linear-gradient(90deg, rgba(30, 100, 255, 0.22) 0%, rgba(100, 170, 255, 0.28) 100%);
+        border-left: 3px solid rgb(30, 100, 255);
         padding: 0.75rem 1rem;
         border-radius: 0 8px 8px 0;
     }
@@ -276,10 +276,12 @@ st.markdown("""
     
     /* Metrics */
     [data-testid="stMetric"] {
-        background: #f8f8f8 !important;
-        border: 1px solid #e0e0e0 !important;
+        background: linear-gradient(145deg, rgba(30, 100, 255, 0.14) 0%, rgba(100, 170, 255, 0.22) 100%) !important;
+        border: 1px solid rgba(30, 100, 255, 0.25) !important;
         border-radius: 10px !important;
         padding: 0.75rem !important;
+        backdrop-filter: blur(10px) !important;
+        -webkit-backdrop-filter: blur(10px) !important;
     }
     
     [data-testid="stMetricValue"] {
@@ -311,7 +313,7 @@ st.markdown("""
     }
     
     [data-testid="stTable"] th {
-        background-color: #f0f0f0;
+        background: linear-gradient(180deg, rgba(30, 100, 255, 0.22) 0%, rgba(90, 160, 255, 0.28) 100%);
         font-weight: bold;
         position: sticky;
         top: 0;
@@ -320,9 +322,11 @@ st.markdown("""
     
     /* Info/warning/error boxes */
     .stAlert, [data-testid="stAlert"] {
-        background: #f8f8f8 !important;
-        border: 1px solid #e0e0e0 !important;
+        background: linear-gradient(135deg, rgba(30, 100, 255, 0.15) 0%, rgba(100, 170, 255, 0.24) 100%) !important;
+        border: 1px solid rgba(30, 100, 255, 0.25) !important;
         border-radius: 10px !important;
+        backdrop-filter: blur(10px) !important;
+        -webkit-backdrop-filter: blur(10px) !important;
     }
     
     .stAlert *, [data-testid="stAlert"] * {
@@ -336,17 +340,17 @@ st.markdown("""
     
     /* File uploader */
     [data-testid="stFileUploader"] {
-        background: #f8f8f8 !important;
-        border: 1px solid #e0e0e0 !important;
+        background: linear-gradient(135deg, rgba(30, 100, 255, 0.12) 0%, rgba(110, 175, 255, 0.2) 100%) !important;
+        border: 1px solid rgba(30, 100, 255, 0.2) !important;
         border-radius: 8px !important;
     }
     
     [data-testid="stFileUploader"] section {
-        background: #f8f8f8 !important;
+        background: rgba(130, 185, 255, 0.15) !important;
     }
     
     [data-testid="stFileUploader"] section > div {
-        background: #f8f8f8 !important;
+        background: rgba(130, 185, 255, 0.15) !important;
     }
     
     [data-testid="stFileUploader"] small,
@@ -656,10 +660,10 @@ if st.session_state.models_loaded:
                 horizontal=True
             )
             st.markdown("""
-            <div style="background: rgba(230, 230, 230, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid #cccccc; border-radius: 12px; padding: 1rem 1.5rem; margin: 0.5rem 0; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);">
+            <div style="background: linear-gradient(135deg, rgba(30, 100, 255, 0.22) 0%, rgba(80, 150, 255, 0.3) 50%, rgba(140, 195, 255, 0.28) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(30, 100, 255, 0.3); border-radius: 12px; padding: 1rem 1.5rem; margin: 0.5rem 0; box-shadow: 0 4px 16px rgba(30, 100, 255, 0.12);">
                 <p style="margin: 0 0 0.5rem 0; font-weight: bold;">Examples:</p>
                 <p style="margin: 0 0 0.25rem 0;">Compound Name: aspirin, caffeine, morphine, donepezil</p>
-                <p style="margin: 0;">SMILES: <code style="background: #e8e8e8; padding: 2px 6px; border-radius: 4px; font-family: monospace;">CC(=O)OC1=CC=CC=C1C(=O)O</code> (aspirin)</p>
+                <p style="margin: 0;">SMILES: <code style="background: rgba(30, 100, 255, 0.15); padding: 2px 6px; border-radius: 4px; font-family: monospace;">CC(=O)OC1=CC=CC=C1C(=O)O</code> (aspirin)</p>
             </div>
             """, unsafe_allow_html=True)
         

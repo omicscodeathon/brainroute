@@ -64,15 +64,15 @@ st.markdown("""
     
     /* Header with glassmorphism */
     .tutorial-header {
-        background: rgba(255, 255, 255, 0.7);
+        background: linear-gradient(135deg, rgba(30, 100, 255, 0.28) 0%, rgba(80, 150, 255, 0.35) 50%, rgba(140, 190, 255, 0.3) 100%);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.3);
+        border: 1px solid rgba(30, 100, 255, 0.35);
         border-radius: 16px;
         padding: 2.5rem 3rem;
         margin-bottom: 2.5rem;
         text-align: center;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 8px 32px rgba(30, 100, 255, 0.18);
     }
     
     .tutorial-header h1 {
@@ -90,11 +90,13 @@ st.markdown("""
     
     /* Section cards */
     .section-card {
-        background: #f8f8f8;
-        border: 1px solid #e0e0e0;
+        background: linear-gradient(135deg, rgba(30, 100, 255, 0.12) 0%, rgba(100, 170, 255, 0.18) 100%);
+        border: 1px solid rgba(30, 100, 255, 0.2);
         border-radius: 12px;
         padding: 2rem;
         margin-bottom: 1.5rem;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
     }
     
     .section-card h2 {
@@ -129,8 +131,8 @@ st.markdown("""
     }
     
     .placeholder-note {
-        background: #f0f0f0;
-        border-left: 3px solid #000000;
+        background: linear-gradient(90deg, rgba(30, 100, 255, 0.15) 0%, rgba(100, 170, 255, 0.2) 100%);
+        border-left: 3px solid rgb(30, 100, 255);
         padding: 1rem 1.25rem;
         margin: 1rem 0;
         font-size: 0.9rem;
@@ -140,7 +142,7 @@ st.markdown("""
     
     /* Inline code styling */
     code {
-        background-color: #f0f0f0 !important;
+        background-color: rgba(30, 100, 255, 0.12) !important;
         color: #000000 !important;
         padding: 2px 6px !important;
         border-radius: 4px !important;
