@@ -14,11 +14,32 @@ logger = logging.getLogger(__name__)
 
 # PADEL_JAR_PATH = '../../notebooks/padel.sh'  # Adjust if needed
 
+def sanitize_descriptors(descr_df):
+    """Remove or replace NaN and Inf values in descriptor DataFrame"""
+    try:
+        # Replace infinity values with NaN
+        descr_df = descr_df.replace([np.inf, -np.inf], np.nan)
+        
+        # Fill NaN values with column median or 0 if all NaN
+        for col in descr_df.columns:
+            if descr_df[col].isna().all():
+                descr_df[col] = 0.0
+            else:
+                descr_df[col].fillna(descr_df[col].median(), inplace=True)
+        
+        return descr_df
+    except Exception as e:
+        logger.error(f"Error sanitizing descriptors: {str(e)}")
+        return descr_df
+
 def predict_bbb_penetration_with_uncertainty(mol, models):
     """Predict BBB penetration with uncertainty quantification using multiple models"""
     try:
         # Calculate descriptors
         descr = pd.DataFrame([Descriptors.CalcMolDescriptors(mol)])
+        
+        # Sanitize descriptors to handle NaN/Inf values
+        descr = sanitize_descriptors(descr)
         
         # Scale descriptors
         if 'scaler' not in models:
@@ -27,11 +48,16 @@ def predict_bbb_penetration_with_uncertainty(mol, models):
         scaler = models['scaler']
         descr_scaled = scaler.transform(descr)
         
+        # Check for NaN/Inf in scaled descriptors
+        if np.any(np.isnan(descr_scaled)) or np.any(np.isinf(descr_scaled)):
+            logger.warning("Scaled descriptors contain NaN or Inf values, sanitizing...")
+            descr_scaled = np.nan_to_num(descr_scaled, nan=0.0, posinf=1e10, neginf=-1e10)
+        
         # Get predictions from all available models
         predictions = {}
         confidences = {}
         
-        for model_name in ['KNN', 'XGB', 'SVM', 'RF', 'LR']:  # Add more models as available
+        for model_name in ['KNN', 'XGB', 'RF', 'LR', 'ET']:  # Add more models as available
             if model_name in models:
                 try:
                     model = models[model_name]
@@ -285,6 +311,13 @@ def process_batch_molecules(input_data, input_type, models):
                     valid_confs = [c for c in confidences.values() if c is not None]
                     avg_confidence = sum(valid_confs) / len(valid_confs) if valid_confs else 50.0
                     
+                    # Calculate uncertainty from confidence spread
+                    if len(valid_confs) > 1:
+                        import numpy as np
+                        uncertainty = np.std(valid_confs)
+                    else:
+                        uncertainty = abs(50 - avg_confidence)
+                    
                     # Calculate agreement
                     agreement = (sum(pred_values) / len(pred_values)) * 100
                     if agreement < 50:
@@ -306,7 +339,7 @@ def process_batch_molecules(input_data, input_type, models):
                         'error': None,
                         'prediction': ensemble_pred,
                         'confidence': avg_confidence,
-                        'uncertainty': 0,  # You can calculate this from model disagreement
+                        'uncertainty': uncertainty,
                         'agreement': agreement,
                         'num_models': len(predictions)
                     }
@@ -370,11 +403,13 @@ def predict_bbb_padel(smiles, models):
         padel_df = padel_df.drop(columns=['Name'], errors='ignore')
         # Ensure all columns are numeric
         padel_df = padel_df.apply(pd.to_numeric, errors='coerce').fillna(0)
+        padel_df = padel_df.replace([np.inf, -np.inf], 0) #large descriptor values fixed 
         expected_features = models.get('feature_names')
         if expected_features:
             from utils import safe_align_features
             padel_df, align_error = safe_align_features(padel_df, expected_features, smiles[:20])
             if align_error:
+                print(f"align_error: {align_error}")
                 return None, None, None, None, align_error
         # Scale descriptors using StandardScaler
         padel_df = scale_descriptors(padel_df, models)

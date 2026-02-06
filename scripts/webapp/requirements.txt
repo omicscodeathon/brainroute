@@ -13,3 +13,5 @@ transformers
 torch
 huggingface_hub
 openai
+python-dotenv
+openpyxl

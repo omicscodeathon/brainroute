@@ -2,7 +2,7 @@ import urllib
 import streamlit as st
 import sys
 from rdkit import Chem
-from rdkit.Chem import Draw
+from rdkit.Chem.Draw import rdMolDraw2D
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -20,96 +20,232 @@ from database.quickstart import add_to_database_batch_threaded, add_to_database_
 # -------------------------
 # Page Config & Initial Setup
 # -------------------------
-st.set_page_config(**PAGE_CONFIG)
+st.set_page_config(
+    page_title="BrainRoute",
+    page_icon=None,
+    layout="wide"
+)
 
-# Custom CSS for better UI with improved chat interface
+# Minimal CSS - Times New Roman, black/white theme
 st.markdown("""
 <style>
+    /* Hide sidebar and default elements */
+    [data-testid="stSidebar"], [data-testid="stSidebarNav"], section[data-testid="stSidebar"] {display: none;}
+    #MainMenu, footer, header {visibility: hidden;}
+    
+    /* Base: Times New Roman font everywhere */
+    * {
+        font-family: 'Times New Roman', Times, serif !important;
+    }
+    
+    /* Force white background on app */
+    .stApp, .main, [data-testid="stAppViewContainer"], [data-testid="stMainBlockContainer"] {
+        background-color: #ffffff !important;
+    }
+    
+    .main .block-container {
+        max-width: 1200px;
+        padding: 1rem 2rem 2rem 2rem;
+    }
+    
+    /* All text black by default (excluding table cells - handled separately) */
+    p, span, div, label, h1, h2, h3, h4, h5, h6, li, strong, em, a {
+        color: #000000 !important;
+    }
+    
+    /* Code/monospace elements - light bg, dark text */
+    code, pre, .stCode, [data-testid="stCode"] {
+        background-color: #f5f5f5 !important;
+        color: #000000 !important;
+        border: 1px solid #e0e0e0 !important;
+        border-radius: 4px !important;
+        padding: 2px 6px !important;
+    }
+    
+    /* Inline code in markdown */
+    .stMarkdown code {
+        background-color: #f0f0f0 !important;
+        color: #000000 !important;
+        padding: 2px 6px !important;
+        border-radius: 4px !important;
+        font-family: 'Courier New', monospace !important;
+    }
+    
+    /* Expanders - ensure visibility */
+    [data-testid="stExpander"] {
+        border: 1px solid #e0e0e0 !important;
+        border-radius: 8px !important;
+        background-color: #ffffff !important;
+    }
+    
+    [data-testid="stExpander"] summary {
+        background: linear-gradient(135deg, rgba(30, 100, 255, 0.18) 0%, rgba(90, 160, 255, 0.25) 100%) !important;
+        color: #000000 !important;
+        font-weight: bold !important;
+        padding: 0.75rem 1rem !important;
+    }
+    
+    [data-testid="stExpander"] summary:hover {
+        background: linear-gradient(135deg, rgba(30, 100, 255, 0.28) 0%, rgba(90, 160, 255, 0.38) 100%) !important;
+    }
+    
+    [data-testid="stExpander"] summary span {
+        color: #000000 !important;
+    }
+    
+    /* Fix expander icon - hide text fallback and use CSS arrow */
+    [data-testid="stExpander"] summary [data-testid="stIconMaterial"],
+    [data-testid="stExpander"] summary .material-symbols-rounded {
+        font-size: 0 !important;
+        width: 20px !important;
+        height: 20px !important;
+    }
+    
+    [data-testid="stExpander"] summary [data-testid="stIconMaterial"]::before,
+    [data-testid="stExpander"] summary .material-symbols-rounded::before {
+        content: "▶" !important;
+        font-size: 12px !important;
+        font-family: 'Times New Roman', Times, serif !important;
+        color: #000000 !important;
+    }
+    
+    [data-testid="stExpander"][open] summary [data-testid="stIconMaterial"]::before,
+    [data-testid="stExpander"][open] summary .material-symbols-rounded::before {
+        content: "▼" !important;
+    }
+    
+    [data-testid="stExpanderDetails"] {
+        background-color: #ffffff !important;
+        padding: 1rem !important;
+    }
+    
+    /* Buttons - default style (nav buttons) */
+    .stButton > button, .stLinkButton > a {
+        background: #ffffff !important;
+        border: 1px solid #000000 !important;
+        border-radius: 8px !important;
+        padding: 0.5rem 1.2rem !important;
+        color: #000000 !important;
+        font-family: 'Times New Roman', Times, serif !important;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08) !important;
+        height: 38px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    
+    .stButton > button:hover, .stLinkButton > a:hover {
+        background: #000000 !important;
+        color: #ffffff !important;
+    }
+    
+    .stButton > button:hover *, .stLinkButton > a:hover * {
+        color: #ffffff !important;
+    }
+    
+    /* Primary buttons */
+    .stButton > button[kind="primary"], button[data-testid="baseButton-primary"] {
+        background: #000000 !important;
+        color: #ffffff !important;
+        border: none !important;
+    }
+    
+    .stButton > button[kind="primary"] *, button[data-testid="baseButton-primary"] * {
+        color: #ffffff !important;
+    }
+    
+    .stButton > button[kind="primary"]:hover, button[data-testid="baseButton-primary"]:hover {
+        background: #333333 !important;
+    }
+    
+    /* Secondary buttons */
+    .stButton > button[kind="secondary"], button[data-testid="baseButton-secondary"] {
+        background: #ffffff !important;
+        color: #000000 !important;
+        border: 2px solid #000000 !important;
+    }
+    
+    /* Form submit buttons */
+    .stFormSubmitButton > button {
+        background: #000000 !important;
+        color: #ffffff !important;
+        border: none !important;
+    }
+    
+    .stFormSubmitButton > button * {
+        color: #ffffff !important;
+    }
+    
+    /* Header with glassmorphism */
     .main-header {
-        text-align: center
-        padding: 1rem 0;
-        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-        border-radius: 10px;
-        color: white;
-        margin-bottom: 2rem;
+        background: linear-gradient(135deg, rgba(30, 100, 255, 0.28) 0%, rgba(80, 150, 255, 0.35) 50%, rgba(140, 190, 255, 0.3) 100%);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(30, 100, 255, 0.35);
+        border-radius: 16px;
+        padding: 2.5rem 3rem;
+        margin: 0.5rem 2rem 2rem 3rem;
+        box-shadow: 0 8px 32px rgba(30, 100, 255, 0.18);
     }
-    .uncertainty-high { color: #e74c3c; font-weight: bold; }
-    .uncertainty-medium { color: #f39c12; font-weight: bold; }
-    .uncertainty-low { color: #27ae60; font-weight: bold; }
+    
+    .main-header h1 {
+        font-size: 3.5rem;
+        font-weight: bold;
+        margin: 0 0 0.75rem 0;
+    }
+    
+    .main-header p {
+        font-size: 0.95rem;
+        line-height: 1.8;
+        margin: 0;
+    }
+    
+    /* Section headers */
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: bold;
+        margin: 1.5rem 0 1rem 0;
+    }
+    
+    /* Status indicators */
     .status-success {
-        padding: 1rem;
-        border-radius: 5px;
-        background-color: #d4edda;
-        border: 1px solid #c3e6cb;
-        color: #155724;
-    }
-    .status-error {
-        padding: 1rem;
-        border-radius: 5px;
-        background-color: #f8d7da;
-        border: 1px solid #f5c6cb;
-        color: #721c24;
-    }
-    .batch-stats {
-        background-color: #f8f9fa;
-        padding: 1rem;
-        border-radius: 5px;
-        border-left: 4px solid #007bff;
-    }
-
-    /* Target the Streamlit container to make it scrollable from the bottom */
-    [data-testid="stVerticalBlock"] > [style*="flex-direction: column;"] > [data-testid="stVerticalBlock"] {
-        overflow-y: auto;
-        display: flex;
-        flex-direction: column;
+        background: linear-gradient(90deg, rgba(30, 100, 255, 0.22) 0%, rgba(100, 170, 255, 0.28) 100%);
+        border-left: 3px solid rgb(30, 100, 255);
+        padding: 0.75rem 1rem;
+        border-radius: 0 8px 8px 0;
     }
     
-    /* Enhanced Chat Interface Styles */
-    .chat-container-inner {
-        display: flex;
-        flex-direction: column; /* Match the container's direction */
-        gap: 0rem;
-    }
-    
+    /* Chat styling */
     .chat-message {
-        padding: 0.4rem 0.9rem; /* Reduced vertical padding for a shorter bubble */
-        border-radius: 18px;
-        width: fit-content; /* CRITICAL: Make bubble width dynamic */
-        max-width: 75%; /* Prevent bubbles from being too wide on large screens */
-        word-wrap: break-word;
-        animation: slideIn 0.3s ease-out;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-        margin-bottom: 0.75rem; /* Add margin to the bottom of each message */
-    }
-    
-    @keyframes slideIn {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        max-width: 75%;
+        padding: 0.75rem 1rem;
+        border-radius: 12px;
+        margin-bottom: 0.75rem;
     }
     
     .user-message {
-        background: linear-gradient(135deg, #005c4b 0%, #008069 100%); /* WhatsApp green gradient */
-        color: white;
-        align-self: flex-end; /* Align to the right */
-        border-bottom-right-radius: 6px;
-        margin-left: auto; /* Push to the right */
+        background: #000000 !important;
+        margin-left: auto;
         margin-right: 0;
+        border-bottom-right-radius: 4px;
+    }
+    
+    .user-message, .user-message * {
+        color: #ffffff !important;
+        text-align: right;
     }
     
     .assistant-message {
-        background-color: white;
-        color: #2c3e50;
-        align-self: flex-start; /* Align to the left */
-        border: 1px solid #e1e8ed;
-        border-bottom-left-radius: 6px;
-        margin-right: auto; /* Push to the left */
+        background: #f0f0f0 !important;
+        border: 1px solid #e0e0e0;
         margin-left: 0;
+        margin-right: auto;
+        border-bottom-left-radius: 4px;
+    }
+    
+    .assistant-message, .assistant-message * {
+        color: #000000 !important;
+        text-align: left;
     }
     
     .message-timestamp {
@@ -120,69 +256,210 @@ st.markdown("""
     
     .chat-empty-state {
         text-align: center;
-        padding: 2rem;
-        color: #6c757d;
+        padding: 3rem 2rem;
     }
     
-    .chat-input-container {
-        background-color: white;
-        border: 2px solid #dee2e6;
-        border-radius: 10px;
-        padding: 1rem;
-        margin-top: 1rem;
+    /* Text inputs */
+    .stTextInput input, .stTextArea textarea {
+        background: #ffffff !important;
+        color: #000000 !important;
+        border: 1px solid #cccccc !important;
+        border-radius: 8px !important;
+        caret-color: #000000 !important;
     }
     
-    .quick-question-btn {
-        display: inline-block;
-        padding: 0.5rem 1rem;
-        margin: 0.25rem;
-        background-color: #f8f9fa;
-        border: 1px solid #dee2e6;
-        border-radius: 20px;
-        cursor: pointer;
-        transition: all 0.2s;
-        font-size: 0.9rem;
+    .stTextInput input:focus, .stTextArea textarea:focus {
+        border-color: #000000 !important;
+        box-shadow: none !important;
+        caret-color: #000000 !important;
     }
     
-    .quick-question-btn:hover {
-        background-color: #e9ecef;
-        border-color: #adb5bd;
+    /* Metrics */
+    [data-testid="stMetric"] {
+        background: linear-gradient(145deg, rgba(30, 100, 255, 0.14) 0%, rgba(100, 170, 255, 0.22) 100%) !important;
+        border: 1px solid rgba(30, 100, 255, 0.25) !important;
+        border-radius: 10px !important;
+        padding: 0.75rem !important;
+        backdrop-filter: blur(10px) !important;
+        -webkit-backdrop-filter: blur(10px) !important;
+    }
+    
+    [data-testid="stMetricValue"] {
+        font-size: 1.4rem !important;
+        font-weight: bold !important;
+    }
+    
+    /* Tables - simple styling with scroll */
+    [data-testid="stTable"] {
+        overflow-x: auto;
+        overflow-y: auto;
+        max-height: 500px;
+    }
+    
+    [data-testid="stTable"] table {
+        border-collapse: collapse;
+        font-family: 'Times New Roman', Times, serif;
+        white-space: nowrap;
+    }
+    
+    [data-testid="stTable"] th,
+    [data-testid="stTable"] td {
+        padding: 8px 16px;
+        text-align: left;
+        border: 1px solid #cccccc;
+        color: #000000;
+        background-color: #ffffff;
+        min-width: 100px;
+    }
+    
+    [data-testid="stTable"] th {
+        background: linear-gradient(180deg, rgba(30, 100, 255, 0.22) 0%, rgba(90, 160, 255, 0.28) 100%);
+        font-weight: bold;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+    
+    /* Info/warning/error boxes */
+    .stAlert, [data-testid="stAlert"] {
+        background: linear-gradient(135deg, rgba(30, 100, 255, 0.15) 0%, rgba(100, 170, 255, 0.24) 100%) !important;
+        border: 1px solid rgba(30, 100, 255, 0.25) !important;
+        border-radius: 10px !important;
+        backdrop-filter: blur(10px) !important;
+        -webkit-backdrop-filter: blur(10px) !important;
+    }
+    
+    .stAlert *, [data-testid="stAlert"] * {
+        color: #000000 !important;
+    }
+    
+    /* Radio buttons */
+    .stRadio label, .stRadio span {
+        color: #000000 !important;
+    }
+    
+    /* File uploader */
+    [data-testid="stFileUploader"] {
+        background: linear-gradient(135deg, rgba(30, 100, 255, 0.12) 0%, rgba(110, 175, 255, 0.2) 100%) !important;
+        border: 1px solid rgba(30, 100, 255, 0.2) !important;
+        border-radius: 8px !important;
+    }
+    
+    [data-testid="stFileUploader"] section {
+        background: rgba(130, 185, 255, 0.15) !important;
+    }
+    
+    [data-testid="stFileUploader"] section > div {
+        background: rgba(130, 185, 255, 0.15) !important;
+    }
+    
+    [data-testid="stFileUploader"] small,
+    [data-testid="stFileUploader"] span,
+    [data-testid="stFileUploader"] p {
+        color: #000000 !important;
+    }
+    
+    /* Browse files button */
+    [data-testid="stFileUploader"] button {
+        background: #ffffff !important;
+        color: #000000 !important;
+        border: 1px solid #e0e0e0 !important;
+    }
+    
+    [data-testid="stFileUploader"] button * {
+        color: #000000 !important;
+    }
+    
+    [data-testid="stFileUploader"] button:hover {
+        background: #000000 !important;
+        color: #ffffff !important;
+    }
+    
+    [data-testid="stFileUploader"] button:hover * {
+        color: #ffffff !important;
+    }
+    
+    /* Spinner */
+    .stSpinner > div {
+        border-top-color: #000000 !important;
+    }
+    
+    .stSpinner, .stSpinner > div, [data-testid="stSpinner"] {
+        color: #000000 !important;
+    }
+    
+    [data-testid="stSpinner"] > div {
+        background-color: rgba(255, 255, 255, 0.9) !important;
+        padding: 1rem !important;
+        border-radius: 8px !important;
+    }
+    
+    [data-testid="stSpinner"] p, [data-testid="stSpinner"] span {
+        color: #000000 !important;
+        font-size: 1rem !important;
+    }
+    
+    /* Progress bar */
+    .stProgress > div > div {
+        background-color: #000000 !important;
+    }
+    
+    /* Footer */
+    .app-footer {
+        text-align: center;
+        padding: 2rem 1rem;
+        font-size: 0.8rem;
+        margin-top: 2rem;
+        border-top: 1px solid #e0e0e0;
+    }
+    
+    /* Scrollable containers */
+    [data-testid="stVerticalBlock"] > div {
+        background-color: #ffffff !important;
+    }
+    
+    /* Toast messages */
+    [data-testid="stToast"] {
+        background: #ffffff !important;
+        border: 1px solid #e0e0e0 !important;
+    }
+    
+    [data-testid="stToast"] * {
+        color: #000000 !important;
+    }
+    
+    /* Selectbox/multiselect */
+    .stSelectbox, .stMultiSelect {
+        background: #ffffff !important;
+    }
+    
+    .stSelectbox *, .stMultiSelect * {
+        color: #000000 !important;
+    }
+    
+    /* Download links */
+    a.download-link {
+        background: #f5f5f5 !important;
+        color: #000000 !important;
+        border: 1px solid #e0e0e0 !important;
+        padding: 0.5rem 1rem !important;
+        border-radius: 8px !important;
+        text-decoration: none !important;
+    }
+    
+    a.download-link:hover {
+        background: #e0e0e0 !important;
     }
 </style>
-<script>
-    // JavaScript to scroll the chat container to the bottom on new messages
-    function scrollToBottom() {
-        // Find the specific scrollable container Streamlit creates
-        const chatContainer = window.parent.document.querySelector('[data-testid="stVerticalBlock"] > [style*="flex-direction: column;"] > [data-testid="stVerticalBlock"]');
-        if (chatContainer) {
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-    }
-
-    // This is a bit of a hack to run the script after Streamlit has updated the DOM.
-    // We use a component that does nothing but trigger the script on re-render.
-    const streamlitDoc = window.parent.document;
-    if (!streamlitDoc.querySelector('.scroll-observer')) {
-        const observer = new MutationObserver(function(mutations) {
-            mutations.forEach(function(mutation) {
-                if (mutation.addedNodes.length) {
-                    scrollToBottom();
-                }
-            });
-        });
-        observer.observe(streamlitDoc.body, { childList: true, subtree: true });
-        
-        // Add a marker to prevent re-adding the observer
-        const marker = streamlitDoc.createElement('div');
-        marker.className = 'scroll-observer';
-        marker.style.display = 'none';
-        streamlitDoc.body.appendChild(marker);
-    }
-    
-    // Also run on initial load
-    window.addEventListener('load', scrollToBottom);
-</script>
 """, unsafe_allow_html=True)
+
+# Floating navigation buttons - Tutorial left, Database right
+nav_cols = st.columns([1, 6, 1])
+with nav_cols[0]:
+    if st.button("Tutorial", key="tutorial_btn"):
+        st.switch_page("pages/tutorial.py")
+with nav_cols[2]:
+    st.link_button("Database", "https://omicscodeathon.github.io/brainroutedb")
 
 # -------------------------
 # Initialize Session State
@@ -208,7 +485,6 @@ if 'chat_history' not in st.session_state:
 if 'chat_input_text' not in st.session_state:
     st.session_state.chat_input_text = ""
 
-
 # -------------------------
 # Helper Functions
 # -------------------------
@@ -230,6 +506,16 @@ def get_uncertainty_interpretation(uncertainty):
     else:
         return "High uncertainty - Low confidence, consider additional validation"
 
+def show_loading(placeholder, message):
+    """Display a visible loading spinner with message"""
+    placeholder.markdown(f'''
+    <div style="background: #f0f0f0; border: 1px solid #cccccc; border-radius: 8px; padding: 1rem; margin: 1rem 0; display: flex; align-items: center; gap: 0.75rem;">
+        <div style="width: 20px; height: 20px; border: 3px solid #cccccc; border-top-color: #000000; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+        <span style="color: #000000; font-size: 1rem;">{message}</span>
+    </div>
+    <style>@keyframes spin {{ to {{ transform: rotate(360deg); }} }}</style>
+    ''', unsafe_allow_html=True)
+
 def clear_prediction_results():
     """Clear prediction results when analyzing a new molecule"""
     st.session_state.prediction_results = None
@@ -246,48 +532,43 @@ def add_to_chat(role, message):
 
 def display_chat_interface():
     """Display chat interface with messages above and input below"""
-    st.markdown("### 💬 Chat History")
+    st.markdown('<p class="section-title">Chat History</p>', unsafe_allow_html=True)
     
-    # Use Streamlit's native container for robust scrolling
-    with st.container(height=600):
-        # The inner div helps with styling and message order
-        st.markdown('<div class="chat-container-inner">', unsafe_allow_html=True)
-        
-        # Display messages in standard chronological order (oldest first)
+    with st.container(height=500):
         for chat in st.session_state.chat_history:
             if chat['role'] == 'user':
                 st.markdown(f'''
-                <div class="chat-message user-message">
-                    <div><strong>You</strong></div>
-                    <div>{chat['message']}</div>
-                    <div class="message-timestamp">{chat['timestamp']}</div>
+                <div style="display: flex; justify-content: flex-end;">
+                    <div class="chat-message user-message">
+                        <div><strong>You</strong></div>
+                        <div>{chat['message']}</div>
+                        <div class="message-timestamp">{chat['timestamp']}</div>
+                    </div>
                 </div>
                 ''', unsafe_allow_html=True)
             else:
                 st.markdown(f'''
-                <div class="chat-message assistant-message">
-                    <div><strong>🦙 Llama 3</strong></div>
-                    <div>{chat['message']}</div>
-                    <div class="message-timestamp">{chat['timestamp']}</div>
+                <div style="display: flex; justify-content: flex-start;">
+                    <div class="chat-message assistant-message">
+                        <div><strong>Llama 3</strong></div>
+                        <div>{chat['message']}</div>
+                        <div class="message-timestamp">{chat['timestamp']}</div>
+                    </div>
                 </div>
                 ''', unsafe_allow_html=True)
         
         if not st.session_state.chat_history:
             st.markdown('''
                 <div class="chat-empty-state">
-                    <h4>👋 Start a conversation!</h4>
-                    <p>Ask me anything about your molecule's BBB properties, drug potential, or related research.</p>
+                    <h4>Start a conversation</h4>
+                    <p>Ask about your molecule's BBB properties, drug potential, or related research.</p>
                 </div>
-            ''')
-            
-        st.markdown('</div>', unsafe_allow_html=True)
+            ''', unsafe_allow_html=True)
 
 def process_chat_question(question, compound_name, prediction, confidence):
     """Process a chat question and generate response"""
-    # This function now only generates the AI response
     tokenizer, model = st.session_state.ai_model
     
-    # Create context-aware prompt
     context_prompt = f"""You are discussing {compound_name} with a researcher. 
     Key context: This molecule is predicted to be {prediction} for BBB penetration with {confidence:.1f}% confidence.
     Molecular properties: MW={st.session_state.prediction_results['properties']['mw']:.1f}, LogP={st.session_state.prediction_results['properties']['logp']:.2f}
@@ -296,49 +577,65 @@ def process_chat_question(question, compound_name, prediction, confidence):
     
     Please provide a helpful, accurate response focusing on pharmacology and drug discovery aspects."""
     
-    with st.spinner("🦙 Llama 3 is thinking..."):
-        response, ai_error = generate_ai_response(tokenizer, model, context_prompt)
+    thinking_placeholder = st.empty()
+    show_loading(thinking_placeholder, "Llama 3 is thinking...")
+    response, ai_error = generate_ai_response(tokenizer, model, context_prompt)
+    thinking_placeholder.empty()
     
     if ai_error:
-        add_to_chat("assistant", f"❌ Sorry, I encountered an error: {ai_error}")
+        add_to_chat("assistant", f"Sorry, I encountered an error: {ai_error}")
     elif response:
         add_to_chat("assistant", response)
     else:
-        add_to_chat("assistant", "❓ I couldn't generate a response. Please try rephrasing your question.")
+        add_to_chat("assistant", "I couldn't generate a response. Please try rephrasing your question.")
 
 # -------------------------
 # Model Loading Section
 # -------------------------
 if not st.session_state.models_loaded:
-       
     with st.container():
-        with st.spinner("🔄 Loading Prediction Models"):
-            models, errors = load_ml_models()
+        loading_placeholder = st.empty()
+        with loading_placeholder.container():
+            st.markdown('''
+            <div style="background: #f0f0f0; border: 1px solid #cccccc; border-radius: 8px; padding: 1rem; margin: 1rem 0; display: flex; align-items: center; gap: 0.75rem;">
+                <div style="width: 20px; height: 20px; border: 3px solid #cccccc; border-top-color: #000000; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                <span style="color: #000000; font-size: 1rem;">Loading prediction models...</span>
+            </div>
+            <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+            ''', unsafe_allow_html=True)
+        models, errors = load_ml_models()
+        loading_placeholder.empty()
         
         if models:
             st.session_state.models = models
             st.session_state.models_loaded = True
-            st.success(f"✅ Successfully loaded {len(models)} models: {', '.join(models.keys())}")
+            st.toast("Successfully loaded prediction models!")
         
         if errors:
             for error in errors:
-                st.error(f"❌ {error}")
+                st.error(error)
             
             if not models:
                 st.stop()
+
 # -------------------------
 # Header
 # -------------------------
-st.markdown('<div class="main-header"><h1 style="text-align:center;">🧠 BrainRoute</h1><p style="text-align:center;">Blood-Brain Barrier Penetration Classifier<br>This tool allows you to explore molecules and predict their Blood-Brain Barrier (BBB) penetration.<br>BrainRoute will classify your molecule as BBB+ or BBB- and provide additional information about the molecule for further drug discovery research!</p></div>', unsafe_allow_html=True)
-
+st.markdown('''
+<div class="main-header">
+    <h1 style="text-align:center; margin-left: 1rem;">BrainRoute</h1>
+    <p style="text-align:center;">Blood-Brain Barrier Penetration Classifier<br>This tool allows you to explore molecules and predict their Blood-Brain Barrier (BBB) penetration.<br>BrainRoute will classify your molecule as BBB+ or BBB- and provide additional information for further research.</p>
+</div>
+''', unsafe_allow_html=True)
 
 # -------------------------
 # Processing Mode Selection
 # -------------------------
 if st.session_state.models_loaded:
-    mode_col, db_col = st.columns(2)
-    with mode_col:
-        st.subheader("🎯 Processing Mode")
+    col1, col2 = st.columns([3, 1])
+    
+    with col1:
+        st.markdown('<p class="section-title">Processing Mode</p>', unsafe_allow_html=True)
         processing_mode = st.radio(
             "Choose processing mode:",
             ["Single Molecule", "Batch Processing"],
@@ -346,17 +643,13 @@ if st.session_state.models_loaded:
             key="proc_mode",
             label_visibility="collapsed"
         )
-        
         st.session_state.processing_mode = processing_mode.lower().replace(" ", "_")
-    with db_col:
-        st.info('Access Database')
-        st.link_button("🔗 Go to Database Site", "https://omicscodeathon.github.io/brainroutedb", use_container_width=True)
 
     # -------------------------
     # Single Molecule Processing
     # -------------------------
     if st.session_state.processing_mode == "single_molecule":
-        st.subheader("🔬 Single Molecule Analysis")
+        st.markdown('<p class="section-title">Single Molecule Analysis</p>', unsafe_allow_html=True)
         
         col1, col2 = st.columns([2, 1])
         
@@ -366,11 +659,13 @@ if st.session_state.models_loaded:
                 ["Compound Name", "SMILES String"],
                 horizontal=True
             )
-            st.info("""
-            **Examples:**
-            - **Compound Name:** aspirin, caffeine, morphine, donepezil
-            - **SMILES:** CC(=O)OC1=CC=CC=C1C(=O)O (aspirin)
-            """)
+            st.markdown("""
+            <div style="background: linear-gradient(135deg, rgba(30, 100, 255, 0.22) 0%, rgba(80, 150, 255, 0.3) 50%, rgba(140, 195, 255, 0.28) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(30, 100, 255, 0.3); border-radius: 12px; padding: 1rem 1.5rem; margin: 0.5rem 0; box-shadow: 0 4px 16px rgba(30, 100, 255, 0.12);">
+                <p style="margin: 0 0 0.5rem 0; font-weight: bold;">Examples:</p>
+                <p style="margin: 0 0 0.25rem 0;">Compound Name: aspirin, caffeine, morphine, donepezil</p>
+                <p style="margin: 0;">SMILES: <code style="background: rgba(30, 100, 255, 0.15); padding: 2px 6px; border-radius: 4px; font-family: monospace;">CC(=O)OC1=CC=CC=C1C(=O)O</code> (aspirin)</p>
+            </div>
+            """, unsafe_allow_html=True)
         
         user_input = st.text_input(
             f"Enter {input_mode}:",
@@ -378,9 +673,8 @@ if st.session_state.models_loaded:
             key="molecule_input"
         )
         
-        submit_clicked = st.button("🚀 Analyze Molecule", type="primary")
+        submit_clicked = st.button("Analyze Molecule", type="primary")
         
-        # Check if this is a new molecule (clear results if so)
         if user_input and user_input != st.session_state.get('last_analyzed_molecule', ''):
             clear_prediction_results()
         
@@ -388,57 +682,74 @@ if st.session_state.models_loaded:
             st.session_state.last_input = user_input
             
             if not user_input.strip():
-                st.warning("⚠️ Please enter a compound name or SMILES string.")
+                st.warning("Please enter a compound name or SMILES string.")
             else:
-                # Clear previous results for new molecule
                 clear_prediction_results()
                 st.session_state.last_analyzed_molecule = user_input
                 
-                with st.spinner("🔍 Processing molecule..."):
-                    mol = None
-                    smiles = None
-                    processing_error = None
+                process_placeholder = st.empty()
+                show_loading(process_placeholder, "Processing molecule...")
+                
+                mol = None
+                smiles = None
+                processing_error = None
+                
+                try:
+                    if input_mode == "SMILES String":
+                        mol = Chem.MolFromSmiles(user_input)
+                        smiles = user_input if mol else None
+                        if not mol:
+                            processing_error = "Invalid SMILES string"
+                    
+                    elif input_mode == "Compound Name":
+                        smiles = get_smiles(user_input)
+                        mol = Chem.MolFromSmiles(smiles) if smiles else None
+                        if not mol:
+                            processing_error = f"Could not find SMILES for '{user_input}'"
+                
+                except Exception as e:
+                    processing_error = f"Error processing input: {str(e)}"
+                
+                process_placeholder.empty()
+                
+                if processing_error:
+                    st.error(processing_error)
+                    chatgpt_link = create_chatgpt_link(user_input)
+                    st.markdown(f"Try asking [ChatGPT about {user_input}]({chatgpt_link}) for more information.")
+                
+                elif mol:
+                    st.session_state.current_molecule = {
+                        'mol': mol,
+                        'smiles': smiles,
+                        'name': user_input
+                    }
                     
                     try:
-                        if input_mode == "SMILES String":
-                            mol = Chem.MolFromSmiles(user_input)
-                            smiles = user_input if mol else None
-                            if not mol:
-                                processing_error = "Invalid SMILES string"
-                        
-                        elif input_mode == "Compound Name":
-                            smiles = get_smiles(user_input)
-                            mol = Chem.MolFromSmiles(smiles) if smiles else None
-                            if not mol:
-                                processing_error = f"Could not find SMILES for '{user_input}'"
-                    
+                        fetch_placeholder = st.empty()
+                        show_loading(fetch_placeholder, "Fetching compound information...")
+                        info = get_chembl_info(user_input)
+                        formula = get_formula(smiles)
+                        fetch_placeholder.empty()
                     except Exception as e:
-                        processing_error = f"Error processing input: {str(e)}"
-                    
-                    if processing_error:
-                        st.error(f"❌ {processing_error}")
+                        fetch_placeholder.empty()
+                        st.error(f"Could not find '{user_input}' on PubChem or ChEMBL. Please avoid elements and/or ions as input.")
                         chatgpt_link = create_chatgpt_link(user_input)
-                        st.markdown(f"💡 Try asking [ChatGPT about {user_input}]({chatgpt_link}) for more information.")
+                        st.markdown(f"Try asking [ChatGPT about {user_input}]({chatgpt_link}) for more information.")
+                        st.stop()
                     
-                    elif mol:
-                        st.session_state.current_molecule = {
-                            'mol': mol,
-                            'smiles': smiles,
-                            'name': user_input
-                        }
-                        
-                        # Get ChEMBL info
-                        with st.spinner("📚 Fetching compound information..."):
-                            info = get_chembl_info(user_input)
-                            formula = get_formula(smiles)
-                        
-                        # Make prediction with uncertainty
-                        with st.spinner("🤖 Making BBB prediction with PaDEL-based models..."):
-                            padel_preds, padel_confs, ensemble_pred, avg_conf, padel_error = predict_bbb_padel(
-                                smiles, st.session_state.models
-                            )
+                    try:
+                        predict_placeholder = st.empty()
+                        show_loading(predict_placeholder, "Making BBB prediction with PaDEL-based models...")
+                        padel_preds, padel_confs, ensemble_pred, avg_conf, padel_error = predict_bbb_padel(
+                            smiles, st.session_state.models
+                        )
+                        predict_placeholder.empty()
+                            
                         if padel_error:
-                            st.error(f"❌ PaDEL model prediction error: {padel_error}")
+                            st.error(f"Prediction unavailable for '{user_input}'. The input may be too simple (e.g., elements, ions) or unsupported. Please try a drug-like molecule.")
+                            chatgpt_link = create_chatgpt_link(user_input)
+                            st.markdown(f"Try asking [ChatGPT about {user_input}]({chatgpt_link}) for more information.")
+                            st.stop()
                         else:
                             properties = calculate_molecular_properties(mol)
                             if properties:
@@ -454,42 +765,50 @@ if st.session_state.models_loaded:
                                     'prediction': ensemble_pred,
                                     'confidence': avg_conf
                                 }
+                    except Exception as e:
+                        predict_placeholder.empty()
+                        st.error(f"Prediction unavailable for '{user_input}'. The input may be too simple (e.g., elements, ions) or unsupported. Please try a drug-like molecule.")
+                        chatgpt_link = create_chatgpt_link(user_input)
+                        st.markdown(f"Try asking [ChatGPT about {user_input}]({chatgpt_link}) for more information.")
+                        st.stop()
 
-        # Display results if available (persistent across interactions)
+        # Display results if available
         if st.session_state.prediction_results:
             results = st.session_state.prediction_results
             try: 
                 add_to_database_threaded(results)
             except Exception as e:
-                st.toast(f"Failed to add compound to database:{e}", icon="⚠️")
-            st.success("✅ Analysis complete!")
+                st.toast(f"Failed to add compound to database: {e}")
             
-            # Results layout
+            st.markdown('<div class="status-success">Analysis complete</div>', unsafe_allow_html=True)
+            
             col1, col2 = st.columns([1, 1.5])
             
             with col1:
-                st.subheader("🧬 Structure")
+                st.markdown('<p class="section-title">Structure</p>', unsafe_allow_html=True)
                 try:
-                    mol_img = Draw.MolToImage(results['mol'], size=(300, 300))
-                    st.image(mol_img, caption="Molecule Structure")
-                except:
-                    st.error("Could not generate structure image")
+                    drawer = rdMolDraw2D.MolDraw2DSVG(300, 300)
+                    drawer.DrawMolecule(results['mol'])
+                    drawer.FinishDrawing()
+                    svg = drawer.GetDrawingText()
+                    st.image(svg, caption="Molecule Structure")
+                except Exception as e:
+                    st.info(f"Structure (SMILES): `{results['smiles']}`")
                 
-                # ChEMBL info if available
                 if results['info']:
-                    st.markdown("#### 📋 Compound Information")
+                    st.markdown('<p class="section-title">Compound Information</p>', unsafe_allow_html=True)
                     for key, value in results['info'].items():
                         if value and value != "Not available":
                             st.markdown(f"**{key}:** {value}")
             
             with col2:
-                st.subheader("📊 PaDEL Model Predictions")
+                st.markdown('<p class="section-title">PaDEL Model Predictions</p>', unsafe_allow_html=True)
                 
                 pred_col1, pred_col2 = st.columns(2)
                 with pred_col1:
                     st.metric("Prediction", results['prediction'])
                 with pred_col2:
-                    st.metric("Confidence", f"{results['confidence']:.1f}")
+                    st.metric("Confidence", f"{results['confidence']:.1f}%")
                 
                 padel_preds = results['padel_preds']
                 padel_confs = results['padel_confs']
@@ -503,10 +822,9 @@ if st.session_state.models_loaded:
                         'Prediction': pred_label,
                         'Confidence (%)': f"{conf:.1f}" if conf is not None else 'N/A'
                     })
-                st.dataframe(pd.DataFrame(model_table))
+                st.table(pd.DataFrame(model_table))
                 
-                # Molecular properties
-                st.markdown("#### 🧪 Molecular Properties")
+                st.markdown('<p class="section-title">Molecular Properties</p>', unsafe_allow_html=True)
                 prop_col1, prop_col2 = st.columns(2)
                 with prop_col1:
                     st.metric("Molecular Weight", f"{results['properties']['mw']:.1f}")
@@ -519,15 +837,10 @@ if st.session_state.models_loaded:
                 
                 st.markdown(f"**SMILES:** `{results['smiles']}`")
             
-            # Export single result
-            with st.expander("📥 Export Results"):
-                # Compute ensemble/majority prediction
+            with st.expander("Export Results"):
                 preds = list(results['padel_preds'].values())
-                if preds:
-                    ensemble_pred = 'BBB+' if preds.count(1) >= preds.count(0) else 'BBB-'
-                else:
-                    ensemble_pred = 'N/A'
-                # Prepare export data with all model predictions/confidences
+                ensemble_pred = 'BBB+' if preds.count(1) >= preds.count(0) else 'BBB-' if preds else 'N/A'
+                
                 result_data = {
                     'Name': results['name'],
                     'SMILES': results['smiles'],
@@ -559,7 +872,7 @@ if st.session_state.models_loaded:
     # Batch Processing
     # -------------------------
     elif st.session_state.processing_mode == "batch_processing":
-        st.subheader("📋 Batch Molecule Processing")
+        st.markdown('<p class="section-title">Batch Molecule Processing</p>', unsafe_allow_html=True)
         
         input_method = st.radio(
             "Input method for batch processing:",
@@ -571,21 +884,21 @@ if st.session_state.models_loaded:
         input_type = None
         
         if input_method == "Upload CSV File":
-            st.info("📁 **CSV Format:** Include columns named 'smiles' and/or 'name'")
+            st.info("**CSV Format:** Include columns named 'smiles' and/or 'name'")
             uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
             
             if uploaded_file is not None:
                 try:
                     batch_input = pd.read_csv(uploaded_file)
                     input_type = "csv"
-                    st.success(f"✅ Loaded {len(batch_input)} molecules from CSV")
+                    st.success(f"Loaded {len(batch_input)} molecules from CSV")
                     with st.expander("Preview uploaded data"):
-                        st.dataframe(batch_input.head())
+                        st.table(batch_input.head())
                 except Exception as e:
-                    st.error(f"❌ Error reading CSV: {str(e)}")
+                    st.error(f"Error reading CSV: {str(e)}")
         
-        else:  # Text Input
-            st.info("📝 **Format:** Enter one molecule per line (SMILES or compound names)")
+        else:
+            st.info("**Format:** Enter one molecule per line (SMILES or compound names)")
             text_input = st.text_area(
                 "Enter molecules (one per line):",
                 placeholder="aspirin\ncaffeine\nCC(=O)OC1=CC=CC=C1C(=O)O\nmorphine",
@@ -596,48 +909,45 @@ if st.session_state.models_loaded:
                 batch_input = text_input.strip()
                 input_type = "text"
                 lines = [line.strip() for line in text_input.strip().split('\n') if line.strip()]
-                st.success(f"✅ {len(lines)} molecules ready for processing")
-        # Process batch
-        if batch_input is not None:
-            if st.button("🚀 Process Batch", type="primary"):
-                with st.spinner("🔄 Processing batch molecules..."):
-                    
-                    # Create progress bar
-                    if input_type == "csv":
-                        total_molecules = len(batch_input)
-                    else:
-                        total_molecules = len([line.strip() for line in batch_input.strip().split('\n') if line.strip()])
-                    
-                    progress_bar = st.progress(0)
-                    status_text = st.empty()
-                    
-                    # Process molecules
-                    results, batch_error = process_batch_molecules(batch_input, input_type, st.session_state.models)
-                    
-                    progress_bar.progress(100)
-                    status_text.empty()
-                    
-                    if batch_error:
-                        st.error(f"❌ Batch processing error: {batch_error}")
-                    else:
-                        st.session_state.batch_results = results
-                        st.success(f"✅ Batch processing complete! Processed {len(results)} molecules.")
+                st.success(f"{len(lines)} molecules ready for processing")
         
-        # Display batch results
+        if batch_input is not None:
+            if st.button("Process Batch", type="primary"):
+                batch_placeholder = st.empty()
+                show_loading(batch_placeholder, "Processing batch molecules...")
+                
+                if input_type == "csv":
+                    total_molecules = len(batch_input)
+                else:
+                    total_molecules = len([line.strip() for line in batch_input.strip().split('\n') if line.strip()])
+                
+                progress_bar = st.progress(0)
+                status_text = st.empty()
+                
+                results, batch_error = process_batch_molecules(batch_input, input_type, st.session_state.models)
+                
+                progress_bar.progress(100)
+                status_text.empty()
+                batch_placeholder.empty()
+                
+                if batch_error:
+                    st.error(f"Batch processing error: {batch_error}")
+                else:
+                    st.session_state.batch_results = results
+                    st.success(f"Batch processing complete. Processed {len(results)} molecules.")
+        
         if st.session_state.batch_results:
             try: 
-                add_to_database_batch_threaded(results)
+                add_to_database_batch_threaded(st.session_state.batch_results)
             except Exception as e:
-                st.toast(f"Failed to add compounds to database:{e}", icon="⚠️")
-            st.success("✅ Analysis complete!")
-            st.markdown("---")
-            st.subheader("📊 Batch Results")
+                st.toast(f"Failed to add compounds to database: {e}")
             
-            # Summary statistics
+            st.markdown("---")
+            st.markdown('<p class="section-title">Batch Results</p>', unsafe_allow_html=True)
+            
             stats = create_summary_stats(st.session_state.batch_results)
             
             with st.container():
-                st.markdown('<div class="batch-stats">', unsafe_allow_html=True)
                 col1, col2, col3, col4 = st.columns(4)
                 
                 with col1:
@@ -655,32 +965,35 @@ if st.session_state.models_loaded:
                 with col4:
                     st.metric("Avg Agreement", f"{stats['avg_agreement']:.1f}%")
                     st.metric("BBB+ Rate", f"{stats['bbb_positive_rate']:.1f}%")
-                
-                st.markdown('</div>', unsafe_allow_html=True)
             
-            # Results visualization
             successful_results = [r for r in st.session_state.batch_results if r.get('status') == 'Success']
             
             if successful_results:
                 col1, col2 = st.columns(2)
                 
                 with col1:
-                    # Prediction distribution pie chart
                     pred_counts = {}
                     for result in successful_results:
                         pred = result.get('prediction', 'Unknown')
                         pred_counts[pred] = pred_counts.get(pred, 0) + 1
                     
-                    fig_pie = px.pie(
+                    fig_pie = go.Figure(data=[go.Pie(
+                        labels=list(pred_counts.keys()),
                         values=list(pred_counts.values()),
-                        names=list(pred_counts.keys()),
-                        title="Prediction Distribution",
-                        color_discrete_map={"BBB+": "#27ae60", "BBB-": "#e74c3c"}
+                        marker=dict(colors=['#333333', '#888888'], line=dict(color='#000000', width=2)),
+                        textinfo='percent+label',
+                        textfont=dict(size=14, color='#000000', family='Times New Roman')
+                    )])
+                    fig_pie.update_layout(
+                        title=dict(text='Prediction Distribution', font=dict(color='#000000', size=16, family='Times New Roman')),
+                        paper_bgcolor='#ffffff',
+                        plot_bgcolor='#ffffff',
+                        font=dict(family="Times New Roman", color="#000000"),
+                        legend=dict(font=dict(color='#000000'))
                     )
                     st.plotly_chart(fig_pie, use_container_width=True)
                 
                 with col2:
-                    # Confidence vs Uncertainty scatter plot
                     conf_data = []
                     for result in successful_results:
                         conf_data.append({
@@ -691,18 +1004,34 @@ if st.session_state.models_loaded:
                         })
                     
                     conf_df = pd.DataFrame(conf_data)
-                    fig_scatter = px.scatter(
-                        conf_df, x='Confidence', y='Uncertainty',
-                        color='Prediction', title="Confidence vs Uncertainty",
-                        hover_data=['Name'],
-                        color_discrete_map={"BBB+": "#27ae60", "BBB-": "#e74c3c"}
+                    
+                    fig_scatter = go.Figure()
+                    colors = {'BBB+': '#333333', 'BBB-': '#888888', 'Unknown': '#cccccc'}
+                    for pred_type in conf_df['Prediction'].unique():
+                        df_subset = conf_df[conf_df['Prediction'] == pred_type]
+                        fig_scatter.add_trace(go.Scatter(
+                            x=df_subset['Confidence'],
+                            y=df_subset['Uncertainty'],
+                            mode='markers',
+                            name=pred_type,
+                            marker=dict(size=10, color=colors.get(pred_type, '#666666'), line=dict(width=1, color='#000000')),
+                            text=df_subset['Name'],
+                            hovertemplate='%{text}<br>Confidence: %{x:.1f}%<br>Uncertainty: %{y:.1f}%<extra></extra>'
+                        ))
+                    
+                    fig_scatter.update_layout(
+                        title=dict(text='Confidence vs Uncertainty', font=dict(color='#000000', size=16, family='Times New Roman')),
+                        paper_bgcolor='#ffffff',
+                        plot_bgcolor='#ffffff',
+                        font=dict(family="Times New Roman", color="#000000"),
+                        xaxis=dict(title=dict(text='Confidence (%)', font=dict(color='#000000', size=14, family='Times New Roman')), showgrid=True, gridcolor='#cccccc', linecolor='#000000', linewidth=1, showline=True, tickfont=dict(color='#000000')),
+                        yaxis=dict(title=dict(text='Uncertainty (%)', font=dict(color='#000000', size=14, family='Times New Roman')), showgrid=True, gridcolor='#cccccc', linecolor='#000000', linewidth=1, showline=True, tickfont=dict(color='#000000')),
+                        legend=dict(font=dict(color='#000000'))
                     )
                     st.plotly_chart(fig_scatter, use_container_width=True)
             
-            # Results table
             display_df = format_batch_results_for_display(st.session_state.batch_results)
             
-            # Filter options
             col1, col2 = st.columns(2)
             with col1:
                 status_filter = st.multiselect(
@@ -720,15 +1049,14 @@ if st.session_state.models_loaded:
                 else:
                     pred_filter = []
             
-            # Apply filters
             filtered_df = display_df[display_df['Status'].isin(status_filter)]
             if pred_filter and 'Prediction' in filtered_df.columns:
                 filtered_df = filtered_df[filtered_df['Prediction'].isin(pred_filter)]
             
-            st.dataframe(filtered_df, use_container_width=True)
+            st.table(filtered_df)
             
-            # Export batch results
-            st.markdown("### 📥 Export Batch Results")
+            
+            st.markdown('<p class="section-title">Export Batch Results</p>', unsafe_allow_html=True)
             
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
             
@@ -739,18 +1067,17 @@ if st.session_state.models_loaded:
                 st.markdown(create_download_link(filtered_df, f"bbb_batch_results_{timestamp}", "excel"), unsafe_allow_html=True)
             with col3:
                 st.markdown(create_download_link(filtered_df, f"bbb_batch_results_{timestamp}", "json"), unsafe_allow_html=True)
-         
+
 # -------------------------
-# AI Chat Section - Enhanced Chat Interface with Input Below
+# AI Chat Section
 # -------------------------
 if st.session_state.prediction_results:
     st.markdown("---")
-    st.subheader("💬 Chat with Llama 3 about Your Molecule")
+    st.markdown('<p class="section-title">Chat with Llama 3 about Your Molecule</p>', unsafe_allow_html=True)
     
     if not st.session_state.ai_loaded:
-        # Check API setup
         if not HF_API_TOKEN:
-            st.error("❌ Hugging Face API token not configured")
+            st.error("Hugging Face API token not configured")
             st.info("""
             **Setup Instructions:**
             1. Get a free token from [Hugging Face](https://huggingface.co/settings/tokens)
@@ -760,20 +1087,22 @@ if st.session_state.prediction_results:
         else:
             col1, col2 = st.columns([2, 1])
             with col1:
-                if st.button("🚀 Connect to Llama 3", type="secondary"):
-                    with st.spinner("🔌 Connecting to Llama 3 via Hugging Face API..."):
-                        tokenizer, model, ai_error = load_ai_model()
+                if st.button("Connect to Llama 3", type="secondary"):
+                    connect_placeholder = st.empty()
+                    show_loading(connect_placeholder, "Connecting to Llama 3 via Hugging Face API...")
+                    tokenizer, model, ai_error = load_ai_model()
+                    connect_placeholder.empty()
                         
                     if ai_error:
-                        st.error(f"❌ Failed to connect to AI model: {ai_error}")
+                        st.error(f"Failed to connect to AI model: {ai_error}")
                     else:
                         st.session_state.ai_model = (tokenizer, model)
                         st.session_state.ai_loaded = True
-                        st.success("✅ Connected to Llama 3 API!")
+                        st.success("Connected to Llama 3 API")
                         st.rerun()
             
             with col2:
-                st.info("🦙 Chat with AI about your molecule's BBB properties, drug potential, and more!")
+                st.info("Chat with AI about your molecule's BBB properties, drug potential, and more.")
     
     if st.session_state.ai_loaded:
         tokenizer, model = st.session_state.ai_model
@@ -781,95 +1110,78 @@ if st.session_state.prediction_results:
         if tokenizer and model:
             compound_name = st.session_state.prediction_results['name']
             comp = st.session_state.prediction_results['info']['ChEMBL ID']
-            # Use ensemble/majority prediction for chat context
             preds = list(st.session_state.prediction_results['padel_preds'].values())
-            if preds:
-                prediction = 'BBB+' if preds.count(1) >= preds.count(0) else 'BBB-'
-            else:
-                prediction = 'N/A'
-            # Use average confidence for chat context
+            prediction = 'BBB+' if preds.count(1) >= preds.count(0) else 'BBB-' if preds else 'N/A'
             confs = [c for c in st.session_state.prediction_results['padel_confs'].values() if c is not None]
             confidence = sum(confs) / len(confs) if confs else 0.0
-            st.success(f"🦙 **Llama 3 is ready!** Ask anything about **{compound_name}** (Predicted: {prediction}, Confidence: {confidence:.1f}%)")
             
-            # Display chat history first (messages above)
+            st.success(f"**Llama 3 is ready.** Ask anything about **{compound_name}** (Predicted: {prediction}, Confidence: {confidence:.1f}%)")
+            
             display_chat_interface()
             
-            # Quick action buttons below chat
-            st.markdown("**💡 Quick Questions:**")
+            st.markdown("**Quick Questions:**")
             col1, col2, col3, col4 = st.columns(4)
             
             with col1:
-                if st.button("💊 Drug Potential", key="drug_potential"):
-                    st.session_state.chat_input_text = f"What is the drug potential of {compound_name} for CNS disorders? Consider its BBB penetration."
+                if st.button("Drug Potential", key="drug_potential"):
+                    question = f"What is the drug potential of {compound_name} for CNS disorders? Consider its BBB penetration."
+                    add_to_chat("user", question)
                     st.rerun()
         
             with col2:
-                if st.button("🧪 Properties", key="properties"):
-                    st.session_state.chat_input_text = f"Explain the key molecular properties of {compound_name} that affect its BBB penetration."
+                if st.button("Properties", key="properties"):
+                    question = f"Explain the key molecular properties of {compound_name} that affect its BBB penetration."
+                    add_to_chat("user", question)
                     st.rerun()
         
             with col3:
-                if st.button("⚠️ Side Effects", key="side_effects"):
-                    st.session_state.chat_input_text = f"What are the potential side effects and safety concerns for {compound_name}?"
+                if st.button("Side Effects", key="side_effects"):
+                    question = f"What are the potential side effects and safety concerns for {compound_name}?"
+                    add_to_chat("user", question)
                     st.rerun()
         
             with col4:
-                if st.button("🔬 Research", key="research"):
-                    st.session_state.chat_input_text = f"What current research exists on {compound_name} for brain-related diseases?"
+                if st.button("Research", key="research"):
+                    question = f"What current research exists on {compound_name} for brain-related diseases?"
+                    add_to_chat("user", question)
                     st.rerun()
-                
-            # # Process pending question if exists
-            # if st.session_state.pending_question:
-            #     question = st.session_state.pending_question
-            #     st.session_state.pending_question = None
-            #     process_chat_question(question, compound_name, prediction, confidence)
-            #     st.rerun()
             
-            # Chat input container at the bottom with improved styling
             st.markdown('<div class="chat-input-container">', unsafe_allow_html=True)
             
-            # Use form for better UX
             with st.form(key="chat_form", clear_on_submit=True):
                 col_input, col_send, col_clear = st.columns([6, 1, 1])
                 
                 with col_input:
                     chat_question = st.text_input(
                         "Your message:",
-                        value=st.session_state.chat_input_text,
                         placeholder=f"e.g., How does {compound_name} work in the brain?",
                         label_visibility="collapsed",
                         key="chat_input_field"
                     )
                 
                 with col_send:
-                    send_clicked = st.form_submit_button("📤 Send", type="primary", use_container_width=True)
+                    send_clicked = st.form_submit_button("Send", type="primary", use_container_width=True)
                 
                 with col_clear:
-                    clear_clicked = st.form_submit_button("🗑️", use_container_width=True)
+                    clear_clicked = st.form_submit_button("Clear", use_container_width=True)
             
             st.markdown('</div>', unsafe_allow_html=True)
             
-            # Handle clear button
             if clear_clicked:
                 st.session_state.chat_history = []
                 st.rerun()
             
-            # Handle send button
             if send_clicked and chat_question.strip():
-                # 1. Immediately add user message and rerun
                 add_to_chat("user", chat_question)
                 st.rerun()
             
-            # 2. If the last message was from the user, generate AI response
             if st.session_state.chat_history and st.session_state.chat_history[-1]['role'] == 'user':
                 last_question = st.session_state.chat_history[-1]['message']
                 process_chat_question(last_question, compound_name, prediction, confidence)
-                st.rerun() # Rerun again to display the new AI message
+                st.rerun()
             
-            # Export chat history
             if st.session_state.chat_history:
-                with st.expander("📥 Export Chat History"):
+                with st.expander("Export Chat History"):
                     chat_df = pd.DataFrame([
                         {
                             'Timestamp': chat['timestamp'],
@@ -881,29 +1193,29 @@ if st.session_state.prediction_results:
                     ])
                     st.markdown(create_download_link(chat_df, f"chat_history_{compound_name}", "csv"), unsafe_allow_html=True)
             
-            # Alternative research options
             st.markdown("---")
-            st.markdown("### 🔍 Additional Resources")
+            st.markdown('<p class="section-title">Additional Resources</p>', unsafe_allow_html=True)
             
             col1, col2, col3 = st.columns(3)
             with col1:
                 chatgpt_link = create_chatgpt_link(compound_name)
-                st.markdown(f"[💬 ChatGPT Analysis]({chatgpt_link})")
+                st.markdown(f"[ChatGPT Analysis]({chatgpt_link})")
             
             with col2:
                 pubmed_link = f"https://pubmed.ncbi.nlm.nih.gov/?term={urllib.parse.quote(compound_name + ' blood brain barrier')}"
-                st.markdown(f"[📚 PubMed Search]({pubmed_link})")
+                st.markdown(f"[PubMed Search]({pubmed_link})")
             
             with col3:
                 chembl_link = f"https://www.ebi.ac.uk/chembl/compound_report_card/{comp}/"
-                st.markdown(f"[🧬 ChEMBL Database]({chembl_link})")
-
+                st.markdown(f"[ChEMBL Database]({chembl_link})")
 
 # -------------------------
 # Footer
 # -------------------------
-st.markdown("---")
-col1, col2, col3 = st.columns([1, 2, 1])
-with col2:
-    st.caption("NeuroGate v2025.01 | Omics-Codeathon | © 2025 NeuroGate Team")
+st.markdown("""
+<div class="app-footer">
+    BrainRoute v2025.01 | Omics-Codeathon
+</div>
+""", unsafe_allow_html=True)
+
 print(f"Python executable: {sys.executable}")
