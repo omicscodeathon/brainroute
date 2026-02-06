@@ -693,7 +693,6 @@ BBB- Compounds:
 2. **MW Threshold**: BBB+ compounds generally <1,000 Da
 3. **TPSA Correlation**: BBB+ compounds have lower TPSA (<200 Ų)
 4. **Clinical Implications**:
-
    - Most existing mTOR inhibitors unsuitable for CNS disorders
    - Need for structure optimization or alternative delivery
    - Rapamycin's BBB+ prediction aligns with clinical AD trials
@@ -762,7 +761,7 @@ if not error:
     print(f"Agreement: {result['agreement']:.2f}%")
 
 # Batch prediction
-from scripts.webapp.lewis.prediction import process_batch_molecules
+from scripts.webapp.prediction import process_batch_molecules
 import pandas as pd
 
 batch_data = pd.DataFrame({
@@ -845,7 +844,7 @@ conda install -c conda-forge rdkit python=3.12
 
 ```bash
 # Use different port
-streamlit run scripts/webapp/lewis/main.py --server.port 8502
+streamlit run scripts/webapp/main.py --server.port 8502
 
 # Or kill existing process
 lsof -ti:8501 | xargs kill -9  # Mac/Linux
@@ -929,7 +928,7 @@ model.to(device)
 - 💬 [GitHub Discussions](https://github.com/omicscodeathon/brainroute/discussions)
 - 🐛 [Report a Bug](https://github.com/omicscodeathon/brainroute/issues/new?template=bug_report.md)
 - ✨ [Feature Request](https://github.com/omicscodeathon/brainroute/issues/new?template=feature_request.md)
-- 📧 Email: sohamshirolkar24@gmail.com, leahcerere@gmail.com, lewistem@gmail.com, nemase00@gmail.com
+- 📧 Email: sohamshirolkar24@gmail.com, lewistem8@gmail.com, leahcerere@gmail.com, nemase00@gmail.com
 
 ---
 
@@ -948,7 +947,6 @@ We welcome contributions from the community! BrainRoute is an open-science proje
    ```
 
 2. **Make your changes**
-
    - Add new features or fix bugs
    - Update documentation
    - Add tests for new functionality
@@ -1016,7 +1014,7 @@ If you use BrainRoute in your research, please cite:
 ```bibtex
 @article{shirolkar2026brainroute,
   title={BrainRoute: An Open Machine Learning Platform for Blood-Brain Barrier Permeability Prediction with Neurodegenerative Disease Applications},
-  author={Shirolkar, Soham and Cerere, Leah W. and Tem, Lewis and Ahmed, Noura E. and Some, Georges and Awe, Olaitan I.},
+  author={Shirolkar, Soham and Tem, Lewis and Cerere, Leah W.  and Ahmed, Noura E. and Some, Georges and Awe, Olaitan I.},
   journal={Springernature},
   year={2026},
   doi={10.1101/2026.xxx},
@@ -1076,18 +1074,18 @@ BrainRoute builds upon:
       <br />Project Lead, Lead Developer
     </td>
     <td align="center">
-      <a href="https://github.com/leacere">
-        <img src="https://github.com/leacere.png" width="100px;" alt="Leah Cerere"/>
-        <br /><sub><b>Leah W. Cerere</b></sub>
-      </a>
-      <br />Visualization & Documentation
-    </td>
-    <td align="center">
       <a href="https://github.com/Mr-Nnobody">
         <img src="https://github.com/Mr-Nnobody.png" width="100px;" alt="Lewis Tem"/>
         <br /><sub><b>Lewis Tem</b></sub>
       </a>
       <br />Lead Developer
+    </td>
+    <td align="center">
+      <a href="https://github.com/leacere">
+        <img src="https://github.com/leacere.png" width="100px;" alt="Leah Cerere"/>
+        <br /><sub><b>Leah W. Cerere</b></sub>
+      </a>
+      <br />Visualization & Documentation
     </td>
     <td align="center">
       <a href="https://github.com/nouraahmed">
