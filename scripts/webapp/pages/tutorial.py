@@ -1,10 +1,52 @@
 import streamlit as st
 
+
+def _handle_nav_query(current: str) -> None:
+    nav = None
+    try:
+        nav = st.query_params.get("nav")
+        if isinstance(nav, list):
+            nav = nav[0] if nav else None
+    except Exception:
+        try:
+            nav = st.experimental_get_query_params().get("nav", [None])[0]
+        except Exception:
+            nav = None
+
+    if not nav:
+        return
+
+    nav = str(nav).lower().strip()
+
+    # Remove only our navigation parameter to avoid clobbering any other query state.
+    try:
+        if "nav" in st.query_params:
+            del st.query_params["nav"]
+    except Exception:
+        try:
+            qp = st.experimental_get_query_params()
+            qp.pop("nav", None)
+            st.experimental_set_query_params(**qp)
+        except Exception:
+            pass
+
+    if nav == current:
+        return
+
+    if nav == "home":
+        st.switch_page("main.py")
+    elif nav == "tutorial":
+        st.switch_page("pages/tutorial.py")
+    elif nav == "about":
+        st.switch_page("pages/about.py")
+
 st.set_page_config(
     page_title="Tutorial & Info | BrainRoute",
     page_icon=None,
     layout="wide"
 )
+
+_handle_nav_query(current="tutorial")
 
 # Minimal CSS - Times New Roman, sky blue + glassmorphism blue theme
 st.markdown("""
@@ -185,12 +227,12 @@ st.markdown("""
 st.markdown('''
 <div class="nav-ribbon">
     <div class="nav-left">
-        <a href="/" target="_self" class="nav-brand">BrainRoute</a>
+        <a href="?nav=home" target="_self" class="nav-brand">BrainRoute</a>
     </div>
     <div class="nav-right">
-        <a href="/" target="_self">Home</a>
-        <a href="/tutorial" target="_self">Tutorial</a>
-        <a href="/about" target="_self">About</a>
+        <a href="?nav=home" target="_self">Home</a>
+        <a href="?nav=tutorial" target="_self">Tutorial</a>
+        <a href="?nav=about" target="_self">About</a>
         <a href="https://omicscodeathon.github.io/brainroutedb" target="_blank">Database ↗</a>
     </div>
 </div>
