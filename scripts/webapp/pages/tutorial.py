@@ -6,7 +6,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Minimal CSS - Times New Roman, black text, works in light/dark modes
+# Minimal CSS - Times New Roman, sky blue + glassmorphism blue theme
 st.markdown("""
 <style>
     /* Hide sidebar completely */
@@ -19,79 +19,99 @@ st.markdown("""
     footer {visibility: hidden;}
     header {visibility: hidden;}
     
-    /* Force Times New Roman and black text globally */
+    /* Force sans-serif and dark text globally */
     *, html, body, [class*="st-"], p, span, div, label, h1, h2, h3, h4, h5, h6, li, td, th {
-        font-family: 'Times New Roman', Times, serif !important;
-        color: #000000 !important;
+        font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif !important;
+        color: #0b1b3a !important;
     }
     
-    /* Force white background */
+    /* Force light sky blue background */
     .stApp, .main, [data-testid="stAppViewContainer"] {
-        background-color: #ffffff !important;
+        background-color: #eef6ff !important;
     }
     
     .main .block-container {
         max-width: 900px;
-        padding: 2rem 1rem;
+        padding: 3.5rem 1rem 2rem 1rem;
     }
     
-    /* Floating Home button */
-    .floating-nav {
+    /* Fixed top navigation ribbon */
+    .nav-ribbon {
         position: fixed;
-        top: 1rem;
-        left: 1.5rem;
-        z-index: 1000;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.5rem 2.5rem;
+        background: rgba(31, 78, 153, 0.35);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-bottom: 1px solid rgba(59, 130, 246, 0.3);
+        box-shadow: 0 2px 16px rgba(31, 78, 153, 0.15);
     }
     
-    /* Style Streamlit button to match design */
-    .stButton > button {
-        background: #ffffff !important;
-        border: 2px solid #000000 !important;
-        border-radius: 8px !important;
-        padding: 0.5rem 1.2rem !important;
-        font-size: 0.9rem !important;
-        font-weight: normal !important;
-        color: #000000 !important;
-        font-family: 'Times New Roman', Times, serif !important;
+    .nav-ribbon .nav-left,
+    .nav-ribbon .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+    
+    .nav-ribbon a {
+        color: #0b1b3a !important;
+        text-decoration: none !important;
+        font-weight: 600 !important;
+        font-size: 0.95rem !important;
+        padding: 0.4rem 0 !important;
+        background: none !important;
+        border: none !important;
         transition: all 0.2s ease !important;
+        display: inline-block !important;
     }
     
-    .stButton > button:hover {
-        background: #000000 !important;
-        color: #ffffff !important;
-        border-color: #000000 !important;
+    .nav-ribbon a:hover {
+        color: #1f4e99 !important;
+    }
+    
+    .nav-ribbon .nav-brand {
+        font-weight: 700 !important;
+        font-size: 1.1rem !important;
+        letter-spacing: 0.02em;
     }
     
     /* Header with glassmorphism */
     .tutorial-header {
-        background: linear-gradient(135deg, rgba(30, 100, 255, 0.28) 0%, rgba(80, 150, 255, 0.35) 50%, rgba(140, 190, 255, 0.3) 100%);
+        background: linear-gradient(135deg, rgba(31, 78, 153, 0.9) 0%, rgba(45, 107, 200, 0.9) 50%, rgba(24, 64, 128, 0.9) 100%);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(30, 100, 255, 0.35);
+        border: 1px solid rgba(59, 130, 246, 0.7);
         border-radius: 16px;
         padding: 2.5rem 3rem;
         margin-bottom: 2.5rem;
         text-align: center;
-        box-shadow: 0 8px 32px rgba(30, 100, 255, 0.18);
+        box-shadow: 0 8px 32px rgba(59, 130, 246, 0.3);
     }
     
     .tutorial-header h1 {
         font-size: 2.2rem;
         font-weight: bold;
-        color: #000000 !important;
+        color: #f5f9ff !important;
         margin: 0 0 0.5rem 0;
     }
     
     .tutorial-header p {
         font-size: 1rem;
-        color: #000000 !important;
+        color: #f5f9ff !important;
         margin: 0;
     }
     
     /* Section cards */
     .section-card {
-        background: linear-gradient(135deg, rgba(30, 100, 255, 0.12) 0%, rgba(100, 170, 255, 0.18) 100%);
-        border: 1px solid rgba(30, 100, 255, 0.2);
+        background: linear-gradient(135deg, rgba(31, 78, 153, 0.92) 0%, rgba(45, 107, 200, 0.92) 100%);
+        border: 1px solid rgba(59, 130, 246, 0.7);
         border-radius: 12px;
         padding: 2rem;
         margin-bottom: 1.5rem;
@@ -102,22 +122,22 @@ st.markdown("""
     .section-card h2 {
         font-size: 1.3rem;
         font-weight: bold;
-        color: #000000 !important;
+        color: #f5f9ff !important;
         margin: 0 0 1rem 0;
         padding-bottom: 0.75rem;
-        border-bottom: 1px solid #e0e0e0;
+        border-bottom: 1px solid #3b82f6;
     }
     
     .section-card h3 {
         font-size: 1.1rem;
         font-weight: bold;
-        color: #000000 !important;
+        color: #f5f9ff !important;
         margin: 1.25rem 0 0.75rem 0;
     }
     
     .section-card p, .section-card li {
         font-size: 0.95rem;
-        color: #000000 !important;
+        color: #f5f9ff !important;
         line-height: 1.7;
     }
     
@@ -131,19 +151,19 @@ st.markdown("""
     }
     
     .placeholder-note {
-        background: linear-gradient(90deg, rgba(30, 100, 255, 0.15) 0%, rgba(100, 170, 255, 0.2) 100%);
-        border-left: 3px solid rgb(30, 100, 255);
+        background: linear-gradient(90deg, rgba(31, 78, 153, 0.92) 0%, rgba(45, 107, 200, 0.92) 100%);
+        border-left: 3px solid rgb(59, 130, 246);
         padding: 1rem 1.25rem;
         margin: 1rem 0;
         font-size: 0.9rem;
-        color: #000000 !important;
+        color: #f5f9ff !important;
         font-style: italic;
     }
     
     /* Inline code styling */
-    code {
-        background-color: rgba(30, 100, 255, 0.12) !important;
-        color: #000000 !important;
+    code, .stMarkdown code, .stCode code, pre code {
+        background-color: #1f4e99 !important;
+        color: #f5f9ff !important;
         padding: 2px 6px !important;
         border-radius: 4px !important;
         font-family: 'Courier New', monospace !important;
@@ -154,20 +174,27 @@ st.markdown("""
         text-align: center;
         margin-top: 3rem;
         padding: 1.5rem;
-        color: #000000 !important;
+        color: #0b1b3a !important;
         font-size: 0.85rem;
-        border-top: 1px solid #e0e0e0;
+        border-top: 1px solid #cfe6ff;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# Floating Home button container
-st.markdown('<div class="floating-nav">', unsafe_allow_html=True)
-col1, col2 = st.columns([1, 10])
-with col1:
-    if st.button("Home", key="home_btn", type="secondary"):
-        st.switch_page("main.py")
-st.markdown('</div>', unsafe_allow_html=True)
+# Fixed top navigation ribbon
+st.markdown('''
+<div class="nav-ribbon">
+    <div class="nav-left">
+        <a href="/" target="_self" class="nav-brand">BrainRoute</a>
+    </div>
+    <div class="nav-right">
+        <a href="/" target="_self">Home</a>
+        <a href="/tutorial" target="_self">Tutorial</a>
+        <a href="/about" target="_self">About</a>
+        <a href="https://omicscodeathon.github.io/brainroutedb" target="_blank">Database ↗</a>
+    </div>
+</div>
+''', unsafe_allow_html=True)
 
 # Header
 st.markdown("""

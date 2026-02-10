@@ -428,20 +428,22 @@ def predict_bbb_padel(smiles, models):
                     predictions[model_name] = int(pred[0])
                     confidences[model_name] = confidence 
                     
-                    # Calculate ensemble prediction
-                    pred_values = list(predictions.values())
-                    avg_pred = sum(pred_values) / len(pred_values)
-                    ensemble_pred = "BBB+" if avg_pred >= 0.5 else "BBB-"
-                    
-                    # Calculate average confidence
-                    valid_confs = [c for c in confidences.values() if c is not None]
-                    avg_confidence = sum(valid_confs) / len(valid_confs) if valid_confs else 50.0
-                    
                 except Exception as e:
                     logger.warning(f"Model {model_name} prediction failed: {str(e)}")
                     continue
         if not predictions:
             return None, None, None, None, "All models failed to make predictions"
+        
+        # Ensemble prediction (majority vote)
+        pred_values = list(predictions.values())
+        avg_pred = sum(pred_values) / len(pred_values)
+        ensemble_pred = "BBB+" if avg_pred >= 0.5 else "BBB-"
+        
+        # Average confidence of agreeing models only
+        majority_val = 1 if avg_pred >= 0.5 else 0
+        agreeing_confs = [confidences[m] for m in predictions if predictions[m] == majority_val and confidences.get(m) is not None]
+        avg_confidence = sum(agreeing_confs) / len(agreeing_confs) if agreeing_confs else 50.0
+        
         return predictions, confidences, ensemble_pred, avg_confidence, None
     except Exception as e:
         error_msg = f"PaDEL prediction failed: {str(e)}"
