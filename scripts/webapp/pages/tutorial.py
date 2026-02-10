@@ -404,6 +404,6 @@ st.markdown("""
 # Footer
 st.markdown("""
 <div class="app-footer">
-    BrainRoute v2025.01 | Omics-Codeathon
+    BrainRoute v2026.01 | Omics-Codeathon
 </div>
 """, unsafe_allow_html=True)
