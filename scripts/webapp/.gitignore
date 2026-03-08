@@ -1,3 +1,4 @@
-# Ignore files related to
-.streamlit/
+# Ignore Streamlit secrets, keep config.toml trackable
+.streamlit/secrets.toml
+.streamlit/*.secrets.toml
 __pycache__/

@@ -9,9 +9,6 @@ scikit-learn
 lightgbm
 requests
 psycopg2-binary
-transformers
-torch
-huggingface_hub
 openai
 python-dotenv
 openpyxl
