@@ -1,7 +1,7 @@
 streamlit>=1.28.0
 pandas
 numpy
-rdkit
+rdkit-pypi
 plotly
 padelpy
 joblib
