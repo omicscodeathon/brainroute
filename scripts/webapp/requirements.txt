@@ -13,3 +13,4 @@ openai
 python-dotenv
 openpyxl
 pubchempy
+imbalanced-learn
