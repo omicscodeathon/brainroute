@@ -13,7 +13,7 @@
 [![GitHub contributors](https://img.shields.io/github/contributors/omicscodeathon/mtoralzml.svg)](https://GitHub.com/omicscodeathon/mtoralzml/graphs/contributors/)
 [![DOI](https://img.shields.io/badge/DOI-10.1101%2F2025.xxx-blue)](https://doi.org/10.1101/2025.xxx)
 
-[🚀 Live Demo](https://huggingface.co/spaces/Nnobody/brainroute) • [📖 Documentation](#-table-of-contents) • [💬 Discussions](https://github.com/omicscodeathon/brainroute/discussions) • [🐛 Report Bug](https://github.com/omicscodeathon/brainroute/issues)
+[🚀 Live Demo](https://brainroute.streamlit.app/) • [📖 Documentation](#-table-of-contents) • [💬 Discussions](https://github.com/omicscodeathon/brainroute/discussions) • [🐛 Report Bug](https://github.com/omicscodeathon/brainroute/issues)
 
 </div>
 

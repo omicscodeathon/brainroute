@@ -15,7 +15,7 @@ from utils import (load_ml_models, load_ai_model, create_chatgpt_link, generate_
 from prediction import (predict_bbb_padel, predict_bbb_penetration_with_uncertainty, calculate_molecular_properties, 
                        process_batch_molecules)
 from config import PAGE_CONFIG, PROMPT_TEMPLATES, HF_API_TOKEN
-from database.quickstart import add_to_database_batch_threaded, add_to_database_threaded
+from database.supabase import add_predictions_to_supabase_threaded, add_prediction_to_supabase_threaded
 
 
 def _handle_nav_query(current: str) -> None:
@@ -728,6 +728,10 @@ if 'chat_history' not in st.session_state:
     st.session_state.chat_history = []
 if 'chat_input_text' not in st.session_state:
     st.session_state.chat_input_text = ""
+if 'supabase_saved_smiles' not in st.session_state:
+    st.session_state.supabase_saved_smiles = set()
+if 'supabase_saved_batch_key' not in st.session_state:
+    st.session_state.supabase_saved_batch_key = None
 
 # -------------------------
 # Helper Functions
@@ -1019,10 +1023,13 @@ if st.session_state.models_loaded:
         # Display results if available
         if st.session_state.prediction_results:
             results = st.session_state.prediction_results
-            try: 
-                add_to_database_threaded(results)
+            try:
+                smiles_key = results.get('smiles')
+                if smiles_key and smiles_key not in st.session_state.supabase_saved_smiles:
+                    add_prediction_to_supabase_threaded(results)
+                    st.session_state.supabase_saved_smiles.add(smiles_key)
             except Exception as e:
-                st.toast(f"Failed to add compound to database: {e}")
+                st.toast(f"Failed to add compound to Supabase: {e}")
             
             st.markdown('<div class="status-success">Analysis complete</div>', unsafe_allow_html=True)
             
@@ -1197,10 +1204,17 @@ if st.session_state.models_loaded:
                     st.success(f"Batch processing complete. Processed {len(results)} molecules.")
         
         if st.session_state.batch_results:
-            try: 
-                add_to_database_batch_threaded(st.session_state.batch_results)
+            try:
+                batch_key = tuple(
+                    result.get('smiles')
+                    for result in st.session_state.batch_results
+                    if result.get('status') == 'Success'
+                )
+                if batch_key and batch_key != st.session_state.supabase_saved_batch_key:
+                    add_predictions_to_supabase_threaded(st.session_state.batch_results)
+                    st.session_state.supabase_saved_batch_key = batch_key
             except Exception as e:
-                st.toast(f"Failed to add compounds to database: {e}")
+                st.toast(f"Failed to add compounds to Supabase: {e}")
             
             st.markdown("---")
             st.markdown('<p class="section-title">Batch Results</p>', unsafe_allow_html=True)

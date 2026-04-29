@@ -2,11 +2,11 @@ import streamlit as st
 
 # Model Configuration
 MODEL_PATHS = {
-    'KNN': '../../output/models/padel_KNN_model.pkl',
-    'LGBM': '../../output/models/padel_LGBM_model.pkl',
-    'ET': '../../output/models/padel_ET_model.pkl',
-    'scaler': '../../output/models/scaler_padel.pkl',
+    'KNN': '../../output/models/hypertuning/KNN_8020_best_model.pkl',
+    'LGBM': '../../output/models/hypertuning/LGBM_8020_best_model.pkl',
+    'ET': '../../output/models/hypertuning/ET_8020_best_model.pkl',
 }
+FEATURE_NAMES_PATH = '../../output/models/hypertuning/feature_names_existing_8020.pkl'
 
 # AI Model Configuration - Using OpenAI client with HF router
 AI_MODEL_NAME = "meta-llama/Meta-Llama-3-8B-Instruct:novita"
@@ -14,7 +14,10 @@ USE_HF_INFERENCE_API = True
 DEFAULT_MODEL = "KNN"
 
 # Hugging Face API Configuration
-HF_API_TOKEN = st.secrets["HF_TOKEN"]
+try:
+    HF_API_TOKEN = st.secrets.get("HF_TOKEN", "")
+except Exception:
+    HF_API_TOKEN = ""
 
 # Generation Parameters for OpenAI client
 API_GENERATION_CONFIG = {

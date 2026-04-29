@@ -9,7 +9,7 @@ import base64
 from datetime import datetime
 import json
 from openai import OpenAI
-from config import (MODEL_PATHS, AI_MODEL_NAME, API_GENERATION_CONFIG, PROMPT_TEMPLATES, 
+from config import (MODEL_PATHS, FEATURE_NAMES_PATH, AI_MODEL_NAME, API_GENERATION_CONFIG, PROMPT_TEMPLATES, 
                    USE_HF_INFERENCE_API, HF_API_TOKEN)
 import logging
 
@@ -42,8 +42,8 @@ def load_ml_models():
             error_msg = f"Failed to load {model_name}: {str(e)}"
             errors.append(error_msg)
             logger.error(error_msg)
-    # Load feature names
-    feature_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../output/models/feature_names.pkl'))
+    # Load feature names used by the hypertuned 80/20 models.
+    feature_path = os.path.abspath(os.path.join(os.path.dirname(__file__), FEATURE_NAMES_PATH))
     try:
         models['feature_names'] = joblib.load(feature_path)
         logger.info(f"Loaded feature names from {feature_path}")
@@ -441,7 +441,6 @@ def safe_align_features(input_df, expected_features, molecule_name="Unknown"):
     # Align and fill missing with 0
     aligned_df = input_df.reindex(columns=expected_features, fill_value=0)
     return aligned_df, None
-
 
 
 
