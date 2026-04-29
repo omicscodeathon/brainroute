@@ -1,12 +1,17 @@
 streamlit>=1.28.0
 pandas
 numpy
+matplotlib
+seaborn
 rdkit-pypi
 plotly
 padelpy
 joblib
 scikit-learn
+imbalanced-learn
+xgboost
 lightgbm
+shap
 requests
 psycopg2-binary
 openai

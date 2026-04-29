@@ -2,3 +2,8 @@
 .streamlit/secrets.toml
 .streamlit/*.secrets.toml
 __pycache__/
+database/.env
+database/credentials.json
+database/token.json
+database/.DS_Store
+database/__pycache__/
