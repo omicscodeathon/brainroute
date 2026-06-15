@@ -1,0 +1,22 @@
+name: brainroute-validation
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pandas
+  - numpy
+  - scipy
+  - scikit-learn
+  - matplotlib
+  - seaborn
+  - pyyaml
+  - joblib
+  - rdkit
+  - openpyxl
+  - pip
+  - pip:
+      - imbalanced-learn
+      - lightgbm
+      - xgboost
+      - transformers
+      - torch

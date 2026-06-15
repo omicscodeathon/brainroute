@@ -10,3 +10,17 @@
 .ipynb_checkpoints/
 **/.ipynb_checkpoints/
 
+# Local plotting cache
+brainroute_ml_validation/reports/.mplconfig/
+
+# Python caches
+__pycache__/
+**/__pycache__/
+*.pyc
+
+# BrainRoute validation model artifacts.
+# Keep only the three deployed Streamlit models in Git/LFS; archive the rest separately.
+brainroute_ml_validation/models/*.joblib
+!brainroute_ml_validation/models/padel_morgan__lightgbm__duplicate_aware_seed5.joblib
+!brainroute_ml_validation/models/padel_morgan__extra_trees__duplicate_aware_seed5.joblib
+!brainroute_ml_validation/models/padel_morgan_embeddings__xgboost__scaffold_cv_fold1.joblib

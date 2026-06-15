@@ -2,16 +2,22 @@ import streamlit as st
 
 # Model Configuration
 MODEL_PATHS = {
-    'KNN': '../../output/models/hypertuning/KNN_8020_best_model.pkl',
-    'LGBM': '../../output/models/hypertuning/LGBM_8020_best_model.pkl',
-    'ET': '../../output/models/hypertuning/ET_8020_best_model.pkl',
+    'PaDEL+Morgan LGBM': '../../brainroute_ml_validation/models/padel_morgan__lightgbm__duplicate_aware_seed5.joblib',
+    'PaDEL+Morgan Extra Trees': '../../brainroute_ml_validation/models/padel_morgan__extra_trees__duplicate_aware_seed5.joblib',
+    'PaDEL+Morgan+Embeddings XGBoost': '../../brainroute_ml_validation/models/padel_morgan_embeddings__xgboost__scaffold_cv_fold1.joblib',
 }
-FEATURE_NAMES_PATH = '../../output/models/hypertuning/feature_names_existing_8020.pkl'
+MODEL_FEATURE_VIEWS = {
+    'PaDEL+Morgan LGBM': 'padel_morgan',
+    'PaDEL+Morgan Extra Trees': 'padel_morgan',
+    'PaDEL+Morgan+Embeddings XGBoost': 'padel_morgan_embeddings',
+}
+VALIDATION_CONFIG_PATH = '../../brainroute_ml_validation/configs/validation_config.yaml'
+FEATURE_NAMES_PATH = None
 
 # AI Model Configuration - Using OpenAI client with HF router
 AI_MODEL_NAME = "meta-llama/Meta-Llama-3-8B-Instruct:novita"
 USE_HF_INFERENCE_API = True
-DEFAULT_MODEL = "KNN"
+DEFAULT_MODEL = "PaDEL+Morgan LGBM"
 
 # Hugging Face API Configuration
 try:

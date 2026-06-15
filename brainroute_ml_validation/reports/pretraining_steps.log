@@ -1,0 +1,697 @@
+
+=== Running 04_build_feature_matrices.py ===
+[20:33:57] Explicit valence for atom # 10 C, 4, is greater than permitted
+[20:33:58] Explicit valence for atom # 10 C, 4, is greater than permitted
+[20:33:59] Explicit valence for atom # 1 N, 4, is greater than permitted
+[20:33:59] WARNING: not removing hydrogen atom without neighbors
+[20:33:59] Explicit valence for atom # 6 N, 4, is greater than permitted
+[20:33:59] WARNING: not removing hydrogen atom without neighbors
+[20:33:59] WARNING: not removing hydrogen atom without neighbors
+[20:33:59] WARNING: not removing hydrogen atom without neighbors
+[20:33:59] WARNING: not removing hydrogen atom without neighbors
+[20:33:59] WARNING: not removing hydrogen atom without neighbors
+[20:33:59] WARNING: not removing hydrogen atom without neighbors
+[20:33:59] Explicit valence for atom # 6 N, 4, is greater than permitted
+[20:33:59] WARNING: not removing hydrogen atom without neighbors
+[20:33:59] WARNING: not removing hydrogen atom without neighbors
+[20:33:59] WARNING: not removing hydrogen atom without neighbors
+[20:33:59] WARNING: not removing hydrogen atom without neighbors
+[20:33:59] Explicit valence for atom # 11 N, 4, is greater than permitted
+[20:33:59] Explicit valence for atom # 12 N, 4, is greater than permitted
+[20:33:59] Explicit valence for atom # 5 N, 4, is greater than permitted
+[20:33:59] Explicit valence for atom # 5 N, 4, is greater than permitted
+[20:33:59] Explicit valence for atom # 5 N, 4, is greater than permitted
+[20:33:59] Explicit valence for atom # 5 N, 4, is greater than permitted
+[20:33:59] Explicit valence for atom # 5 N, 4, is greater than permitted
+[20:33:59] WARNING: not removing hydrogen atom without neighbors
+[20:33:59] WARNING: not removing hydrogen atom without neighbors
+[20:33:59] Explicit valence for atom # 5 N, 4, is greater than permitted
+[20:33:59] WARNING: not removing hydrogen atom without neighbors
+[20:33:59] WARNING: not removing hydrogen atom without neighbors
+[20:33:59] WARNING: not removing hydrogen atom without neighbors
+[20:33:59] WARNING: not removing hydrogen atom without neighbors
+[20:33:59] WARNING: not removing hydrogen atom without neighbors
+[20:33:59] WARNING: not removing hydrogen atom without neighbors
+[20:33:59] WARNING: not removing hydrogen atom without neighbors
+[20:33:59] WARNING: not removing hydrogen atom without neighbors
+[20:33:59] WARNING: not removing hydrogen atom without neighbors
+[20:33:59] WARNING: not removing hydrogen atom without neighbors
+[20:33:59] WARNING: not removing hydrogen atom without neighbors
+[20:33:59] WARNING: not removing hydrogen atom without neighbors
+[20:33:59] WARNING: not removing hydrogen atom without neighbors
+[20:33:59] WARNING: not removing hydrogen atom without neighbors
+[20:33:59] WARNING: not removing hydrogen atom without neighbors
+[20:33:59] WARNING: not removing hydrogen atom without neighbors
+[20:33:59] WARNING: not removing hydrogen atom without neighbors
+[20:33:59] WARNING: not removing hydrogen atom without neighbors
+[20:33:59] WARNING: not removing hydrogen atom without neighbors
+[20:33:59] WARNING: not removing hydrogen atom without neighbors
+[20:33:59] WARNING: not removing hydrogen atom without neighbors
+[20:33:59] WARNING: not removing hydrogen atom without neighbors
+[20:33:59] WARNING: not removing hydrogen atom without neighbors
+[20:33:59] WARNING: not removing hydrogen atom without neighbors
+[20:33:59] WARNING: not removing hydrogen atom without neighbors
+[20:33:59] WARNING: not removing hydrogen atom without neighbors
+[20:33:59] WARNING: not removing hydrogen atom without neighbors
+2026-06-03 20:34:00,133 | INFO | Skipping existing CSV: /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/reports/excluded_non_model_columns.csv
+2026-06-03 20:34:00,327 | INFO | Skipping existing CSV: /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/data/processed/features_padel.csv
+2026-06-03 20:34:00,327 | INFO | Skipping existing CSV: /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/data/processed/features_padel_index.csv
+2026-06-03 20:34:00,327 | INFO | Feature view padel already existed; set overwrite=true to regenerate it.
+2026-06-03 20:34:00,327 | INFO | Skipping existing CSV: /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/data/processed/features_morgan.csv
+2026-06-03 20:34:00,327 | INFO | Skipping existing CSV: /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/data/processed/features_morgan_index.csv
+2026-06-03 20:34:00,327 | INFO | Feature view morgan already existed; set overwrite=true to regenerate it.
+2026-06-03 20:34:00,327 | INFO | Skipping existing CSV: /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/data/processed/features_embeddings.csv
+2026-06-03 20:34:00,328 | INFO | Skipping existing CSV: /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/data/processed/features_embeddings_index.csv
+2026-06-03 20:34:00,328 | INFO | Feature view embeddings already existed; set overwrite=true to regenerate it.
+2026-06-03 20:34:00,378 | INFO | Skipping existing CSV: /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/data/processed/features_padel_morgan.csv
+2026-06-03 20:34:00,378 | INFO | Skipping existing CSV: /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/data/processed/features_padel_morgan_index.csv
+2026-06-03 20:34:00,378 | INFO | Feature view padel_morgan already existed; set overwrite=true to regenerate it.
+2026-06-03 20:34:00,407 | INFO | Skipping existing CSV: /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/data/processed/features_padel_embeddings.csv
+2026-06-03 20:34:00,407 | INFO | Skipping existing CSV: /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/data/processed/features_padel_embeddings_index.csv
+2026-06-03 20:34:00,407 | INFO | Feature view padel_embeddings already existed; set overwrite=true to regenerate it.
+2026-06-03 20:34:00,460 | INFO | Skipping existing CSV: /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/data/processed/features_padel_morgan_embeddings.csv
+2026-06-03 20:34:00,460 | INFO | Skipping existing CSV: /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/data/processed/features_padel_morgan_embeddings_index.csv
+2026-06-03 20:34:00,460 | INFO | Feature view padel_morgan_embeddings already existed; set overwrite=true to regenerate it.
+
+=== Running 05_create_validation_splits.py ===
+2026-06-03 20:34:02,394 | INFO | Wrote /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/data/splits/random80_seed42_train.csv
+2026-06-03 20:34:02,402 | INFO | Wrote /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/data/splits/random80_seed42_test.csv
+2026-06-03 20:34:02,451 | INFO | Wrote /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/data/splits/duplicate_aware_seed1_train.csv
+2026-06-03 20:34:02,459 | INFO | Wrote /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/data/splits/duplicate_aware_seed1_test.csv
+2026-06-03 20:34:02,494 | INFO | Wrote /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/data/splits/duplicate_aware_seed2_train.csv
+2026-06-03 20:34:02,502 | INFO | Wrote /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/data/splits/duplicate_aware_seed2_test.csv
+2026-06-03 20:34:02,536 | INFO | Wrote /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/data/splits/duplicate_aware_seed3_train.csv
+2026-06-03 20:34:02,544 | INFO | Wrote /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/data/splits/duplicate_aware_seed3_test.csv
+2026-06-03 20:34:02,576 | INFO | Wrote /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/data/splits/duplicate_aware_seed4_train.csv
+2026-06-03 20:34:02,583 | INFO | Wrote /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/data/splits/duplicate_aware_seed4_test.csv
+2026-06-03 20:34:02,615 | INFO | Wrote /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/data/splits/duplicate_aware_seed5_train.csv
+2026-06-03 20:34:02,623 | INFO | Wrote /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/data/splits/duplicate_aware_seed5_test.csv
+2026-06-03 20:34:02,662 | INFO | Wrote /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/data/splits/scaffold_split_seed42_train.csv
+2026-06-03 20:34:02,670 | INFO | Wrote /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/data/splits/scaffold_split_seed42_test.csv
+2026-06-03 20:34:02,705 | INFO | Wrote /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/data/splits/scaffold_cv_fold1_train.csv
+2026-06-03 20:34:02,713 | INFO | Wrote /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/data/splits/scaffold_cv_fold1_test.csv
+2026-06-03 20:34:02,744 | INFO | Wrote /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/data/splits/scaffold_cv_fold2_train.csv
+2026-06-03 20:34:02,752 | INFO | Wrote /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/data/splits/scaffold_cv_fold2_test.csv
+2026-06-03 20:34:02,784 | INFO | Wrote /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/data/splits/scaffold_cv_fold3_train.csv
+2026-06-03 20:34:02,794 | INFO | Wrote /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/data/splits/scaffold_cv_fold3_test.csv
+2026-06-03 20:34:02,825 | INFO | Wrote /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/data/splits/scaffold_cv_fold4_train.csv
+2026-06-03 20:34:02,833 | INFO | Wrote /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/data/splits/scaffold_cv_fold4_test.csv
+2026-06-03 20:34:02,859 | INFO | Wrote /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/data/splits/scaffold_cv_fold5_train.csv
+2026-06-03 20:34:02,869 | INFO | Wrote /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/data/splits/scaffold_cv_fold5_test.csv
+2026-06-03 20:34:02,869 | INFO | No usable source_dataset column; leave-source-out splits skipped.
+[20:34:04] Explicit valence for atom # 5 N, 4, is greater than permitted
+[20:34:05] Explicit valence for atom # 5 N, 4, is greater than permitted
+[20:34:05] Explicit valence for atom # 12 N, 4, is greater than permitted
+[20:34:07] Explicit valence for atom # 6 N, 4, is greater than permitted
+[20:34:07] Explicit valence for atom # 5 N, 4, is greater than permitted
+[20:34:07] Explicit valence for atom # 5 N, 4, is greater than permitted
+[20:34:07] Explicit valence for atom # 11 N, 4, is greater than permitted
+[20:34:07] Explicit valence for atom # 5 N, 4, is greater than permitted
+[20:34:08] Explicit valence for atom # 6 N, 4, is greater than permitted
+[20:34:08] Explicit valence for atom # 5 N, 4, is greater than permitted
+2026-06-03 20:34:09,268 | INFO | Wrote /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/data/splits/notebook_random_6040_train.csv
+2026-06-03 20:34:09,291 | INFO | Wrote /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/data/splits/notebook_random_6040_test.csv
+[20:34:10] Explicit valence for atom # 12 N, 4, is greater than permitted
+[20:34:10] Explicit valence for atom # 6 N, 4, is greater than permitted
+[20:34:10] Explicit valence for atom # 5 N, 4, is greater than permitted
+[20:34:10] Explicit valence for atom # 5 N, 4, is greater than permitted
+[20:34:11] Explicit valence for atom # 5 N, 4, is greater than permitted
+[20:34:11] Explicit valence for atom # 5 N, 4, is greater than permitted
+[20:34:14] Explicit valence for atom # 5 N, 4, is greater than permitted
+[20:34:14] Explicit valence for atom # 11 N, 4, is greater than permitted
+[20:34:14] Explicit valence for atom # 5 N, 4, is greater than permitted
+[20:34:14] Explicit valence for atom # 6 N, 4, is greater than permitted
+2026-06-03 20:34:15,556 | INFO | Wrote /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/data/splits/notebook_random_7030_train.csv
+2026-06-03 20:34:15,572 | INFO | Wrote /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/data/splits/notebook_random_7030_test.csv
+[20:34:16] Explicit valence for atom # 12 N, 4, is greater than permitted
+[20:34:17] Explicit valence for atom # 5 N, 4, is greater than permitted
+[20:34:18] Explicit valence for atom # 5 N, 4, is greater than permitted
+[20:34:18] Explicit valence for atom # 5 N, 4, is greater than permitted
+[20:34:19] Explicit valence for atom # 5 N, 4, is greater than permitted
+[20:34:20] Explicit valence for atom # 6 N, 4, is greater than permitted
+[20:34:21] Explicit valence for atom # 6 N, 4, is greater than permitted
+[20:34:21] Explicit valence for atom # 5 N, 4, is greater than permitted
+[20:34:21] Explicit valence for atom # 5 N, 4, is greater than permitted
+[20:34:21] Explicit valence for atom # 11 N, 4, is greater than permitted
+2026-06-03 20:34:22,134 | INFO | Wrote /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/data/splits/notebook_random_8020_train.csv
+2026-06-03 20:34:22,144 | INFO | Wrote /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/data/splits/notebook_random_8020_test.csv
+2026-06-03 20:34:22,145 | INFO | Imported 3 legacy random split(s) from prepare_data_padel outputs.
+2026-06-03 20:34:22,147 | INFO | Wrote /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/reports/split_summary.csv
+
+=== Running 06_near_duplicate_analysis.py ===
+[20:34:23] WARNING: not removing hydrogen atom without neighbors
+[20:34:23] WARNING: not removing hydrogen atom without neighbors
+[20:34:23] WARNING: not removing hydrogen atom without neighbors
+[20:34:23] WARNING: not removing hydrogen atom without neighbors
+[20:34:23] WARNING: not removing hydrogen atom without neighbors
+[20:34:23] WARNING: not removing hydrogen atom without neighbors
+[20:34:23] WARNING: not removing hydrogen atom without neighbors
+[20:34:23] WARNING: not removing hydrogen atom without neighbors
+[20:34:23] WARNING: not removing hydrogen atom without neighbors
+[20:34:23] WARNING: not removing hydrogen atom without neighbors
+[20:34:23] WARNING: not removing hydrogen atom without neighbors
+[20:34:23] WARNING: not removing hydrogen atom without neighbors
+[20:34:23] WARNING: not removing hydrogen atom without neighbors
+[20:34:23] WARNING: not removing hydrogen atom without neighbors
+[20:34:23] WARNING: not removing hydrogen atom without neighbors
+[20:34:23] WARNING: not removing hydrogen atom without neighbors
+[20:34:24] WARNING: not removing hydrogen atom without neighbors
+[20:34:24] WARNING: not removing hydrogen atom without neighbors
+[20:34:24] WARNING: not removing hydrogen atom without neighbors
+[20:34:24] WARNING: not removing hydrogen atom without neighbors
+[20:34:24] WARNING: not removing hydrogen atom without neighbors
+[20:34:24] WARNING: not removing hydrogen atom without neighbors
+[20:34:24] WARNING: not removing hydrogen atom without neighbors
+[20:34:24] WARNING: not removing hydrogen atom without neighbors
+[20:34:24] WARNING: not removing hydrogen atom without neighbors
+[20:34:24] WARNING: not removing hydrogen atom without neighbors
+[20:34:24] WARNING: not removing hydrogen atom without neighbors
+[20:34:24] WARNING: not removing hydrogen atom without neighbors
+[20:34:24] WARNING: not removing hydrogen atom without neighbors
+[20:34:24] WARNING: not removing hydrogen atom without neighbors
+[20:34:24] WARNING: not removing hydrogen atom without neighbors
+[20:34:24] WARNING: not removing hydrogen atom without neighbors
+[20:34:24] WARNING: not removing hydrogen atom without neighbors
+[20:34:24] WARNING: not removing hydrogen atom without neighbors
+[20:34:24] WARNING: not removing hydrogen atom without neighbors
+[20:34:24] WARNING: not removing hydrogen atom without neighbors
+[20:34:24] WARNING: not removing hydrogen atom without neighbors
+[20:34:24] WARNING: not removing hydrogen atom without neighbors
+[20:34:24] WARNING: not removing hydrogen atom without neighbors
+[20:34:24] WARNING: not removing hydrogen atom without neighbors
+2026-06-03 20:34:25,674 | INFO | Wrote /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/reports/near_duplicate_analysis_duplicate_aware.csv
+[20:34:26] WARNING: not removing hydrogen atom without neighbors
+[20:34:26] WARNING: not removing hydrogen atom without neighbors
+[20:34:26] WARNING: not removing hydrogen atom without neighbors
+[20:34:26] WARNING: not removing hydrogen atom without neighbors
+[20:34:26] WARNING: not removing hydrogen atom without neighbors
+[20:34:26] WARNING: not removing hydrogen atom without neighbors
+[20:34:26] WARNING: not removing hydrogen atom without neighbors
+[20:34:26] WARNING: not removing hydrogen atom without neighbors
+[20:34:26] WARNING: not removing hydrogen atom without neighbors
+[20:34:26] WARNING: not removing hydrogen atom without neighbors
+[20:34:26] WARNING: not removing hydrogen atom without neighbors
+[20:34:26] WARNING: not removing hydrogen atom without neighbors
+[20:34:26] WARNING: not removing hydrogen atom without neighbors
+[20:34:26] WARNING: not removing hydrogen atom without neighbors
+[20:34:26] WARNING: not removing hydrogen atom without neighbors
+[20:34:26] WARNING: not removing hydrogen atom without neighbors
+[20:34:26] WARNING: not removing hydrogen atom without neighbors
+[20:34:26] WARNING: not removing hydrogen atom without neighbors
+[20:34:26] WARNING: not removing hydrogen atom without neighbors
+[20:34:26] WARNING: not removing hydrogen atom without neighbors
+[20:34:26] WARNING: not removing hydrogen atom without neighbors
+[20:34:26] WARNING: not removing hydrogen atom without neighbors
+[20:34:26] WARNING: not removing hydrogen atom without neighbors
+[20:34:26] WARNING: not removing hydrogen atom without neighbors
+[20:34:26] WARNING: not removing hydrogen atom without neighbors
+[20:34:26] WARNING: not removing hydrogen atom without neighbors
+[20:34:26] WARNING: not removing hydrogen atom without neighbors
+[20:34:26] WARNING: not removing hydrogen atom without neighbors
+[20:34:26] WARNING: not removing hydrogen atom without neighbors
+[20:34:26] WARNING: not removing hydrogen atom without neighbors
+[20:34:26] WARNING: not removing hydrogen atom without neighbors
+[20:34:26] WARNING: not removing hydrogen atom without neighbors
+[20:34:26] WARNING: not removing hydrogen atom without neighbors
+[20:34:26] WARNING: not removing hydrogen atom without neighbors
+[20:34:26] WARNING: not removing hydrogen atom without neighbors
+[20:34:26] WARNING: not removing hydrogen atom without neighbors
+[20:34:26] WARNING: not removing hydrogen atom without neighbors
+[20:34:26] WARNING: not removing hydrogen atom without neighbors
+[20:34:26] WARNING: not removing hydrogen atom without neighbors
+[20:34:26] WARNING: not removing hydrogen atom without neighbors
+2026-06-03 20:34:28,346 | INFO | Skipping existing CSV: /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/reports/near_duplicate_analysis_duplicate_aware.csv
+[20:34:29] WARNING: not removing hydrogen atom without neighbors
+[20:34:29] WARNING: not removing hydrogen atom without neighbors
+[20:34:29] WARNING: not removing hydrogen atom without neighbors
+[20:34:29] WARNING: not removing hydrogen atom without neighbors
+[20:34:29] WARNING: not removing hydrogen atom without neighbors
+[20:34:29] WARNING: not removing hydrogen atom without neighbors
+[20:34:29] WARNING: not removing hydrogen atom without neighbors
+[20:34:29] WARNING: not removing hydrogen atom without neighbors
+[20:34:29] WARNING: not removing hydrogen atom without neighbors
+[20:34:29] WARNING: not removing hydrogen atom without neighbors
+[20:34:29] WARNING: not removing hydrogen atom without neighbors
+[20:34:29] WARNING: not removing hydrogen atom without neighbors
+[20:34:29] WARNING: not removing hydrogen atom without neighbors
+[20:34:29] WARNING: not removing hydrogen atom without neighbors
+[20:34:29] WARNING: not removing hydrogen atom without neighbors
+[20:34:29] WARNING: not removing hydrogen atom without neighbors
+[20:34:29] WARNING: not removing hydrogen atom without neighbors
+[20:34:29] WARNING: not removing hydrogen atom without neighbors
+[20:34:29] WARNING: not removing hydrogen atom without neighbors
+[20:34:29] WARNING: not removing hydrogen atom without neighbors
+[20:34:29] WARNING: not removing hydrogen atom without neighbors
+[20:34:29] WARNING: not removing hydrogen atom without neighbors
+[20:34:29] WARNING: not removing hydrogen atom without neighbors
+[20:34:29] WARNING: not removing hydrogen atom without neighbors
+[20:34:29] WARNING: not removing hydrogen atom without neighbors
+[20:34:29] WARNING: not removing hydrogen atom without neighbors
+[20:34:29] WARNING: not removing hydrogen atom without neighbors
+[20:34:29] WARNING: not removing hydrogen atom without neighbors
+[20:34:29] WARNING: not removing hydrogen atom without neighbors
+[20:34:29] WARNING: not removing hydrogen atom without neighbors
+[20:34:29] WARNING: not removing hydrogen atom without neighbors
+[20:34:29] WARNING: not removing hydrogen atom without neighbors
+[20:34:29] WARNING: not removing hydrogen atom without neighbors
+[20:34:29] WARNING: not removing hydrogen atom without neighbors
+[20:34:29] WARNING: not removing hydrogen atom without neighbors
+[20:34:29] WARNING: not removing hydrogen atom without neighbors
+[20:34:29] WARNING: not removing hydrogen atom without neighbors
+[20:34:29] WARNING: not removing hydrogen atom without neighbors
+[20:34:29] WARNING: not removing hydrogen atom without neighbors
+[20:34:29] WARNING: not removing hydrogen atom without neighbors
+2026-06-03 20:34:30,927 | INFO | Skipping existing CSV: /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/reports/near_duplicate_analysis_duplicate_aware.csv
+[20:34:31] WARNING: not removing hydrogen atom without neighbors
+[20:34:31] WARNING: not removing hydrogen atom without neighbors
+[20:34:31] WARNING: not removing hydrogen atom without neighbors
+[20:34:31] WARNING: not removing hydrogen atom without neighbors
+[20:34:31] WARNING: not removing hydrogen atom without neighbors
+[20:34:31] WARNING: not removing hydrogen atom without neighbors
+[20:34:31] WARNING: not removing hydrogen atom without neighbors
+[20:34:31] WARNING: not removing hydrogen atom without neighbors
+[20:34:31] WARNING: not removing hydrogen atom without neighbors
+[20:34:31] WARNING: not removing hydrogen atom without neighbors
+[20:34:31] WARNING: not removing hydrogen atom without neighbors
+[20:34:31] WARNING: not removing hydrogen atom without neighbors
+[20:34:31] WARNING: not removing hydrogen atom without neighbors
+[20:34:31] WARNING: not removing hydrogen atom without neighbors
+[20:34:31] WARNING: not removing hydrogen atom without neighbors
+[20:34:31] WARNING: not removing hydrogen atom without neighbors
+[20:34:31] WARNING: not removing hydrogen atom without neighbors
+[20:34:31] WARNING: not removing hydrogen atom without neighbors
+[20:34:31] WARNING: not removing hydrogen atom without neighbors
+[20:34:31] WARNING: not removing hydrogen atom without neighbors
+[20:34:31] WARNING: not removing hydrogen atom without neighbors
+[20:34:31] WARNING: not removing hydrogen atom without neighbors
+[20:34:31] WARNING: not removing hydrogen atom without neighbors
+[20:34:31] WARNING: not removing hydrogen atom without neighbors
+[20:34:31] WARNING: not removing hydrogen atom without neighbors
+[20:34:31] WARNING: not removing hydrogen atom without neighbors
+[20:34:31] WARNING: not removing hydrogen atom without neighbors
+[20:34:31] WARNING: not removing hydrogen atom without neighbors
+[20:34:31] WARNING: not removing hydrogen atom without neighbors
+[20:34:31] WARNING: not removing hydrogen atom without neighbors
+[20:34:31] WARNING: not removing hydrogen atom without neighbors
+[20:34:31] WARNING: not removing hydrogen atom without neighbors
+[20:34:31] WARNING: not removing hydrogen atom without neighbors
+[20:34:32] WARNING: not removing hydrogen atom without neighbors
+[20:34:32] WARNING: not removing hydrogen atom without neighbors
+[20:34:32] WARNING: not removing hydrogen atom without neighbors
+[20:34:32] WARNING: not removing hydrogen atom without neighbors
+[20:34:32] WARNING: not removing hydrogen atom without neighbors
+[20:34:32] WARNING: not removing hydrogen atom without neighbors
+[20:34:32] WARNING: not removing hydrogen atom without neighbors
+2026-06-03 20:34:33,461 | INFO | Skipping existing CSV: /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/reports/near_duplicate_analysis_duplicate_aware.csv
+[20:34:34] WARNING: not removing hydrogen atom without neighbors
+[20:34:34] WARNING: not removing hydrogen atom without neighbors
+[20:34:34] WARNING: not removing hydrogen atom without neighbors
+[20:34:34] WARNING: not removing hydrogen atom without neighbors
+[20:34:34] WARNING: not removing hydrogen atom without neighbors
+[20:34:34] WARNING: not removing hydrogen atom without neighbors
+[20:34:34] WARNING: not removing hydrogen atom without neighbors
+[20:34:34] WARNING: not removing hydrogen atom without neighbors
+[20:34:34] WARNING: not removing hydrogen atom without neighbors
+[20:34:34] WARNING: not removing hydrogen atom without neighbors
+[20:34:34] WARNING: not removing hydrogen atom without neighbors
+[20:34:34] WARNING: not removing hydrogen atom without neighbors
+[20:34:34] WARNING: not removing hydrogen atom without neighbors
+[20:34:34] WARNING: not removing hydrogen atom without neighbors
+[20:34:34] WARNING: not removing hydrogen atom without neighbors
+[20:34:34] WARNING: not removing hydrogen atom without neighbors
+[20:34:34] WARNING: not removing hydrogen atom without neighbors
+[20:34:34] WARNING: not removing hydrogen atom without neighbors
+[20:34:34] WARNING: not removing hydrogen atom without neighbors
+[20:34:34] WARNING: not removing hydrogen atom without neighbors
+[20:34:34] WARNING: not removing hydrogen atom without neighbors
+[20:34:34] WARNING: not removing hydrogen atom without neighbors
+[20:34:34] WARNING: not removing hydrogen atom without neighbors
+[20:34:34] WARNING: not removing hydrogen atom without neighbors
+[20:34:34] WARNING: not removing hydrogen atom without neighbors
+[20:34:34] WARNING: not removing hydrogen atom without neighbors
+[20:34:34] WARNING: not removing hydrogen atom without neighbors
+[20:34:34] WARNING: not removing hydrogen atom without neighbors
+[20:34:34] WARNING: not removing hydrogen atom without neighbors
+[20:34:34] WARNING: not removing hydrogen atom without neighbors
+[20:34:34] WARNING: not removing hydrogen atom without neighbors
+[20:34:34] WARNING: not removing hydrogen atom without neighbors
+[20:34:34] WARNING: not removing hydrogen atom without neighbors
+[20:34:34] WARNING: not removing hydrogen atom without neighbors
+[20:34:34] WARNING: not removing hydrogen atom without neighbors
+[20:34:34] WARNING: not removing hydrogen atom without neighbors
+[20:34:34] WARNING: not removing hydrogen atom without neighbors
+[20:34:34] WARNING: not removing hydrogen atom without neighbors
+[20:34:34] WARNING: not removing hydrogen atom without neighbors
+[20:34:34] WARNING: not removing hydrogen atom without neighbors
+2026-06-03 20:34:36,005 | INFO | Skipping existing CSV: /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/reports/near_duplicate_analysis_duplicate_aware.csv
+2026-06-03 20:34:39,796 | INFO | Wrote /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/reports/near_duplicate_analysis_notebook_random_6040.csv
+2026-06-03 20:34:43,252 | INFO | Wrote /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/reports/near_duplicate_analysis_notebook_random_7030.csv
+2026-06-03 20:34:46,112 | INFO | Wrote /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/reports/near_duplicate_analysis_notebook_random_8020.csv
+[20:34:46] WARNING: not removing hydrogen atom without neighbors
+[20:34:46] WARNING: not removing hydrogen atom without neighbors
+[20:34:46] WARNING: not removing hydrogen atom without neighbors
+[20:34:46] WARNING: not removing hydrogen atom without neighbors
+[20:34:46] WARNING: not removing hydrogen atom without neighbors
+[20:34:46] WARNING: not removing hydrogen atom without neighbors
+[20:34:46] WARNING: not removing hydrogen atom without neighbors
+[20:34:46] WARNING: not removing hydrogen atom without neighbors
+[20:34:46] WARNING: not removing hydrogen atom without neighbors
+[20:34:46] WARNING: not removing hydrogen atom without neighbors
+[20:34:46] WARNING: not removing hydrogen atom without neighbors
+[20:34:46] WARNING: not removing hydrogen atom without neighbors
+[20:34:46] WARNING: not removing hydrogen atom without neighbors
+[20:34:46] WARNING: not removing hydrogen atom without neighbors
+[20:34:46] WARNING: not removing hydrogen atom without neighbors
+[20:34:46] WARNING: not removing hydrogen atom without neighbors
+[20:34:46] WARNING: not removing hydrogen atom without neighbors
+[20:34:46] WARNING: not removing hydrogen atom without neighbors
+[20:34:46] WARNING: not removing hydrogen atom without neighbors
+[20:34:46] WARNING: not removing hydrogen atom without neighbors
+[20:34:46] WARNING: not removing hydrogen atom without neighbors
+[20:34:46] WARNING: not removing hydrogen atom without neighbors
+[20:34:46] WARNING: not removing hydrogen atom without neighbors
+[20:34:46] WARNING: not removing hydrogen atom without neighbors
+[20:34:46] WARNING: not removing hydrogen atom without neighbors
+[20:34:46] WARNING: not removing hydrogen atom without neighbors
+[20:34:47] WARNING: not removing hydrogen atom without neighbors
+[20:34:47] WARNING: not removing hydrogen atom without neighbors
+[20:34:47] WARNING: not removing hydrogen atom without neighbors
+[20:34:47] WARNING: not removing hydrogen atom without neighbors
+[20:34:47] WARNING: not removing hydrogen atom without neighbors
+[20:34:47] WARNING: not removing hydrogen atom without neighbors
+[20:34:47] WARNING: not removing hydrogen atom without neighbors
+[20:34:47] WARNING: not removing hydrogen atom without neighbors
+[20:34:47] WARNING: not removing hydrogen atom without neighbors
+[20:34:47] WARNING: not removing hydrogen atom without neighbors
+[20:34:47] WARNING: not removing hydrogen atom without neighbors
+[20:34:47] WARNING: not removing hydrogen atom without neighbors
+[20:34:47] WARNING: not removing hydrogen atom without neighbors
+[20:34:47] WARNING: not removing hydrogen atom without neighbors
+2026-06-03 20:34:48,696 | INFO | Wrote /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/reports/near_duplicate_analysis_random80.csv
+[20:34:49] WARNING: not removing hydrogen atom without neighbors
+[20:34:49] WARNING: not removing hydrogen atom without neighbors
+[20:34:49] WARNING: not removing hydrogen atom without neighbors
+[20:34:49] WARNING: not removing hydrogen atom without neighbors
+[20:34:49] WARNING: not removing hydrogen atom without neighbors
+[20:34:49] WARNING: not removing hydrogen atom without neighbors
+[20:34:49] WARNING: not removing hydrogen atom without neighbors
+[20:34:49] WARNING: not removing hydrogen atom without neighbors
+[20:34:49] WARNING: not removing hydrogen atom without neighbors
+[20:34:49] WARNING: not removing hydrogen atom without neighbors
+[20:34:49] WARNING: not removing hydrogen atom without neighbors
+[20:34:49] WARNING: not removing hydrogen atom without neighbors
+[20:34:49] WARNING: not removing hydrogen atom without neighbors
+[20:34:49] WARNING: not removing hydrogen atom without neighbors
+[20:34:49] WARNING: not removing hydrogen atom without neighbors
+[20:34:49] WARNING: not removing hydrogen atom without neighbors
+[20:34:49] WARNING: not removing hydrogen atom without neighbors
+[20:34:49] WARNING: not removing hydrogen atom without neighbors
+[20:34:49] WARNING: not removing hydrogen atom without neighbors
+[20:34:49] WARNING: not removing hydrogen atom without neighbors
+[20:34:49] WARNING: not removing hydrogen atom without neighbors
+[20:34:49] WARNING: not removing hydrogen atom without neighbors
+[20:34:49] WARNING: not removing hydrogen atom without neighbors
+[20:34:49] WARNING: not removing hydrogen atom without neighbors
+[20:34:49] WARNING: not removing hydrogen atom without neighbors
+[20:34:49] WARNING: not removing hydrogen atom without neighbors
+[20:34:49] WARNING: not removing hydrogen atom without neighbors
+[20:34:49] WARNING: not removing hydrogen atom without neighbors
+[20:34:49] WARNING: not removing hydrogen atom without neighbors
+[20:34:49] WARNING: not removing hydrogen atom without neighbors
+[20:34:49] WARNING: not removing hydrogen atom without neighbors
+[20:34:49] WARNING: not removing hydrogen atom without neighbors
+[20:34:49] WARNING: not removing hydrogen atom without neighbors
+[20:34:49] WARNING: not removing hydrogen atom without neighbors
+[20:34:49] WARNING: not removing hydrogen atom without neighbors
+[20:34:49] WARNING: not removing hydrogen atom without neighbors
+[20:34:49] WARNING: not removing hydrogen atom without neighbors
+[20:34:49] WARNING: not removing hydrogen atom without neighbors
+[20:34:49] WARNING: not removing hydrogen atom without neighbors
+[20:34:49] WARNING: not removing hydrogen atom without neighbors
+2026-06-03 20:34:51,547 | INFO | Wrote /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/reports/near_duplicate_analysis_scaffold_split.csv
+[20:34:52] WARNING: not removing hydrogen atom without neighbors
+[20:34:52] WARNING: not removing hydrogen atom without neighbors
+[20:34:52] WARNING: not removing hydrogen atom without neighbors
+[20:34:52] WARNING: not removing hydrogen atom without neighbors
+[20:34:52] WARNING: not removing hydrogen atom without neighbors
+[20:34:52] WARNING: not removing hydrogen atom without neighbors
+[20:34:52] WARNING: not removing hydrogen atom without neighbors
+[20:34:52] WARNING: not removing hydrogen atom without neighbors
+[20:34:52] WARNING: not removing hydrogen atom without neighbors
+[20:34:52] WARNING: not removing hydrogen atom without neighbors
+[20:34:52] WARNING: not removing hydrogen atom without neighbors
+[20:34:52] WARNING: not removing hydrogen atom without neighbors
+[20:34:52] WARNING: not removing hydrogen atom without neighbors
+[20:34:52] WARNING: not removing hydrogen atom without neighbors
+[20:34:52] WARNING: not removing hydrogen atom without neighbors
+[20:34:52] WARNING: not removing hydrogen atom without neighbors
+[20:34:52] WARNING: not removing hydrogen atom without neighbors
+[20:34:52] WARNING: not removing hydrogen atom without neighbors
+[20:34:52] WARNING: not removing hydrogen atom without neighbors
+[20:34:52] WARNING: not removing hydrogen atom without neighbors
+[20:34:52] WARNING: not removing hydrogen atom without neighbors
+[20:34:52] WARNING: not removing hydrogen atom without neighbors
+[20:34:52] WARNING: not removing hydrogen atom without neighbors
+[20:34:52] WARNING: not removing hydrogen atom without neighbors
+[20:34:52] WARNING: not removing hydrogen atom without neighbors
+[20:34:52] WARNING: not removing hydrogen atom without neighbors
+[20:34:52] WARNING: not removing hydrogen atom without neighbors
+[20:34:52] WARNING: not removing hydrogen atom without neighbors
+[20:34:52] WARNING: not removing hydrogen atom without neighbors
+[20:34:52] WARNING: not removing hydrogen atom without neighbors
+[20:34:52] WARNING: not removing hydrogen atom without neighbors
+[20:34:52] WARNING: not removing hydrogen atom without neighbors
+[20:34:52] WARNING: not removing hydrogen atom without neighbors
+[20:34:52] WARNING: not removing hydrogen atom without neighbors
+[20:34:52] WARNING: not removing hydrogen atom without neighbors
+[20:34:52] WARNING: not removing hydrogen atom without neighbors
+[20:34:52] WARNING: not removing hydrogen atom without neighbors
+[20:34:52] WARNING: not removing hydrogen atom without neighbors
+[20:34:52] WARNING: not removing hydrogen atom without neighbors
+[20:34:52] WARNING: not removing hydrogen atom without neighbors
+2026-06-03 20:34:54,073 | INFO | Skipping existing CSV: /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/reports/near_duplicate_analysis_scaffold_split.csv
+[20:34:54] WARNING: not removing hydrogen atom without neighbors
+[20:34:54] WARNING: not removing hydrogen atom without neighbors
+[20:34:54] WARNING: not removing hydrogen atom without neighbors
+[20:34:54] WARNING: not removing hydrogen atom without neighbors
+[20:34:54] WARNING: not removing hydrogen atom without neighbors
+[20:34:54] WARNING: not removing hydrogen atom without neighbors
+[20:34:54] WARNING: not removing hydrogen atom without neighbors
+[20:34:55] WARNING: not removing hydrogen atom without neighbors
+[20:34:55] WARNING: not removing hydrogen atom without neighbors
+[20:34:55] WARNING: not removing hydrogen atom without neighbors
+[20:34:55] WARNING: not removing hydrogen atom without neighbors
+[20:34:55] WARNING: not removing hydrogen atom without neighbors
+[20:34:55] WARNING: not removing hydrogen atom without neighbors
+[20:34:55] WARNING: not removing hydrogen atom without neighbors
+[20:34:55] WARNING: not removing hydrogen atom without neighbors
+[20:34:55] WARNING: not removing hydrogen atom without neighbors
+[20:34:55] WARNING: not removing hydrogen atom without neighbors
+[20:34:55] WARNING: not removing hydrogen atom without neighbors
+[20:34:55] WARNING: not removing hydrogen atom without neighbors
+[20:34:55] WARNING: not removing hydrogen atom without neighbors
+[20:34:55] WARNING: not removing hydrogen atom without neighbors
+[20:34:55] WARNING: not removing hydrogen atom without neighbors
+[20:34:55] WARNING: not removing hydrogen atom without neighbors
+[20:34:55] WARNING: not removing hydrogen atom without neighbors
+[20:34:55] WARNING: not removing hydrogen atom without neighbors
+[20:34:55] WARNING: not removing hydrogen atom without neighbors
+[20:34:55] WARNING: not removing hydrogen atom without neighbors
+[20:34:55] WARNING: not removing hydrogen atom without neighbors
+[20:34:55] WARNING: not removing hydrogen atom without neighbors
+[20:34:55] WARNING: not removing hydrogen atom without neighbors
+[20:34:55] WARNING: not removing hydrogen atom without neighbors
+[20:34:55] WARNING: not removing hydrogen atom without neighbors
+[20:34:55] WARNING: not removing hydrogen atom without neighbors
+[20:34:55] WARNING: not removing hydrogen atom without neighbors
+[20:34:55] WARNING: not removing hydrogen atom without neighbors
+[20:34:55] WARNING: not removing hydrogen atom without neighbors
+[20:34:55] WARNING: not removing hydrogen atom without neighbors
+[20:34:55] WARNING: not removing hydrogen atom without neighbors
+[20:34:55] WARNING: not removing hydrogen atom without neighbors
+[20:34:55] WARNING: not removing hydrogen atom without neighbors
+2026-06-03 20:34:56,614 | INFO | Skipping existing CSV: /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/reports/near_duplicate_analysis_scaffold_split.csv
+[20:34:57] WARNING: not removing hydrogen atom without neighbors
+[20:34:57] WARNING: not removing hydrogen atom without neighbors
+[20:34:57] WARNING: not removing hydrogen atom without neighbors
+[20:34:57] WARNING: not removing hydrogen atom without neighbors
+[20:34:57] WARNING: not removing hydrogen atom without neighbors
+[20:34:57] WARNING: not removing hydrogen atom without neighbors
+[20:34:57] WARNING: not removing hydrogen atom without neighbors
+[20:34:57] WARNING: not removing hydrogen atom without neighbors
+[20:34:57] WARNING: not removing hydrogen atom without neighbors
+[20:34:57] WARNING: not removing hydrogen atom without neighbors
+[20:34:57] WARNING: not removing hydrogen atom without neighbors
+[20:34:57] WARNING: not removing hydrogen atom without neighbors
+[20:34:57] WARNING: not removing hydrogen atom without neighbors
+[20:34:57] WARNING: not removing hydrogen atom without neighbors
+[20:34:57] WARNING: not removing hydrogen atom without neighbors
+[20:34:57] WARNING: not removing hydrogen atom without neighbors
+[20:34:57] WARNING: not removing hydrogen atom without neighbors
+[20:34:57] WARNING: not removing hydrogen atom without neighbors
+[20:34:57] WARNING: not removing hydrogen atom without neighbors
+[20:34:57] WARNING: not removing hydrogen atom without neighbors
+[20:34:57] WARNING: not removing hydrogen atom without neighbors
+[20:34:57] WARNING: not removing hydrogen atom without neighbors
+[20:34:57] WARNING: not removing hydrogen atom without neighbors
+[20:34:57] WARNING: not removing hydrogen atom without neighbors
+[20:34:57] WARNING: not removing hydrogen atom without neighbors
+[20:34:57] WARNING: not removing hydrogen atom without neighbors
+[20:34:57] WARNING: not removing hydrogen atom without neighbors
+[20:34:57] WARNING: not removing hydrogen atom without neighbors
+[20:34:57] WARNING: not removing hydrogen atom without neighbors
+[20:34:57] WARNING: not removing hydrogen atom without neighbors
+[20:34:57] WARNING: not removing hydrogen atom without neighbors
+[20:34:57] WARNING: not removing hydrogen atom without neighbors
+[20:34:57] WARNING: not removing hydrogen atom without neighbors
+[20:34:57] WARNING: not removing hydrogen atom without neighbors
+[20:34:57] WARNING: not removing hydrogen atom without neighbors
+[20:34:57] WARNING: not removing hydrogen atom without neighbors
+[20:34:57] WARNING: not removing hydrogen atom without neighbors
+[20:34:57] WARNING: not removing hydrogen atom without neighbors
+[20:34:57] WARNING: not removing hydrogen atom without neighbors
+[20:34:57] WARNING: not removing hydrogen atom without neighbors
+2026-06-03 20:34:59,171 | INFO | Skipping existing CSV: /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/reports/near_duplicate_analysis_scaffold_split.csv
+[20:35:00] WARNING: not removing hydrogen atom without neighbors
+[20:35:00] WARNING: not removing hydrogen atom without neighbors
+[20:35:00] WARNING: not removing hydrogen atom without neighbors
+[20:35:00] WARNING: not removing hydrogen atom without neighbors
+[20:35:00] WARNING: not removing hydrogen atom without neighbors
+[20:35:00] WARNING: not removing hydrogen atom without neighbors
+[20:35:00] WARNING: not removing hydrogen atom without neighbors
+[20:35:00] WARNING: not removing hydrogen atom without neighbors
+[20:35:00] WARNING: not removing hydrogen atom without neighbors
+[20:35:00] WARNING: not removing hydrogen atom without neighbors
+[20:35:00] WARNING: not removing hydrogen atom without neighbors
+[20:35:00] WARNING: not removing hydrogen atom without neighbors
+[20:35:00] WARNING: not removing hydrogen atom without neighbors
+[20:35:00] WARNING: not removing hydrogen atom without neighbors
+[20:35:00] WARNING: not removing hydrogen atom without neighbors
+[20:35:00] WARNING: not removing hydrogen atom without neighbors
+[20:35:00] WARNING: not removing hydrogen atom without neighbors
+[20:35:00] WARNING: not removing hydrogen atom without neighbors
+[20:35:00] WARNING: not removing hydrogen atom without neighbors
+[20:35:00] WARNING: not removing hydrogen atom without neighbors
+[20:35:00] WARNING: not removing hydrogen atom without neighbors
+[20:35:00] WARNING: not removing hydrogen atom without neighbors
+[20:35:00] WARNING: not removing hydrogen atom without neighbors
+[20:35:00] WARNING: not removing hydrogen atom without neighbors
+[20:35:00] WARNING: not removing hydrogen atom without neighbors
+[20:35:00] WARNING: not removing hydrogen atom without neighbors
+[20:35:00] WARNING: not removing hydrogen atom without neighbors
+[20:35:00] WARNING: not removing hydrogen atom without neighbors
+[20:35:00] WARNING: not removing hydrogen atom without neighbors
+[20:35:00] WARNING: not removing hydrogen atom without neighbors
+[20:35:00] WARNING: not removing hydrogen atom without neighbors
+[20:35:00] WARNING: not removing hydrogen atom without neighbors
+[20:35:00] WARNING: not removing hydrogen atom without neighbors
+[20:35:00] WARNING: not removing hydrogen atom without neighbors
+[20:35:00] WARNING: not removing hydrogen atom without neighbors
+[20:35:00] WARNING: not removing hydrogen atom without neighbors
+[20:35:00] WARNING: not removing hydrogen atom without neighbors
+[20:35:00] WARNING: not removing hydrogen atom without neighbors
+[20:35:00] WARNING: not removing hydrogen atom without neighbors
+[20:35:00] WARNING: not removing hydrogen atom without neighbors
+2026-06-03 20:35:01,706 | INFO | Skipping existing CSV: /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/reports/near_duplicate_analysis_scaffold_split.csv
+[20:35:02] WARNING: not removing hydrogen atom without neighbors
+[20:35:02] WARNING: not removing hydrogen atom without neighbors
+[20:35:02] WARNING: not removing hydrogen atom without neighbors
+[20:35:02] WARNING: not removing hydrogen atom without neighbors
+[20:35:02] WARNING: not removing hydrogen atom without neighbors
+[20:35:02] WARNING: not removing hydrogen atom without neighbors
+[20:35:02] WARNING: not removing hydrogen atom without neighbors
+[20:35:02] WARNING: not removing hydrogen atom without neighbors
+[20:35:02] WARNING: not removing hydrogen atom without neighbors
+[20:35:02] WARNING: not removing hydrogen atom without neighbors
+[20:35:02] WARNING: not removing hydrogen atom without neighbors
+[20:35:02] WARNING: not removing hydrogen atom without neighbors
+[20:35:02] WARNING: not removing hydrogen atom without neighbors
+[20:35:02] WARNING: not removing hydrogen atom without neighbors
+[20:35:02] WARNING: not removing hydrogen atom without neighbors
+[20:35:02] WARNING: not removing hydrogen atom without neighbors
+[20:35:02] WARNING: not removing hydrogen atom without neighbors
+[20:35:02] WARNING: not removing hydrogen atom without neighbors
+[20:35:02] WARNING: not removing hydrogen atom without neighbors
+[20:35:02] WARNING: not removing hydrogen atom without neighbors
+[20:35:02] WARNING: not removing hydrogen atom without neighbors
+[20:35:02] WARNING: not removing hydrogen atom without neighbors
+[20:35:02] WARNING: not removing hydrogen atom without neighbors
+[20:35:02] WARNING: not removing hydrogen atom without neighbors
+[20:35:02] WARNING: not removing hydrogen atom without neighbors
+[20:35:02] WARNING: not removing hydrogen atom without neighbors
+[20:35:02] WARNING: not removing hydrogen atom without neighbors
+[20:35:02] WARNING: not removing hydrogen atom without neighbors
+[20:35:02] WARNING: not removing hydrogen atom without neighbors
+[20:35:02] WARNING: not removing hydrogen atom without neighbors
+[20:35:02] WARNING: not removing hydrogen atom without neighbors
+[20:35:02] WARNING: not removing hydrogen atom without neighbors
+[20:35:02] WARNING: not removing hydrogen atom without neighbors
+[20:35:02] WARNING: not removing hydrogen atom without neighbors
+[20:35:02] WARNING: not removing hydrogen atom without neighbors
+[20:35:02] WARNING: not removing hydrogen atom without neighbors
+[20:35:02] WARNING: not removing hydrogen atom without neighbors
+[20:35:02] WARNING: not removing hydrogen atom without neighbors
+[20:35:02] WARNING: not removing hydrogen atom without neighbors
+[20:35:02] WARNING: not removing hydrogen atom without neighbors
+2026-06-03 20:35:04,302 | INFO | Skipping existing CSV: /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/reports/near_duplicate_analysis_scaffold_split.csv
+2026-06-03 20:35:04,548 | INFO | Wrote /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/reports/near_duplicate_analysis_all_splits.csv
+2026-06-03 20:35:04,551 | INFO | Wrote /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/reports/near_duplicate_similarity_summary.csv
+
+=== Running 07_leakage_controls.py ===
+2026-06-03 20:35:15,112 | INFO | Wrote /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/reports/source_label_distribution.csv
+2026-06-03 20:35:17,725 | INFO | Wrote /Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/reports/source_prediction_control.csv
+/Users/soham/miniforge3/envs/brainroute-arm/lib/python3.11/site-packages/numpy/core/_methods.py:49: RuntimeWarning: overflow encountered in reduce
+  return umr_sum(a, axis, dtype, out, keepdims, initial, where)
+/Users/soham/miniforge3/envs/brainroute-arm/lib/python3.11/site-packages/numpy/core/_methods.py:49: RuntimeWarning: invalid value encountered in reduce
+  return umr_sum(a, axis, dtype, out, keepdims, initial, where)
+/Users/soham/miniforge3/envs/brainroute-arm/lib/python3.11/site-packages/pandas/core/nanops.py:1028: RuntimeWarning: invalid value encountered in subtract
+  sqr = _ensure_numeric((avg - values) ** 2)
+/Users/soham/miniforge3/envs/brainroute-arm/lib/python3.11/site-packages/numpy/core/fromnumeric.py:88: RuntimeWarning: invalid value encountered in reduce
+  return ufunc.reduce(obj, axis, dtype, out, **passkwargs)
+Traceback (most recent call last):
+  File "/Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/scripts/07_leakage_controls.py", line 72, in <module>
+    main()
+  File "/Users/soham/Desktop/afr_project/mtoralzml/brainroute_ml_validation/scripts/07_leakage_controls.py", line 59, in main
+    scores = cross_val_predict(model, X, y_perm, cv=cv, method="predict_proba")[:, 1]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/soham/miniforge3/envs/brainroute-arm/lib/python3.11/site-packages/sklearn/utils/_param_validation.py", line 218, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/soham/miniforge3/envs/brainroute-arm/lib/python3.11/site-packages/sklearn/model_selection/_validation.py", line 1240, in cross_val_predict
+    predictions = parallel(
+                  ^^^^^^^^^
+  File "/Users/soham/miniforge3/envs/brainroute-arm/lib/python3.11/site-packages/sklearn/utils/parallel.py", line 91, in __call__
+    return super().__call__(iterable_with_config_and_warning_filters)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/soham/miniforge3/envs/brainroute-arm/lib/python3.11/site-packages/joblib/parallel.py", line 1986, in __call__
+    return output if self.return_generator else list(output)
+                                                ^^^^^^^^^^^^
+  File "/Users/soham/miniforge3/envs/brainroute-arm/lib/python3.11/site-packages/joblib/parallel.py", line 1914, in _get_sequential_output
+    res = func(*args, **kwargs)
+          ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/soham/miniforge3/envs/brainroute-arm/lib/python3.11/site-packages/sklearn/utils/parallel.py", line 184, in __call__
+    return self.function(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/soham/miniforge3/envs/brainroute-arm/lib/python3.11/site-packages/sklearn/model_selection/_validation.py", line 1330, in _fit_and_predict
+    predictions = func(X_test)
+                  ^^^^^^^^^^^^
+  File "/Users/soham/miniforge3/envs/brainroute-arm/lib/python3.11/site-packages/sklearn/pipeline.py", line 926, in predict_proba
+    return self.steps[-1][1].predict_proba(Xt, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/soham/miniforge3/envs/brainroute-arm/lib/python3.11/site-packages/sklearn/ensemble/_forest.py", line 945, in predict_proba
+    X = self._validate_X_predict(X)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/soham/miniforge3/envs/brainroute-arm/lib/python3.11/site-packages/sklearn/ensemble/_forest.py", line 615, in _validate_X_predict
+    X = validate_data(
+        ^^^^^^^^^^^^^^
+  File "/Users/soham/miniforge3/envs/brainroute-arm/lib/python3.11/site-packages/sklearn/utils/validation.py", line 3038, in validate_data
+    out = check_array(X, input_name="X", **check_params)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/soham/miniforge3/envs/brainroute-arm/lib/python3.11/site-packages/sklearn/utils/validation.py", line 1087, in check_array
+    _assert_all_finite(
+  File "/Users/soham/miniforge3/envs/brainroute-arm/lib/python3.11/site-packages/sklearn/utils/validation.py", line 137, in _assert_all_finite
+    _assert_all_finite_element_wise(
+  File "/Users/soham/miniforge3/envs/brainroute-arm/lib/python3.11/site-packages/sklearn/utils/validation.py", line 186, in _assert_all_finite_element_wise
+    raise ValueError(msg_err)
+ValueError: Input X contains infinity or a value too large for dtype('float32').
+Step failed: 07_leakage_controls.py

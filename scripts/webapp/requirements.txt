@@ -1,12 +1,16 @@
 streamlit>=1.28.0
 pandas
 numpy
-rdkit-pypi
+# Install RDKit with conda-forge instead of pip:
+# conda install -c conda-forge rdkit
 plotly
 padelpy
 joblib
 scikit-learn
 lightgbm
+xgboost
+torch
+transformers
 requests
 psycopg2-binary
 openai

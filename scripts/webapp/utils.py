@@ -9,7 +9,7 @@ import base64
 from datetime import datetime
 import json
 from openai import OpenAI
-from config import (MODEL_PATHS, FEATURE_NAMES_PATH, AI_MODEL_NAME, API_GENERATION_CONFIG, PROMPT_TEMPLATES, 
+from config import (MODEL_PATHS, MODEL_FEATURE_VIEWS, FEATURE_NAMES_PATH, AI_MODEL_NAME, API_GENERATION_CONFIG, PROMPT_TEMPLATES, 
                    USE_HF_INFERENCE_API, HF_API_TOKEN)
 import logging
 
@@ -24,9 +24,13 @@ def load_ml_models():
     errors = []
     import joblib
     import os
+    import sys
     progress_bar = st.progress(0)
     status_text = st.empty()
     total_models = len(MODEL_PATHS)
+    repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+    if repo_root not in sys.path:
+        sys.path.insert(0, repo_root)
     for i, (model_name, model_path) in enumerate(MODEL_PATHS.items()):
         try:
             status_text.text(f"Loading {model_name} model...")
@@ -42,15 +46,16 @@ def load_ml_models():
             error_msg = f"Failed to load {model_name}: {str(e)}"
             errors.append(error_msg)
             logger.error(error_msg)
-    # Load feature names used by the hypertuned 80/20 models.
-    feature_path = os.path.abspath(os.path.join(os.path.dirname(__file__), FEATURE_NAMES_PATH))
-    try:
-        models['feature_names'] = joblib.load(feature_path)
-        logger.info(f"Loaded feature names from {feature_path}")
-    except Exception as e:
-        error_msg = f"Could not load feature names: {e}"
-        errors.append(error_msg)
-        logger.error(error_msg)
+    models['model_feature_views'] = dict(MODEL_FEATURE_VIEWS)
+    if FEATURE_NAMES_PATH:
+        feature_path = os.path.abspath(os.path.join(os.path.dirname(__file__), FEATURE_NAMES_PATH))
+        try:
+            models['feature_names'] = joblib.load(feature_path)
+            logger.info(f"Loaded feature names from {feature_path}")
+        except Exception as e:
+            error_msg = f"Could not load feature names: {e}"
+            errors.append(error_msg)
+            logger.error(error_msg)
     progress_bar.empty()
     status_text.empty()
     return models, errors
@@ -292,6 +297,10 @@ def format_batch_results_for_display(results):
         
         if result.get('status') == 'Error':
             display_row['Error'] = result.get('error', 'Unknown error')
+        for model_name, pred_value in result.get('individual_predictions', {}).items():
+            display_row[f'{model_name} Prediction'] = 'BBB+' if pred_value == 1 else 'BBB-'
+            conf_value = result.get('individual_confidences', {}).get(model_name)
+            display_row[f'{model_name} Confidence (%)'] = f"{conf_value:.1f}" if conf_value is not None else 'N/A'
         
         display_data.append(display_row)
     
@@ -441,8 +450,6 @@ def safe_align_features(input_df, expected_features, molecule_name="Unknown"):
     # Align and fill missing with 0
     aligned_df = input_df.reindex(columns=expected_features, fill_value=0)
     return aligned_df, None
-
-
 
 
 

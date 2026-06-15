@@ -987,7 +987,7 @@ if st.session_state.models_loaded:
                     
                     try:
                         predict_placeholder = st.empty()
-                        show_loading(predict_placeholder, "Making BBB prediction with PaDEL-based models...")
+                        show_loading(predict_placeholder, "Making BBB prediction with strict-validation models...")
                         padel_preds, padel_confs, ensemble_pred, avg_conf, padel_error = predict_bbb_padel(
                             smiles, st.session_state.models
                         )
@@ -1053,7 +1053,7 @@ if st.session_state.models_loaded:
                             st.markdown(f"**{key}:** {value}")
             
             with col2:
-                st.markdown('<p class="section-title-plain">PaDEL Model Predictions</p>', unsafe_allow_html=True)
+                st.markdown('<p class="section-title-plain">Strict-Validation Model Predictions</p>', unsafe_allow_html=True)
                 
                 pred_label = results['prediction']
                 conf_val = results['confidence']
@@ -1080,7 +1080,7 @@ if st.session_state.models_loaded:
                 padel_preds = results['padel_preds']
                 padel_confs = results['padel_confs']
                 model_table = []
-                for model in ['KNN', 'LGBM', 'ET']:
+                for model in padel_preds.keys():
                     pred = padel_preds.get(model, None)
                     conf = padel_confs.get(model, None)
                     pred_label = 'BBB+' if pred == 1 else 'BBB-' if pred == 0 else 'N/A'
@@ -1111,12 +1111,6 @@ if st.session_state.models_loaded:
                 result_data = {
                     'Name': results['name'],
                     'SMILES': results['smiles'],
-                    'KNN Prediction': 'BBB+' if results['padel_preds'].get('KNN') == 1 else 'BBB-',
-                    'KNN Confidence (%)': results['padel_confs'].get('KNN'),
-                    'LGBM Prediction': 'BBB+' if results['padel_preds'].get('LGBM') == 1 else 'BBB-',
-                    'LGBM Confidence (%)': results['padel_confs'].get('LGBM'),
-                    'ET Prediction': 'BBB+' if results['padel_preds'].get('ET') == 1 else 'BBB-',
-                    'ET Confidence (%)': results['padel_confs'].get('ET'),
                     'Ensemble Prediction': ensemble_pred,
                     'Molecular Weight': results['properties']['mw'],
                     'LogP': results['properties']['logp'],
@@ -1126,6 +1120,9 @@ if st.session_state.models_loaded:
                     'Rotatable Bonds': results['properties']['rotatable_bonds'],
                     'Timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 }
+                for model_name, pred_value in results['padel_preds'].items():
+                    result_data[f'{model_name} Prediction'] = 'BBB+' if pred_value == 1 else 'BBB-'
+                    result_data[f'{model_name} Confidence (%)'] = results['padel_confs'].get(model_name)
                 export_df = pd.DataFrame([result_data])
                 col_exp1, col_exp2, col_exp3 = st.columns(3)
                 with col_exp1:

@@ -1,0 +1,9 @@
+{
+  "model_name": "DeepChem/ChemBERTa-77M-MLM",
+  "pooling": "cls",
+  "shape": [
+    7888,
+    384
+  ],
+  "frozen_feature_extractor": true
+}

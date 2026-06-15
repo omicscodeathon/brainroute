@@ -1,0 +1,83 @@
+project_name: BrainRoute BBB strict validation
+random_seed: 42
+overwrite: false
+quick_mode: false
+
+paths:
+  input_data: ../../data/padel_loop_results_BBB.csv
+  padel_descriptor_path: ../../data/padel_loop_results_BBB.csv
+  legacy_padel_split_dir: ../../data/split
+  external_validation_path: null
+  output_dir: ..
+
+columns:
+  smiles: Original_SMILES
+  label: BBB
+  source_dataset: null
+  molecule_name: Original_Name
+
+duplicate_handling:
+  conflicting_labels: exclude  # exclude or majority
+
+morgan:
+  radius: 2
+  nBits: 2048
+  useChirality: true
+
+pretrained_embeddings:
+  use_pretrained_embeddings: true
+  model_name: DeepChem/ChemBERTa-77M-MLM
+  pooling: cls
+  batch_size: 32 #number of smiles passed in each run
+  max_length: 256 #smiles length 
+
+validation:
+  random_seed: 42
+  test_size: 0.2
+  duplicate_aware_repeated_seeds: [1, 2, 3, 4, 5]
+  scaffold_cv_folds: 5
+  near_duplicate_tanimoto_thresholds: [0.80, 0.85, 0.90]
+  performance_similarity_bins: [0.0, 0.40, 0.60, 0.80, 1.01]
+
+feature_selection:
+  descriptor_missingness_threshold: 0.15
+  correlation_threshold: 0.95
+  variance_threshold: 0.0
+  max_features_after_selection: null
+
+modeling:
+  models_to_train:
+    - logistic_regression
+    - knn
+    - random_forest
+    - extra_trees
+    - lightgbm
+    - xgboost
+  quick_mode_models:
+    - logistic_regression
+    - extra_trees
+    - lightgbm
+  feature_views_to_run:
+    - padel
+    - morgan
+    - padel_morgan
+    - embeddings
+    - padel_morgan_embeddings
+  scoring_metric: balanced_accuracy
+  secondary_metrics:
+    - accuracy
+    - balanced_accuracy
+    - f1
+    - precision
+    - recall
+    - specificity
+    - mcc
+    - roc_auc
+    - auprc
+  imbalance_strategy: class_weight
+  cv_folds_for_tuning: 3
+  n_jobs: -1
+
+external_validation:
+  remove_exact_overlaps: true
+  remove_near_duplicates_above: null

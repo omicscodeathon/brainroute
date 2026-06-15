@@ -18,3 +18,7 @@ openai
 python-dotenv
 openpyxl
 pubchempy
+PyYAML
+scipy
+transformers
+torch

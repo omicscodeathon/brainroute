@@ -6,15 +6,17 @@ import re
 import subprocess
 from rdkit import Chem
 from rdkit.Chem import Descriptors, Crippen, Lipinski, rdMolDescriptors
-from config import DEFAULT_MODEL
+from config import DEFAULT_MODEL, VALIDATION_CONFIG_PATH
 import logging
 from sklearn.preprocessing import StandardScaler
+from pathlib import Path
 
 from api import get_chembl_info, get_formula, get_smiles
 from utils import calculate_padel_descriptors, calculate_padel_descriptors_batch
 
 logger = logging.getLogger(__name__)
 FLOAT_RE = re.compile(r"[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?")
+_EMBEDDING_MODEL_CACHE = None
 
 # PADEL_JAR_PATH = '../../notebooks/padel.sh'  # Adjust if needed
 
@@ -35,6 +37,199 @@ def sanitize_descriptors(descr_df):
     except Exception as e:
         logger.error(f"Error sanitizing descriptors: {str(e)}")
         return descr_df
+
+def _repo_root():
+    return Path(__file__).resolve().parents[2]
+
+def _validation_config_path():
+    return (Path(__file__).resolve().parent / VALIDATION_CONFIG_PATH).resolve()
+
+def _load_validation_config():
+    import sys
+    repo = _repo_root()
+    if str(repo) not in sys.path:
+        sys.path.insert(0, str(repo))
+    from brainroute_ml_validation.src.utils import load_config
+    return load_config(_validation_config_path())
+
+def _canonical_smiles(smiles):
+    mol = Chem.MolFromSmiles(str(smiles))
+    if mol is None:
+        return None
+    return Chem.MolToSmiles(mol, canonical=True, isomericSmiles=True)
+
+def _prepare_padel_features_from_df(padel_df):
+    padel_df = padel_df.drop(columns=['Name'], errors='ignore')
+    padel_df = padel_df.apply(pd.to_numeric, errors='coerce')
+    padel_df = padel_df.replace([np.inf, -np.inf], np.nan)
+    return padel_df.add_prefix("padel__")
+
+def _calculate_morgan_features(smiles_list, cfg):
+    import sys
+    repo = _repo_root()
+    if str(repo) not in sys.path:
+        sys.path.insert(0, str(repo))
+    from brainroute_ml_validation.src.chemistry import calculate_morgan_matrix
+
+    canonical = [_canonical_smiles(smiles) for smiles in smiles_list]
+    morgan = cfg.get("morgan", {})
+    n_bits = int(morgan.get("nBits", 2048))
+    matrix, valid_positions, _ = calculate_morgan_matrix(
+        canonical,
+        radius=int(morgan.get("radius", 2)),
+        n_bits=n_bits,
+        use_chirality=bool(morgan.get("useChirality", True)),
+    )
+    out = pd.DataFrame(0, index=range(len(smiles_list)), columns=[f"morgan__morgan_{i}" for i in range(n_bits)])
+    if len(valid_positions):
+        out.iloc[valid_positions, :] = matrix
+    return out
+
+def _load_embedding_model(cfg):
+    global _EMBEDDING_MODEL_CACHE
+    if _EMBEDDING_MODEL_CACHE is not None:
+        return _EMBEDDING_MODEL_CACHE
+
+    import os
+    os.environ.setdefault("USE_TF", "0")
+    os.environ.setdefault("USE_TORCH", "1")
+    os.environ.setdefault("TRANSFORMERS_NO_TF", "1")
+    import torch
+    from transformers import AutoModel, AutoTokenizer
+
+    emb_cfg = cfg.get("pretrained_embeddings", {})
+    model_name = emb_cfg.get("model_name", "DeepChem/ChemBERTa-77M-MLM")
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    model = AutoModel.from_pretrained(model_name)
+    device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
+    model.to(device)
+    model.eval()
+    _EMBEDDING_MODEL_CACHE = (tokenizer, model, device)
+    return _EMBEDDING_MODEL_CACHE
+
+def _calculate_embedding_features(smiles_list, cfg):
+    import torch
+
+    tokenizer, model, device = _load_embedding_model(cfg)
+    emb_cfg = cfg.get("pretrained_embeddings", {})
+    batch_size = int(emb_cfg.get("batch_size", 32))
+    max_length = int(emb_cfg.get("max_length", 256))
+    pooling = emb_cfg.get("pooling", "cls")
+    canonical = [_canonical_smiles(smiles) or str(smiles) for smiles in smiles_list]
+    embeddings = []
+    with torch.no_grad():
+        for start in range(0, len(canonical), batch_size):
+            batch = canonical[start : start + batch_size]
+            tokens = tokenizer(batch, padding=True, truncation=True, max_length=max_length, return_tensors="pt")
+            tokens = {key: value.to(device) for key, value in tokens.items()}
+            outputs = model(**tokens)
+            hidden = outputs.last_hidden_state
+            if pooling == "mean":
+                mask = tokens["attention_mask"].unsqueeze(-1)
+                pooled = (hidden * mask).sum(dim=1) / mask.sum(dim=1).clamp(min=1)
+            else:
+                pooled = hidden[:, 0, :]
+            embeddings.append(pooled.cpu().numpy())
+    arr = np.vstack(embeddings)
+    return pd.DataFrame(arr, columns=[f"emb__emb_{i}" for i in range(arr.shape[1])])
+
+def _build_webapp_feature_views(smiles_list):
+    cfg = _load_validation_config()
+    padel_df, failed_indices = calculate_padel_descriptors_batch(smiles_list)
+    padel_features = _prepare_padel_features_from_df(padel_df)
+    morgan_features = _calculate_morgan_features(smiles_list, cfg)
+    views = {
+        "padel_morgan": pd.concat(
+            [padel_features.reset_index(drop=True), morgan_features.reset_index(drop=True)],
+            axis=1,
+        )
+    }
+    embedding_error = None
+    try:
+        embedding_features = _calculate_embedding_features(smiles_list, cfg)
+        views["padel_morgan_embeddings"] = pd.concat(
+            [
+                padel_features.reset_index(drop=True),
+                morgan_features.reset_index(drop=True),
+                embedding_features.reset_index(drop=True),
+            ],
+            axis=1,
+        )
+    except Exception as exc:
+        embedding_error = str(exc)
+        logger.warning("Embedding feature calculation failed; embedding model will be skipped: %s", exc)
+    return views, set(failed_indices), embedding_error
+
+def _model_expected_features(model):
+    finite = getattr(model, "named_steps", {}).get("finite") if hasattr(model, "named_steps") else None
+    if finite is not None and hasattr(finite, "feature_names_in_"):
+        return list(finite.feature_names_in_)
+    if hasattr(model, "feature_names_in_"):
+        return list(model.feature_names_in_)
+    return None
+
+def _predict_from_feature_views(feature_views, row_index, models):
+    model_feature_views = models.get("model_feature_views", {})
+    predictions = {}
+    confidences = {}
+    positive_probabilities = {}
+    errors = {}
+
+    for model_name, model in models.items():
+        if model_name in {"feature_names", "model_feature_views"}:
+            continue
+        feature_view = model_feature_views.get(model_name, "padel_morgan")
+        X_view = feature_views.get(feature_view)
+        if X_view is None:
+            errors[model_name] = f"Feature view unavailable: {feature_view}"
+            continue
+        expected_features = _model_expected_features(model)
+        X_single = X_view.iloc[[row_index]].copy()
+        if expected_features:
+            X_single = X_single.reindex(columns=expected_features, fill_value=np.nan)
+        try:
+            pred = model.predict(X_single)
+            pred_value = int(pred[0])
+            predictions[model_name] = pred_value
+            if hasattr(model, "predict_proba"):
+                proba = model.predict_proba(X_single)
+                if proba.shape[1] > 1:
+                    p_pos = float(proba[0, 1])
+                    confidence = float(proba[0, pred_value]) * 100
+                else:
+                    p_pos = float(proba[0, 0])
+                    confidence = max(p_pos, 1 - p_pos) * 100
+            else:
+                p_pos = float(pred_value)
+                confidence = None
+            positive_probabilities[model_name] = p_pos
+            confidences[model_name] = confidence
+        except Exception as exc:
+            errors[model_name] = str(exc)
+            logger.warning("Model %s prediction failed: %s", model_name, exc)
+
+    if not predictions:
+        return None, errors
+
+    avg_positive_probability = float(np.mean(list(positive_probabilities.values())))
+    ensemble_class = 1 if avg_positive_probability >= 0.5 else 0
+    ensemble_pred = "BBB+" if ensemble_class == 1 else "BBB-"
+    avg_confidence = max(avg_positive_probability, 1 - avg_positive_probability) * 100
+    pred_values = list(predictions.values())
+    agreement = sum(1 for pred in pred_values if pred == ensemble_class) / len(pred_values) * 100
+    uncertainty = float(np.std(list(positive_probabilities.values())) * 100) if len(positive_probabilities) > 1 else abs(50 - avg_confidence)
+
+    return {
+        "predictions": predictions,
+        "confidences": confidences,
+        "positive_probabilities": positive_probabilities,
+        "ensemble_pred": ensemble_pred,
+        "avg_confidence": avg_confidence,
+        "agreement": agreement,
+        "uncertainty": uncertainty,
+        "num_models": len(predictions),
+        "model_errors": errors,
+    }, None
 
 def predict_bbb_penetration_with_uncertainty(mol, models):
     """Predict BBB penetration with uncertainty quantification using multiple models"""
@@ -486,24 +681,14 @@ def process_batch_molecules(input_data, input_type, models):
                 'agreement': None
             })
     
-    # Batch calculate PaDEL descriptors for all valid SMILES
+    # Batch calculate strict-validation feature views for all valid SMILES.
     if valid_smiles:
         try:
-            padel_df, failed_indices = calculate_padel_descriptors_batch(valid_smiles)
-            # Ensure all columns are numeric
-            padel_df = padel_df.apply(pd.to_numeric, errors='coerce').fillna(0) #converts to int - if NaN then 0 
-            expected_features = models.get('feature_names')
-            if expected_features:
-                from utils import safe_align_features
-                padel_df, align_error = safe_align_features(padel_df, expected_features, "batch")
-                if align_error:
-                    return [], f"Feature alignment failed: {align_error}"
-            # Scale batch descriptors
-            padel_df = scale_descriptors(padel_df, models)
+            feature_views, failed_indices, embedding_error = _build_webapp_feature_views(valid_smiles)
             
             # Make predictions for each molecule
             for idx, (smiles, info) in enumerate(zip(valid_smiles, molecule_info)):
-                if idx in failed_indices or padel_df.iloc[idx].isna().all():
+                if idx in failed_indices:
                     results.append({
                         'chembl_id': None,
                         'mol': info['mol'],
@@ -521,54 +706,11 @@ def process_batch_molecules(input_data, input_type, models):
                     continue
                 
                 try:
-                    # Get single row for this molecule
-                    single_padel = padel_df.iloc[[idx]].drop(columns=['Name'], errors='ignore')
-                    
-                    # Make predictions with all models
-                    predictions = {}
-                    confidences = {}
-                    
-                    for model_name in ['KNN', 'LGBM', 'ET']:
-                        if model_name in models:
-                            try:
-                                model = models[model_name]
-                                pred = model.predict(single_padel)
-                                
-                                if hasattr(model, 'predict_proba'):
-                                    conf = model.predict_proba(single_padel)
-                                    confidence = conf[0][1] * 100 if conf.shape[1] > 1 else conf[0][0] * 100
-                                else:
-                                    confidence = None
-                                
-                                predictions[model_name] = int(pred[0])
-                                confidences[model_name] = confidence
-                            except Exception as e:
-                                logger.warning(f"Model {model_name} failed for molecule {idx}: {str(e)}")
-                                continue
-                    
-                    if not predictions:
-                        raise ValueError("All models failed")
-                    
-                    # Calculate ensemble prediction
-                    pred_values = list(predictions.values())
-                    avg_pred = sum(pred_values) / len(pred_values)
-                    ensemble_pred = "BBB+" if avg_pred >= 0.5 else "BBB-"
-                    
-                    # Calculate average confidence
-                    valid_confs = [c for c in confidences.values() if c is not None]
-                    avg_confidence = sum(valid_confs) / len(valid_confs) if valid_confs else 50.0
-                    
-                    # Calculate uncertainty from confidence spread
-                    if len(valid_confs) > 1:
-                        import numpy as np
-                        uncertainty = np.std(valid_confs)
-                    else:
-                        uncertainty = abs(50 - avg_confidence)
-                    
-                    # Calculate agreement
-                    agreement = (sum(pred_values) / len(pred_values)) * 100
-                    if agreement < 50:
-                        agreement = 100 - agreement
+                    prediction_result, model_errors = _predict_from_feature_views(feature_views, idx, models)
+                    if prediction_result is None:
+                        raise ValueError(f"All models failed: {model_errors}")
+                    if embedding_error and "PaDEL+Morgan+Embeddings XGBoost" in models:
+                        prediction_result["model_errors"]["PaDEL+Morgan+Embeddings XGBoost"] = embedding_error
                     
                     # Get ChEMBL info
                     chembl_info = get_chembl_info(smiles)
@@ -584,11 +726,15 @@ def process_batch_molecules(input_data, input_type, models):
                         'formula': formula,
                         'status': 'Success',
                         'error': None,
-                        'prediction': ensemble_pred,
-                        'confidence': avg_confidence,
-                        'uncertainty': uncertainty,
-                        'agreement': agreement,
-                        'num_models': len(predictions)
+                        'prediction': prediction_result["ensemble_pred"],
+                        'confidence': prediction_result["avg_confidence"],
+                        'uncertainty': prediction_result["uncertainty"],
+                        'agreement': prediction_result["agreement"],
+                        'num_models': prediction_result["num_models"],
+                        'individual_predictions': prediction_result["predictions"],
+                        'individual_confidences': prediction_result["confidences"],
+                        'positive_probabilities': prediction_result["positive_probabilities"],
+                        'model_errors': prediction_result["model_errors"],
                     }
                     
                     if properties:
@@ -660,57 +806,25 @@ def scale_descriptors(input_df, models):
 
 def predict_bbb_padel(smiles, models):
     """
-    Predict BBB penetration using PaDEL descriptors and the provided models (KNN, LGBM, EtT).
+    Predict BBB penetration using the strict-validation model set.
     Returns a dict of predictions and confidences for each model.
     """
     try:
-        # Calculate PaDEL descriptors using padelpy
-        padel_df = calculate_padel_descriptors(smiles)
-        padel_df = padel_df.drop(columns=['Name'], errors='ignore')
-        # Ensure all columns are numeric
-        padel_df = padel_df.apply(pd.to_numeric, errors='coerce').fillna(0)
-        padel_df = padel_df.replace([np.inf, -np.inf], 0) #large descriptor values fixed 
-        expected_features = models.get('feature_names')
-        if expected_features:
-            from utils import safe_align_features
-            padel_df, align_error = safe_align_features(padel_df, expected_features, smiles[:20])
-            if align_error:
-                print(f"align_error: {align_error}")
-                return None, None, None, None, align_error
-        # Scale descriptors using StandardScaler
-        padel_df = scale_descriptors(padel_df, models)
-        predictions = {}
-        confidences = {}
-        for model_name in ['KNN', 'LGBM', 'ET']:
-            if model_name in models:
-                try:
-                    model = models[model_name]
-                    pred = model.predict(padel_df)
-                    if hasattr(model, 'predict_proba'):
-                        conf = model.predict_proba(padel_df)
-                        confidence = conf[0].max() * 100
-                    else:
-                        confidence = None
-                    predictions[model_name] = int(pred[0])
-                    confidences[model_name] = confidence 
-                    
-                except Exception as e:
-                    logger.warning(f"Model {model_name} prediction failed: {str(e)}")
-                    continue
-        if not predictions:
-            return None, None, None, None, "All models failed to make predictions"
-        
-        # Ensemble prediction (majority vote)
-        pred_values = list(predictions.values())
-        avg_pred = sum(pred_values) / len(pred_values)
-        ensemble_pred = "BBB+" if avg_pred >= 0.5 else "BBB-"
-        
-        # Average confidence of agreeing models only
-        majority_val = 1 if avg_pred >= 0.5 else 0
-        agreeing_confs = [confidences[m] for m in predictions if predictions[m] == majority_val and confidences.get(m) is not None]
-        avg_confidence = sum(agreeing_confs) / len(agreeing_confs) if agreeing_confs else 50.0
-        
-        return predictions, confidences, ensemble_pred, avg_confidence, None
+        feature_views, failed_indices, embedding_error = _build_webapp_feature_views([smiles])
+        if 0 in failed_indices:
+            return None, None, None, None, "PaDEL descriptor calculation failed"
+        prediction_result, model_errors = _predict_from_feature_views(feature_views, 0, models)
+        if prediction_result is None:
+            return None, None, None, None, f"All models failed to make predictions: {model_errors}"
+        if embedding_error and "PaDEL+Morgan+Embeddings XGBoost" in models:
+            prediction_result["model_errors"]["PaDEL+Morgan+Embeddings XGBoost"] = embedding_error
+        return (
+            prediction_result["predictions"],
+            prediction_result["confidences"],
+            prediction_result["ensemble_pred"],
+            prediction_result["avg_confidence"],
+            None,
+        )
     except Exception as e:
         error_msg = f"PaDEL prediction failed: {str(e)}"
         logger.error(error_msg)

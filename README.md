@@ -210,6 +210,43 @@ streamlit run scripts/webapp/main.py
 
 The application will open automatically in your browser at `http://localhost:8501`
 
+### Reviewer-Facing Strict Validation Pipeline
+
+The resubmission validation workflow is isolated under `brainroute_ml_validation/` so it does not disturb the existing BrainRoute prediction interface. It standardizes molecules, audits exact duplicates and conflicting labels, creates duplicate-aware and scaffold-aware split files, computes Morgan fingerprints, optionally extracts frozen pretrained SMILES embeddings, trains classical ML models with fold-local preprocessing, and writes reviewer-facing reports.
+
+Default inputs follow `notebooks/prepare_data_padel.ipynb`:
+
+```bash
+brainroute_ml_validation/configs/validation_config.yaml
+data/padel_loop_results_BBB.csv
+data/split/
+```
+
+Run the full workflow:
+
+```bash
+python3 brainroute_ml_validation/run_full_validation.py \
+  --config brainroute_ml_validation/configs/validation_config.yaml
+```
+
+Or run individual steps:
+
+```bash
+python3 brainroute_ml_validation/scripts/01_standardize_and_audit.py --config brainroute_ml_validation/configs/validation_config.yaml
+python3 brainroute_ml_validation/scripts/02_calculate_morgan_fingerprints.py --config brainroute_ml_validation/configs/validation_config.yaml
+python3 brainroute_ml_validation/scripts/03_calculate_pretrained_embeddings.py --config brainroute_ml_validation/configs/validation_config.yaml
+python3 brainroute_ml_validation/scripts/04_build_feature_matrices.py --config brainroute_ml_validation/configs/validation_config.yaml
+python3 brainroute_ml_validation/scripts/05_create_validation_splits.py --config brainroute_ml_validation/configs/validation_config.yaml
+python3 brainroute_ml_validation/scripts/06_near_duplicate_analysis.py --config brainroute_ml_validation/configs/validation_config.yaml
+python3 brainroute_ml_validation/scripts/07_leakage_controls.py --config brainroute_ml_validation/configs/validation_config.yaml
+python3 brainroute_ml_validation/scripts/08_train_models.py --config brainroute_ml_validation/configs/validation_config.yaml
+python3 brainroute_ml_validation/scripts/09_external_validation.py --config brainroute_ml_validation/configs/validation_config.yaml
+python3 brainroute_ml_validation/scripts/10_statistical_comparison.py --config brainroute_ml_validation/configs/validation_config.yaml
+python3 brainroute_ml_validation/scripts/11_make_summary_tables.py --config brainroute_ml_validation/configs/validation_config.yaml
+```
+
+Key outputs are written inside `brainroute_ml_validation/`: standardized molecules in `data/processed/`, fixed split files in `data/splits/`, trained models in `models/`, and audit tables, metrics, figures, selected-feature files, and reviewer methods text in `reports/`.
+
 ### Command-Line Prediction (Python API)
 
 ```python
