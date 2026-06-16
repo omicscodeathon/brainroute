@@ -95,6 +95,7 @@ The app loads model paths from `scripts/webapp/config.py` and expects the three 
 Lead authors:
 
 - Soham Shirolkar - University of South Florida - ORCID: 0009-0004-4798-899X - sohamshirolkar24@gmail.com
+- Lewis Tem - University of Buea - lewistem8@gmail.com
 - Olaitan I. Awe - Institute for Genomic Medicine Research & ASBCB - ORCID: 0000-0002-4257-3611 - laitanawe@gmail.com
 
 See `CONTRIBUTORS.md` for the full BrainRoute team.
