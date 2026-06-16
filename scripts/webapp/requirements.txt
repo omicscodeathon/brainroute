@@ -1,8 +1,7 @@
 streamlit>=1.28.0
 pandas
 numpy
-# Install RDKit with conda-forge instead of pip:
-# conda install -c conda-forge rdkit
+rdkit
 plotly
 padelpy
 joblib

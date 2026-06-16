@@ -3,7 +3,7 @@ pandas
 numpy
 matplotlib
 seaborn
-rdkit-pypi
+rdkit
 plotly
 padelpy
 joblib
