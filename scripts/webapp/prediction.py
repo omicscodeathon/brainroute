@@ -18,8 +18,6 @@ logger = logging.getLogger(__name__)
 FLOAT_RE = re.compile(r"[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?")
 _EMBEDDING_MODEL_CACHE = None
 
-# PADEL_JAR_PATH = '../../notebooks/padel.sh'  # Adjust if needed
-
 def sanitize_descriptors(descr_df):
     """Remove or replace NaN and Inf values in descriptor DataFrame"""
     try:

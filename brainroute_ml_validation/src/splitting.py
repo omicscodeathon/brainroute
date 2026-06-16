@@ -71,7 +71,7 @@ def create_splits(std: pd.DataFrame, cfg: dict) -> pd.DataFrame:
 
 
 def import_legacy_padel_splits(std: pd.DataFrame, cfg: dict) -> list[dict]:
-    """Import random splits exported by notebooks/prepare_data_padel.ipynb as baseline-only references."""
+    """Import random splits exported by legacy/notebooks/prepare_data_padel.ipynb as baseline-only references."""
     split_dir = resolve_path(cfg.get("paths", {}).get("legacy_padel_split_dir"), cfg)
     if split_dir is None or not split_dir.exists():
         LOGGER.info("No legacy PaDEL split directory configured; notebook split import skipped.")

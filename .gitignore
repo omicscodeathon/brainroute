@@ -18,6 +18,10 @@ __pycache__/
 **/__pycache__/
 *.pyc
 
+# Legacy archive holds moved historical files. Tracked legacy files remain tracked,
+# but local-only legacy extras should not be accidentally committed.
+legacy/**/*
+
 # BrainRoute validation model artifacts.
 # Keep only the three deployed Streamlit models in Git/LFS; archive the rest separately.
 brainroute_ml_validation/models/*.joblib

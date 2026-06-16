@@ -4,9 +4,9 @@ overwrite: false
 quick_mode: false
 
 paths:
-  input_data: ../../data/padel_loop_results_BBB.csv
-  padel_descriptor_path: ../../data/padel_loop_results_BBB.csv
-  legacy_padel_split_dir: ../../data/split
+  input_data: ../../legacy/data/padel_loop_results_BBB.csv
+  padel_descriptor_path: ../../legacy/data/padel_loop_results_BBB.csv
+  legacy_padel_split_dir: ../../legacy/data/split
   external_validation_path: null
   output_dir: ..
 
