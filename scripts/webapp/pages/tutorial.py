@@ -233,7 +233,7 @@ st.markdown('''
         <a href="?nav=home" target="_self">Home</a>
         <a href="?nav=tutorial" target="_self">Tutorial</a>
         <a href="?nav=about" target="_self">About</a>
-        <a href="https://omicscodeathon.github.io/brainroutedb" target="_blank">Database ↗</a>
+        <a href="https://omicscodeathon.github.io/brainroutedb" target="_blank">BrainRoute Platform</a>
     </div>
 </div>
 ''', unsafe_allow_html=True)
@@ -370,7 +370,7 @@ st.markdown("### Contact & Support")
 st.markdown("""
 BrainRoute was developed as part of the Omics-Codeathon project.
 - **GitHub:** [github.com/omicscodeathon/brainroute](https://github.com/omicscodeathon/brainroute)
-- **Database:** [BrainRoute Database](https://omicscodeathon.github.io/brainroutedb)
+- **BrainRoute Platform:** [Open BrainRoute](https://omicscodeathon.github.io/brainroutedb)
 
 For bug reports, feature requests, or collaboration inquiries, please open an issue on our GitHub repository.
 """)

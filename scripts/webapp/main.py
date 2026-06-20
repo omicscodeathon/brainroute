@@ -848,7 +848,7 @@ st.markdown(f'''
         <a href="?nav=home" target="_self">Home</a>
         <a href="?nav=tutorial" target="_self">Tutorial</a>
         <a href="?nav=about" target="_self">About</a>
-        <a href="{BRAINROUTE_DB_URL}" target="_blank">Database</a>
+        <a href="{BRAINROUTE_DB_URL}" target="_blank">BrainRoute Platform</a>
     </div>
 </div>
 ''', unsafe_allow_html=True)
@@ -998,8 +998,6 @@ if not st.session_state.brainroute_user_id and not has_service_role_config():
     st.warning("BrainRoute account linking is not configured in this Streamlit app. Add SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY to Streamlit secrets.")
 elif st.session_state.brainroute_auth_status == "invalid":
     st.warning("BrainRoute account handoff was invalid or expired. Predictions still work, but account history will not be saved.")
-elif not st.session_state.brainroute_user_id:
-    st.info("Not connected to a BrainRoute account. Open this tool from your signed-in BrainRoute profile to save account history.")
 
 if not st.session_state.launch_save_notice_shown:
     if st.session_state.brainroute_user_id:

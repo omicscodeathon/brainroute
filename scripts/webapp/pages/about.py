@@ -149,6 +149,13 @@ st.markdown("""
         color: #f5f9ff !important;
         margin: 0;
     }
+
+    .about-header,
+    .about-header *,
+    .section-card,
+    .section-card * {
+        color: #f5f9ff !important;
+    }
     
     /* Section cards */
     .section-card {
@@ -223,7 +230,7 @@ st.markdown('''
         <a href="?nav=home" target="_self">Home</a>
         <a href="?nav=tutorial" target="_self">Tutorial</a>
         <a href="?nav=about" target="_self">About</a>
-        <a href="https://omicscodeathon.github.io/brainroutedb" target="_blank">Database ↗</a>
+        <a href="https://omicscodeathon.github.io/brainroutedb" target="_blank">BrainRoute Platform</a>
     </div>
 </div>
 ''', unsafe_allow_html=True)
