@@ -15,7 +15,16 @@ from utils import (load_ml_models, load_ai_model, create_chatgpt_link, generate_
 from prediction import (predict_bbb_padel, predict_bbb_penetration_with_uncertainty, calculate_molecular_properties, 
                        process_batch_molecules)
 from config import PAGE_CONFIG, PROMPT_TEMPLATES, HF_API_TOKEN
-from database.supabase import add_predictions_to_supabase_threaded, add_prediction_to_supabase_threaded
+from database.supabase import (
+    BRAINROUTE_DB_URL,
+    add_predictions_to_supabase_threaded,
+    add_prediction_to_supabase_threaded,
+    log_user_prediction,
+    log_user_prediction_batch,
+    log_user_predictions,
+    redeem_auth_handoff,
+    has_service_role_config,
+)
 
 
 def _handle_nav_query(current: str) -> None:
@@ -687,23 +696,39 @@ st.markdown("""
     [data-testid="stExpanderDetails"] strong {
         color: #0b1b3a !important;
     }
+
+
+
+
+    /* Session status pill in the navigation ribbon */
+    .session-pill {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        border: 1px solid rgba(59, 130, 246, 0.45);
+        padding: 0.3rem 0.7rem;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        background: rgba(255, 255, 255, 0.75);
+        color: #0b1b3a !important;
+    }
+
+    .session-pill.logged-in {
+        border-color: rgba(34, 197, 94, 0.55);
+        background: rgba(220, 252, 231, 0.9);
+        color: #166534 !important;
+    }
+
+    .session-pill.not-logged-in {
+        border-color: rgba(148, 163, 184, 0.65);
+        background: rgba(248, 250, 252, 0.85);
+        color: #475569 !important;
+    }
+
 </style>
 """, unsafe_allow_html=True)
-
-# Fixed top navigation ribbon
-st.markdown('''
-<div class="nav-ribbon">
-    <div class="nav-left">
-        <a href="?nav=home" target="_self" class="nav-brand">BrainRoute</a>
-    </div>
-    <div class="nav-right">
-        <a href="?nav=home" target="_self">Home</a>
-        <a href="?nav=tutorial" target="_self">Tutorial</a>
-        <a href="?nav=about" target="_self">About</a>
-        <a href="https://omicscodeathon.github.io/brainroutedb" target="_blank">Database ↗</a>
-    </div>
-</div>
-''', unsafe_allow_html=True)
 
 # -------------------------
 # Initialize Session State
@@ -732,10 +757,102 @@ if 'supabase_saved_smiles' not in st.session_state:
     st.session_state.supabase_saved_smiles = set()
 if 'supabase_saved_batch_key' not in st.session_state:
     st.session_state.supabase_saved_batch_key = None
+if 'brainroute_user_id' not in st.session_state:
+    st.session_state.brainroute_user_id = None
+if 'brainroute_auth_status' not in st.session_state:
+    st.session_state.brainroute_auth_status = 'anonymous'
+if 'brainroute_handoff_redeemed' not in st.session_state:
+    st.session_state.brainroute_handoff_redeemed = False
+if 'brainroute_last_handoff' not in st.session_state:
+    st.session_state.brainroute_last_handoff = None
+if 'user_supabase_saved_smiles' not in st.session_state:
+    st.session_state.user_supabase_saved_smiles = set()
+if 'user_supabase_saved_batch_key' not in st.session_state:
+    st.session_state.user_supabase_saved_batch_key = None
+if 'launch_save_notice_shown' not in st.session_state:
+    st.session_state.launch_save_notice_shown = False
 
 # -------------------------
 # Helper Functions
 # -------------------------
+
+def _get_query_param(name):
+    try:
+        value = st.query_params.get(name)
+        if isinstance(value, list):
+            return value[0] if value else None
+        return value
+    except Exception:
+        try:
+            return st.experimental_get_query_params().get(name, [None])[0]
+        except Exception:
+            return None
+
+
+def _remove_query_param(name):
+    try:
+        if name in st.query_params:
+            del st.query_params[name]
+            return
+    except Exception:
+        pass
+    try:
+        params = st.experimental_get_query_params()
+        params.pop(name, None)
+        st.experimental_set_query_params(**params)
+    except Exception:
+        pass
+
+
+def _redeem_brainroute_handoff():
+    handoff = _get_query_param("handoff")
+    if not handoff:
+        return
+
+    handoff = str(handoff)
+    if st.session_state.brainroute_last_handoff == handoff:
+        _remove_query_param("handoff")
+        return
+
+    previous_user_id = st.session_state.brainroute_user_id
+    redeemed = redeem_auth_handoff(handoff)
+    if redeemed and redeemed.get("user_id"):
+        next_user_id = redeemed["user_id"]
+        st.session_state.brainroute_user_id = next_user_id
+        st.session_state.brainroute_auth_status = "connected"
+        if previous_user_id != next_user_id:
+            st.session_state.user_supabase_saved_smiles = set()
+            st.session_state.user_supabase_saved_batch_key = None
+    else:
+        st.session_state.brainroute_user_id = None
+        st.session_state.brainroute_auth_status = "invalid"
+
+    st.session_state.brainroute_last_handoff = handoff
+    st.session_state.brainroute_handoff_redeemed = True
+    _remove_query_param("handoff")
+
+
+_redeem_brainroute_handoff()
+
+session_label = "Logged in" if st.session_state.brainroute_user_id else "Not logged in"
+session_class = "logged-in" if st.session_state.brainroute_user_id else "not-logged-in"
+
+# Fixed top navigation ribbon
+st.markdown(f'''
+<div class="nav-ribbon">
+    <div class="nav-left">
+        <a href="?nav=home" target="_self" class="nav-brand">BrainRoute Prediction Tool</a>
+        <span class="session-pill {session_class}">{session_label}</span>
+    </div>
+    <div class="nav-right">
+        <a href="?nav=home" target="_self">Home</a>
+        <a href="?nav=tutorial" target="_self">Tutorial</a>
+        <a href="?nav=about" target="_self">About</a>
+        <a href="{BRAINROUTE_DB_URL}" target="_blank">Database</a>
+    </div>
+</div>
+''', unsafe_allow_html=True)
+
 def get_uncertainty_class(uncertainty):
     """Get CSS class based on uncertainty level"""
     if uncertainty < 10:
@@ -757,9 +874,9 @@ def get_uncertainty_interpretation(uncertainty):
 def show_loading(placeholder, message):
     """Display a visible loading spinner with message"""
     placeholder.markdown(f'''
-    <div style="background: #1f4e99; border: 1px solid #3b82f6; border-radius: 8px; padding: 1rem; margin: 1rem 0; display: flex; align-items: center; gap: 0.75rem;">
-        <div style="width: 20px; height: 20px; border: 3px solid #cfe7ff; border-top-color: #3b82f6; border-radius: 50%; animation: spin 1s linear infinite;"></div>
-        <span style="color: #f5f9ff; font-size: 1rem;">{message}</span>
+    <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 1rem; margin: 1rem 0; display: flex; align-items: center; gap: 0.75rem;">
+        <div style="width: 20px; height: 20px; border: 3px solid #e2e8f0; border-top-color: #0f766e; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+        <span style="color: #1e293b; font-size: 1rem;">{message}</span>
     </div>
     <style>@keyframes spin {{ to {{ transform: rotate(360deg); }} }}</style>
     ''', unsafe_allow_html=True)
@@ -845,9 +962,9 @@ if not st.session_state.models_loaded:
         loading_placeholder = st.empty()
         with loading_placeholder.container():
             st.markdown('''
-            <div style="background: #1f4e99; border: 1px solid #3b82f6; border-radius: 8px; padding: 1rem; margin: 1rem 0; display: flex; align-items: center; gap: 0.75rem;">
-                <div style="width: 20px; height: 20px; border: 3px solid #cfe7ff; border-top-color: #3b82f6; border-radius: 50%; animation: spin 1s linear infinite;"></div>
-                <span style="color: #f5f9ff; font-size: 1rem;">Loading prediction models...</span>
+            <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 1rem; margin: 1rem 0; display: flex; align-items: center; gap: 0.75rem;">
+                <div style="width: 20px; height: 20px; border: 3px solid #e2e8f0; border-top-color: #0f766e; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                <span style="color: #1e293b; font-size: 1rem;">Loading prediction models...</span>
             </div>
             <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
             ''', unsafe_allow_html=True)
@@ -871,10 +988,28 @@ if not st.session_state.models_loaded:
 # -------------------------
 st.markdown('''
 <div class="main-header">
-    <h1 style="text-align:center; margin-left: 1rem;">BrainRoute</h1>
-    <p style="text-align:center;">Blood-Brain Barrier Penetration Classifier<br>This tool allows you to explore molecules and predict their Blood-Brain Barrier (BBB) penetration.<br>BrainRoute will classify your molecule as BBB+ or BBB- and provide additional information for further research.</p>
+    <h1 style="text-align:center; margin-left: 1rem;">BrainRoute Prediction Tool</h1>
+    <p style="text-align:center;">Blood-Brain Barrier Penetration Classifier<br>This prediction tool is part of the larger BrainRoute platform for exploring, growing, and verifying BBB molecule data.<br>Predict a molecule as BBB+ or BBB-, then compare saved predictions with the BrainRoute database.</p>
 </div>
 ''', unsafe_allow_html=True)
+
+
+if not st.session_state.brainroute_user_id and not has_service_role_config():
+    st.warning("BrainRoute account linking is not configured in this Streamlit app. Add SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY to Streamlit secrets.")
+elif st.session_state.brainroute_auth_status == "invalid":
+    st.warning("BrainRoute account handoff was invalid or expired. Predictions still work, but account history will not be saved.")
+elif not st.session_state.brainroute_user_id:
+    st.info("Not connected to a BrainRoute account. Open this tool from your signed-in BrainRoute profile to save account history.")
+
+if not st.session_state.launch_save_notice_shown:
+    if st.session_state.brainroute_user_id:
+        st.toast("Logged in: predictions from this session will be saved to your BrainRoute profile.")
+    elif has_service_role_config():
+        st.toast("Not logged in: predictions will run, but this session will not be saved to your BrainRoute profile.")
+    else:
+        st.toast("Account linking is not configured: predictions will not be saved to a BrainRoute profile.")
+    st.session_state.launch_save_notice_shown = True
+
 
 # -------------------------
 # Processing Mode Selection
@@ -1028,6 +1163,12 @@ if st.session_state.models_loaded:
                 if smiles_key and smiles_key not in st.session_state.supabase_saved_smiles:
                     add_prediction_to_supabase_threaded(results)
                     st.session_state.supabase_saved_smiles.add(smiles_key)
+                user_id = st.session_state.brainroute_user_id
+                if user_id and smiles_key and smiles_key not in st.session_state.user_supabase_saved_smiles:
+                    if log_user_prediction(results, user_id, input_mode=input_mode.lower().replace(' ', '_')):
+                        st.session_state.user_supabase_saved_smiles.add(smiles_key)
+                    else:
+                        st.toast("Prediction was not saved to your BrainRoute account.")
             except Exception as e:
                 st.toast(f"Failed to add compound to Supabase: {e}")
             
@@ -1210,6 +1351,19 @@ if st.session_state.models_loaded:
                 if batch_key and batch_key != st.session_state.supabase_saved_batch_key:
                     add_predictions_to_supabase_threaded(st.session_state.batch_results)
                     st.session_state.supabase_saved_batch_key = batch_key
+                user_id = st.session_state.brainroute_user_id
+                if user_id and batch_key and batch_key != st.session_state.user_supabase_saved_batch_key:
+                    batch_id = log_user_prediction_batch(
+                        st.session_state.batch_results,
+                        user_id,
+                        input_type=input_type,
+                        batch_name=f"BrainRoute batch {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+                    )
+                    if batch_id:
+                        log_user_predictions(st.session_state.batch_results, user_id, batch_id=batch_id)
+                        st.session_state.user_supabase_saved_batch_key = batch_key
+                    else:
+                        st.toast("Batch was not saved to your BrainRoute account.")
             except Exception as e:
                 st.toast(f"Failed to add compounds to Supabase: {e}")
             

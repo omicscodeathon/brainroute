@@ -10,6 +10,10 @@ import requests
 from rdkit import Chem
 
 TABLE_NAME = "molecules"
+AUTH_HANDOFFS_TABLE = "auth_handoffs"
+PREDICTION_LOGS_TABLE = "user_prediction_runs"
+PREDICTION_BATCHES_TABLE = "prediction_batches"
+BRAINROUTE_DB_URL = "https://omicscodeathon.github.io/brainroutedb"
 OPTIONAL_INSERT_FIELDS = {
     "created_at",
     "tags",
@@ -36,6 +40,9 @@ def _get_secret(name, default=None):
         return default
 
 
+BRAINROUTE_DB_URL = _get_secret("BRAINROUTE_DB_URL", BRAINROUTE_DB_URL)
+
+
 def _get_supabase_config():
     url = _get_secret("SUPABASE_URL")
     key = (
@@ -47,12 +54,25 @@ def _get_supabase_config():
     return url, key, table
 
 
-def _headers(key):
+def _get_service_role_config():
+    return _get_secret("SUPABASE_URL"), _get_secret("SUPABASE_SERVICE_ROLE_KEY")
+
+
+def has_service_role_config():
+    url, service_key = _get_service_role_config()
+    return bool(url and service_key)
+
+
+def _get_table(name, default):
+    return _get_secret(name, default)
+
+
+def _headers(key, prefer="return=minimal"):
     return {
         "apikey": key,
         "Authorization": f"Bearer {key}",
         "Content-Type": "application/json",
-        "Prefer": "return=minimal",
+        "Prefer": prefer,
     }
 
 
@@ -78,6 +98,26 @@ def _json_value(value):
         except json.JSONDecodeError:
             return value
     return value
+
+
+def _safe_json(value):
+    value = _native(value)
+    if isinstance(value, dict):
+        return {k: _safe_json(v) for k, v in value.items() if k != "mol"}
+    if isinstance(value, (list, tuple)):
+        return [_safe_json(v) for v in value]
+    if isinstance(value, (str, int, float, bool)) or value is None:
+        return value
+    return str(value)
+
+
+def _parse_datetime(value):
+    if not value:
+        return None
+    try:
+        return datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    except ValueError:
+        return None
 
 
 def _canonical_smiles(smiles):
@@ -210,3 +250,181 @@ def add_prediction_to_supabase_threaded(results):
 def add_predictions_to_supabase_threaded(results):
     thread = threading.Thread(target=add_predictions_to_supabase, args=(results,), daemon=True)
     thread.start()
+
+
+def redeem_auth_handoff(code):
+    if not code:
+        return None
+
+    url, service_key = _get_service_role_config()
+    if not url or not service_key:
+        return None
+
+    table = _get_table("SUPABASE_AUTH_HANDOFFS_TABLE", AUTH_HANDOFFS_TABLE)
+    endpoint = f"{url.rstrip('/')}/rest/v1/{table}"
+
+    try:
+        response = requests.get(
+            endpoint,
+            headers=_headers(service_key),
+            params={
+                "select": "id,user_id,expires_at,used_at",
+                "code": f"eq.{code}",
+                "limit": "1",
+            },
+            timeout=20,
+        )
+        response.raise_for_status()
+        rows = response.json()
+        if not rows:
+            return None
+
+        row = rows[0]
+        if row.get("used_at"):
+            return None
+
+        expires_at = _parse_datetime(row.get("expires_at"))
+        if not expires_at or expires_at <= datetime.now(timezone.utc):
+            return None
+
+        update_response = requests.patch(
+            endpoint,
+            headers=_headers(service_key),
+            params={"id": f"eq.{row['id']}"},
+            json={"used_at": datetime.now(timezone.utc).isoformat()},
+            timeout=20,
+        )
+        update_response.raise_for_status()
+
+        return {"user_id": row.get("user_id"), "handoff_id": row.get("id")}
+    except Exception as exc:
+        print(f"Unable to redeem BrainRoute handoff: {exc}")
+        return None
+
+
+def _prediction_probability(results):
+    value = results.get("prediction_probability") or results.get("probability")
+    if value is not None:
+        return _native(value)
+    confidence = results.get("confidence")
+    if confidence is None:
+        return None
+    try:
+        confidence = float(confidence)
+        return confidence / 100 if confidence > 1 else confidence
+    except (TypeError, ValueError):
+        return None
+
+
+def _build_prediction_log_row(results, user_id, batch_id=None, input_mode=None):
+    info = results.get("info") or {}
+    raw_smiles = info.get("SMILES") or results.get("smiles")
+    smiles = raw_smiles.strip() if isinstance(raw_smiles, str) else raw_smiles
+    canonical_smiles = _canonical_smiles(smiles)
+    properties = results.get("properties") or {}
+
+    row = {
+        "user_id": user_id,
+        "source_app": "brainroute_streamlit",
+        "input_mode": input_mode,
+        "batch_id": batch_id,
+        "molecule_name": info.get("Name") or results.get("name") or canonical_smiles,
+        "smiles": smiles or canonical_smiles,
+        "canonical_smiles": canonical_smiles,
+        "prediction_label": results.get("prediction"),
+        "prediction_probability": _prediction_probability(results),
+        "confidence": _native(results.get("confidence")),
+        "uncertainty": _native(results.get("uncertainty")),
+        "model_name": results.get("model_name") or "strict_validation_ensemble",
+        "feature_set": results.get("feature_set") or "padel_descriptors",
+        "molecular_properties": _safe_json(properties),
+        "model_outputs": _safe_json({
+            "padel_preds": results.get("padel_preds"),
+            "padel_confs": results.get("padel_confs"),
+        }),
+        "raw_result": _safe_json(results),
+    }
+    return {key: value for key, value in row.items() if value is not None}
+
+
+def log_user_prediction(results, user_id, batch_id=None, input_mode=None):
+    if not user_id or not results or results.get("status") == "Error":
+        return False
+
+    url, service_key = _get_service_role_config()
+    if not url or not service_key:
+        return False
+
+    row = _build_prediction_log_row(results, user_id, batch_id=batch_id, input_mode=input_mode)
+    if not row.get("smiles"):
+        return False
+
+    table = _get_table("SUPABASE_PREDICTION_LOGS_TABLE", PREDICTION_LOGS_TABLE)
+    endpoint = f"{url.rstrip('/')}/rest/v1/{table}"
+
+    try:
+        response = requests.post(endpoint, headers=_headers(service_key), json=row, timeout=20)
+        response.raise_for_status()
+        return True
+    except Exception as exc:
+        print(f"Unable to log user prediction: {exc}")
+        return False
+
+
+def log_user_prediction_batch(results, user_id, input_type=None, batch_name=None):
+    if not user_id:
+        return None
+
+    url, service_key = _get_service_role_config()
+    if not url or not service_key:
+        return None
+
+    results = results or []
+    successful = [result for result in results if result.get("status") == "Success"]
+    failed = len(results) - len(successful)
+    row = {
+        "user_id": user_id,
+        "source_app": "brainroute_streamlit",
+        "batch_name": batch_name,
+        "input_type": input_type,
+        "total_molecules": len(results),
+        "successful_molecules": len(successful),
+        "failed_molecules": failed,
+        "summary_json": _safe_json({
+            "prediction_counts": {
+                label: sum(1 for result in successful if result.get("prediction") == label)
+                for label in sorted({result.get("prediction") for result in successful if result.get("prediction")})
+            }
+        }),
+    }
+
+    table = _get_table("SUPABASE_PREDICTION_BATCHES_TABLE", PREDICTION_BATCHES_TABLE)
+    endpoint = f"{url.rstrip('/')}/rest/v1/{table}"
+
+    try:
+        response = requests.post(
+            endpoint,
+            headers=_headers(service_key, prefer="return=representation"),
+            json=row,
+            timeout=20,
+        )
+        response.raise_for_status()
+        data = response.json()
+        if isinstance(data, list) and data:
+            return data[0].get("id")
+        if isinstance(data, dict):
+            return data.get("id")
+    except Exception as exc:
+        print(f"Unable to log user prediction batch: {exc}")
+    return None
+
+
+def log_user_predictions(results, user_id, batch_id=None):
+    added = 0
+    for result in results or []:
+        try:
+            if log_user_prediction(result, user_id, batch_id=batch_id, input_mode="batch"):
+                added += 1
+        except Exception as exc:
+            print(f"Unable to log one user prediction: {exc}")
+    return added
