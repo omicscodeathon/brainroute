@@ -283,7 +283,7 @@ def make_figures(cfg: dict, perf: pd.DataFrame) -> None:
 
 
 def main() -> None:
-    args = script_arg_parser("Create final summary tables, figures, and reviewer-facing text.").parse_args()
+    args = script_arg_parser("Create final summary tables, figures, and methods text.").parse_args()
     cfg = load_config(args.config)
     set_global_seed(int(cfg.get("random_seed", 42)))
     ensure_dirs(cfg)
@@ -317,9 +317,8 @@ def main() -> None:
     md += table_md(external, "External Validation")
     md += table_md(stats, "Statistical Comparison")
     (reports / "final_model_results_summary.md").write_text(md, encoding="utf-8")
-    (reports / "reviewer_validation_summary.md").write_text(md, encoding="utf-8")
 
-    methods = """# Reviewer Methods Text
+    methods = """# Methods Text
 
 Random 80/20 splitting was retained only as a baseline because it can overestimate performance when exact duplicates, close analogs, or related scaffolds appear in both training and test sets.
 
@@ -335,9 +334,9 @@ Class weighting was used as the default imbalance strategy to preserve chemical 
 
 All split files, seeds, configuration files, scripts, predictions, metrics, selected-feature lists, and audit tables are written to disk to support independent reproducibility.
 """
-    (reports / "reviewer_methods_text.md").write_text(methods, encoding="utf-8")
+    (reports / "methods_text.md").write_text(methods, encoding="utf-8")
     make_figures(cfg, perf)
-    LOGGER.info("Wrote final summaries and reviewer methods text.")
+    LOGGER.info("Wrote final summaries and methods text.")
 
 
 if __name__ == "__main__":

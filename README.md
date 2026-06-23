@@ -1,108 +1,112 @@
 # BrainRoute
 
-**BrainRoute** is an open machine-learning platform for blood-brain barrier (BBB) permeability prediction and community-led data curation and verification. This repository holds the code for the BrainRoute prediction tool, a Streamlit app connected to the main BrainRoute platform for BBB permeability prediction. 
+BrainRoute is a platform for blood-brain barrier (BBB) permeability prediction. This repository is for the BrainRoute Streamlit prediction tool and the model training and validation pipeline used by that tool.
 
+The main BrainRoute database platform is maintained separately in [omicscodeathon/brainroutedb](https://github.com/omicscodeathon/brainroutedb) and is available at:
 
+https://omicscodeathon.github.io/brainroutedb/
 
-Live demo: https://brainroute.streamlit.app/
-Main BrainRoute platform: https://omicscodeathon.github.io/brainroutedb/ 
+The deployed Streamlit prediction tool is available at:
 
-## Repository Layout
+https://brainroute.streamlit.app/
 
-- `brainroute_ml_validation/` - reproducible BBB model-training and validation pipeline.
-- `brainroute_ml_validation/configs/validation_config.yaml` - single configuration file for seeds, paths, feature settings, split settings, model settings, and runtime options.
-- `brainroute_ml_validation/scripts/` - ordered validation scripts from standardization through summary tables.
-- `brainroute_ml_validation/src/` - reusable chemistry, feature-building, splitting, preprocessing, and modeling code.
-- `brainroute_ml_validation/models/` - only the three deployed Streamlit model artifacts.
-- `brainroute_ml_validation/reports/` - saved split summaries, metrics, predictions, figures, leakage checks. 
-- `scripts/webapp/` - Streamlit application and deployment requirements.
-- `legacy/` - historical notebooks, old models, previous figures, raw legacy data, archived scripts, and non-deployed model artifacts.
+## Repository Structure
 
-## Deployed Prediction Models
+- `brainroute_ml_validation/` contains the reproducible model training and validation workflow.
+- `brainroute_ml_validation/configs/validation_config.yaml` defines input paths, seeds, feature settings, split settings, models, and output locations.
+- `brainroute_ml_validation/scripts/` contains the ordered pipeline scripts.
+- `brainroute_ml_validation/src/` contains shared chemistry, feature, split, preprocessing, and modeling utilities.
+- `brainroute_ml_validation/models/` contains the three model artifacts used by the Streamlit prediction tool.
+- `brainroute_ml_validation/data/external/` contains external validation datasets used by the validation workflow.
+- `brainroute_ml_validation/reports/` contains generated metrics, split summaries, predictions, figures, leakage checks, and model comparison outputs.
+- `scripts/webapp/` contains the Streamlit prediction tool.
+- `legacy/` contains archived notebooks, earlier scripts, historical data, and non-deployed model artifacts.
 
-The Streamlit app uses three strict-validation model artifacts:
+## Prediction Tool
 
-- PaDEL + Morgan LightGBM, trained on `duplicate_aware_seed5`
-- PaDEL + Morgan Extra Trees, trained on `duplicate_aware_seed5`
-- PaDEL + Morgan + ChemBERTa embeddings XGBoost, trained on `scaffold_cv_fold1`
+The Streamlit app uses three BBB permeability models:
 
-At inference time, the app calculates the same feature representations required by each model: PaDEL descriptors, RDKit Morgan fingerprints, and frozen ChemBERTa SMILES embeddings when needed. Metadata columns such as SMILES, InChIKey, scaffold, source tags, and labels are not used as model features.
+- PaDEL + Morgan LightGBM
+- PaDEL + Morgan Extra Trees
+- PaDEL + Morgan + ChemBERTa XGBoost
 
-## Validation Pipeline
+For each molecule, the app computes the feature views required by the selected model, including PaDEL descriptors, RDKit Morgan fingerprints, and ChemBERTa SMILES embeddings when needed. Metadata such as molecule names, labels, source tags, InChIKeys, and scaffolds are not used as model features.
 
-The validation workflow addresses leakage, chemical redundancy, near-duplicate similarity, scaffold bias, and reproducibility. It uses:
+Run the app locally:
 
-- RDKit molecule standardization, canonical SMILES, InChIKey, and Bemis-Murcko scaffolds.
-- Duplicate and conflicting-label audits before modeling.
-- PaDEL descriptors, Morgan fingerprints, and optional frozen pretrained ChemBERTa embeddings.
-- Fixed random, duplicate-aware, repeated duplicate-aware, scaffold holdout, and 5-fold scaffold-CV splits.
-- Near-duplicate Tanimoto analysis using Morgan fingerprints.
-- Fold-local preprocessing only: missingness filtering, low-variance filtering, median imputation, correlation filtering, and scaling where appropriate.
-- Small GridSearchCV/RandomizedSearchCV model searches using balanced accuracy as the primary selection metric.
-- Saved predictions, selected features, split files, metrics, figures, leakage controls, and statistical comparisons.
+```bash
+python -m streamlit run scripts/webapp/main.py
+```
 
-The primary reviewer-facing validation evidence is scaffold 5-fold cross-validation. Duplicate-aware repeated splits are reported as a secondary validation setting, and random 80/20 splitting is retained only as a conventional baseline.
+The app expects the deployed `.joblib` model files under `brainroute_ml_validation/models/`. Optional platform account-linking and AI assistant settings are configured through local or Streamlit secrets and are not required to run basic BBB predictions.
+
+## Training and Validation Pipeline
+
+The pipeline starts from the configured BBB dataset, standardizes molecules, creates model features, builds validation splits, evaluates leakage controls, trains models, and writes summary reports.
+
+The ordered scripts are:
+
+1. `01_standardize_and_audit.py`
+2. `02_calculate_morgan_fingerprints.py`
+3. `03_calculate_pretrained_embeddings.py`
+4. `04_build_feature_matrices.py`
+5. `05_create_validation_splits.py`
+6. `06_near_duplicate_analysis.py`
+7. `07_leakage_controls.py`
+8. `08_train_models.py`
+9. `09_external_validation.py`
+10. `10_statistical_comparison.py`
+11. `11_make_summary_tables.py`
+
+The workflow includes molecule standardization, duplicate and label-conflict checks, PaDEL descriptors, Morgan fingerprints, optional ChemBERTa embeddings, random and duplicate-aware splits, scaffold-based validation, near-duplicate Tanimoto analysis, leakage controls, model training, external validation, statistical comparisons, and final summary tables.
 
 ## Reproducibility
 
-The pipeline is designed to be rerunnable from fixed inputs and fixed configuration:
-
-- All random seeds are stored in `brainroute_ml_validation/configs/validation_config.yaml`.
-- All train/test and CV split files are saved under `brainroute_ml_validation/data/splits/`.
-- Processed feature matrices are saved under `brainroute_ml_validation/data/processed/`.
-- Model-level predictions and metrics are saved under `brainroute_ml_validation/reports/`.
-- Reviewer-facing method text is saved in `brainroute_ml_validation/reports/reviewer_methods_text.md`.
-- The historical PaDEL starting dataset is archived at `legacy/data/padel_loop_results_BBB.csv`, and the config points to that file.
-
-Install dependencies:
+Create an environment with the required Python packages:
 
 ```bash
 python -m pip install -r requirements.txt
 ```
-`
-For Apple Silicon, a conda or miniforge environment is recommended so RDKit, NumPy, PyTorch, LightGBM, and XGBoost resolve to compatible ARM64 builds.
 
-Run the full validation workflow:
+For Apple Silicon, a conda or miniforge environment is recommended for RDKit, PyTorch, LightGBM, and XGBoost compatibility.
+
+Run the full workflow:
 
 ```bash
 python brainroute_ml_validation/run_full_validation.py \
   --config brainroute_ml_validation/configs/validation_config.yaml
 ```
 
-Run individual steps:
+Run part of the workflow:
 
 ```bash
-python brainroute_ml_validation/scripts/01_standardize_and_audit.py --config brainroute_ml_validation/configs/validation_config.yaml
-python brainroute_ml_validation/scripts/02_calculate_morgan_fingerprints.py --config brainroute_ml_validation/configs/validation_config.yaml
-python brainroute_ml_validation/scripts/03_calculate_pretrained_embeddings.py --config brainroute_ml_validation/configs/validation_config.yaml
-python brainroute_ml_validation/scripts/04_build_feature_matrices.py --config brainroute_ml_validation/configs/validation_config.yaml
-python brainroute_ml_validation/scripts/05_create_validation_splits.py --config brainroute_ml_validation/configs/validation_config.yaml
-python brainroute_ml_validation/scripts/06_near_duplicate_analysis.py --config brainroute_ml_validation/configs/validation_config.yaml
-python brainroute_ml_validation/scripts/07_leakage_controls.py --config brainroute_ml_validation/configs/validation_config.yaml
-python brainroute_ml_validation/scripts/08_train_models.py --config brainroute_ml_validation/configs/validation_config.yaml
-python brainroute_ml_validation/scripts/09_external_validation.py --config brainroute_ml_validation/configs/validation_config.yaml
-python brainroute_ml_validation/scripts/10_statistical_comparison.py --config brainroute_ml_validation/configs/validation_config.yaml
-python brainroute_ml_validation/scripts/11_make_summary_tables.py --config brainroute_ml_validation/configs/validation_config.yaml
+python brainroute_ml_validation/run_full_validation.py \
+  --config brainroute_ml_validation/configs/validation_config.yaml \
+  --start-at 06_near_duplicate_analysis.py \
+  --stop-after 08_train_models.py
 ```
 
-## Running the Streamlit App
+Run a single step:
 
 ```bash
-python -m streamlit run scripts/webapp/main.py
+python brainroute_ml_validation/scripts/06_near_duplicate_analysis.py \
+  --config brainroute_ml_validation/configs/validation_config.yaml
 ```
 
-The app loads model paths from `scripts/webapp/config.py` and expects the three deployed `.joblib` files in `brainroute_ml_validation/models/`.
+Primary generated outputs are written under:
 
-## Project Team
+- `brainroute_ml_validation/data/processed/`
+- `brainroute_ml_validation/data/splits/`
+- `brainroute_ml_validation/models/`
+- `brainroute_ml_validation/reports/`
+- `brainroute_ml_validation/reports/figures/`
 
-Lead authors:
+The current configuration points to the archived starting dataset at `legacy/data/padel_loop_results_BBB.csv`.
 
-- Soham Shirolkar - University of South Florida - ORCID: 0009-0004-4798-899X - sohamshirolkar24@gmail.com
-- Lewis Tem - University of Buea - lewistem8@gmail.com
-- Olaitan I. Awe - Institute for Genomic Medicine Research & ASBCB - ORCID: 0000-0002-4257-3611 - laitanawe@gmail.com
+External validation inputs are stored under `brainroute_ml_validation/data/external/`, including `external_dataset_qsar.xlsx`.
 
-See `CONTRIBUTORS.md` for the full BrainRoute team.
+## Configuration
 
-## License
+Do not commit private credentials or local secrets. Local Streamlit secrets should use `scripts/webapp/.streamlit/secrets.toml`, which is ignored by git. A template is available at `scripts/webapp/.streamlit/secrets.toml.example`.
 
-This project is licensed under the MIT License. See `LICENSE` for details.
+Common optional settings include Supabase connection values for account-linked prediction logging and a Hugging Face token for the AI assistant. Basic BBB prediction only requires the model artifacts and the chemistry/modeling dependencies.

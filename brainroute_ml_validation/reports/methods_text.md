@@ -1,4 +1,4 @@
-# Reviewer Methods Text
+# Methods Text
 
 Random 80/20 splitting was retained only as a baseline because it can overestimate performance when exact duplicates, close analogs, or related scaffolds appear in both training and test sets.
 
