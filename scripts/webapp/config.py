@@ -2,9 +2,9 @@ import streamlit as st
 
 # Model Configuration
 MODEL_PATHS = {
-    'PaDEL+Morgan LGBM': '../../brainroute_ml_validation/models/padel_morgan__lightgbm__duplicate_aware_seed5.joblib',
-    'PaDEL+Morgan Extra Trees': '../../brainroute_ml_validation/models/padel_morgan__extra_trees__duplicate_aware_seed5.joblib',
-    'PaDEL+Morgan+Embeddings XGBoost': '../../brainroute_ml_validation/models/padel_morgan_embeddings__xgboost__scaffold_cv_fold1.joblib',
+    'PaDEL+Morgan LGBM': '../../brainroute_ml_validation/models/full_refit/full_refit__padel_morgan__lightgbm.joblib',
+    'PaDEL+Morgan Extra Trees': '../../brainroute_ml_validation/models/full_refit/full_refit__padel_morgan__extra_trees.joblib',
+    'PaDEL+Morgan+Embeddings XGBoost': '../../brainroute_ml_validation/models/full_refit/full_refit__padel_morgan_embeddings__xgboost.joblib',
 }
 MODEL_FEATURE_VIEWS = {
     'PaDEL+Morgan LGBM': 'padel_morgan',
