@@ -1,8 +1,11 @@
 # BrainRoute
 
-**BrainRoute** is an open machine-learning platform for blood-brain barrier (BBB) permeability prediction with neurodegenerative disease applications. The repository now centers on a strict, reviewer-facing validation workflow and a Streamlit prediction app that uses the newly trained BBB models.
+**BrainRoute** is an open machine-learning platform for blood-brain barrier (BBB) permeability prediction and community-led data curation and verification. This repository holds the code for the BrainRoute prediction tool, a Streamlit app connected to the main BrainRoute platform for BBB permeability prediction. 
+
+
 
 Live demo: https://brainroute.streamlit.app/
+Main BrainRoute platform: https://omicscodeathon.github.io/brainroutedb/ 
 
 ## Repository Layout
 
@@ -11,7 +14,7 @@ Live demo: https://brainroute.streamlit.app/
 - `brainroute_ml_validation/scripts/` - ordered validation scripts from standardization through summary tables.
 - `brainroute_ml_validation/src/` - reusable chemistry, feature-building, splitting, preprocessing, and modeling code.
 - `brainroute_ml_validation/models/` - only the three deployed Streamlit model artifacts.
-- `brainroute_ml_validation/reports/` - saved split summaries, metrics, predictions, figures, leakage checks, and reviewer-facing methods text.
+- `brainroute_ml_validation/reports/` - saved split summaries, metrics, predictions, figures, leakage checks. 
 - `scripts/webapp/` - Streamlit application and deployment requirements.
 - `legacy/` - historical notebooks, old models, previous figures, raw legacy data, archived scripts, and non-deployed model artifacts.
 
@@ -56,7 +59,7 @@ Install dependencies:
 ```bash
 python -m pip install -r requirements.txt
 ```
-
+`
 For Apple Silicon, a conda or miniforge environment is recommended so RDKit, NumPy, PyTorch, LightGBM, and XGBoost resolve to compatible ARM64 builds.
 
 Run the full validation workflow:
