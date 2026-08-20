@@ -15,7 +15,7 @@ VALIDATION_CONFIG_PATH = '../../brainroute_ml_validation/configs/validation_conf
 FEATURE_NAMES_PATH = None
 
 # AI Model Configuration - Using OpenAI client with HF router
-AI_MODEL_NAME = "meta-llama/Meta-Llama-3-8B-Instruct:novita"
+AI_MODEL_NAME = "meta-llama/Llama-3.1-8B-Instruct"
 USE_HF_INFERENCE_API = True
 DEFAULT_MODEL = "PaDEL+Morgan LGBM"
 

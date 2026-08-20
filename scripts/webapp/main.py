@@ -1504,7 +1504,7 @@ if st.session_state.prediction_results:
             st.info("""
             **Setup Instructions:**
             1. Get a free token from [Hugging Face](https://huggingface.co/settings/tokens)
-            2. Set environment variable: `HUGGINGFACE_API_TOKEN=your_token_here`
+            2. Add `HF_TOKEN = "your_token_here"` to your Streamlit app secrets
             3. Restart the application
             """)
         else:

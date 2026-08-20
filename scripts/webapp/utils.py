@@ -73,7 +73,7 @@ def check_hf_api_status():
 
         # Simple test query
         completion = client.chat.completions.create(
-            model="meta-llama/Meta-Llama-3-8B-Instruct:novita",
+            model=AI_MODEL_NAME,
             messages=[
                 {
                     "role": "user",
@@ -93,7 +93,7 @@ def check_hf_api_status():
 def generate_with_hf_api(prompt, max_retries=3):
     """Generate text using OpenAI client with Hugging Face router"""
     if not HF_API_TOKEN:
-        return None, "Hugging Face API token not found. Please set HUGGINGFACE_API_TOKEN environment variable."
+        return None, "Hugging Face API token not found. Please configure the HF_TOKEN Streamlit secret."
     
     try:
         client = OpenAI(
@@ -109,7 +109,7 @@ def generate_with_hf_api(prompt, max_retries=3):
         for attempt in range(max_retries):
             try:
                 completion = client.chat.completions.create(
-                    model="meta-llama/Meta-Llama-3-8B-Instruct:novita",
+                    model=AI_MODEL_NAME,
                     messages=[
                         {
                             "role": "system",
@@ -187,7 +187,7 @@ def load_ai_model():
             return None, None, "Local model loading not supported in this version"
         
         if not HF_API_TOKEN:
-            return None, None, "Please set HUGGINGFACE_API_TOKEN environment variable"
+            return None, None, "Please configure the HF_TOKEN Streamlit secret"
         
         # Test API connectivity
         if check_hf_api_status():
