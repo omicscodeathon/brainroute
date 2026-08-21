@@ -1,3 +1,5 @@
+import os
+
 import streamlit as st
 
 # Model Configuration
@@ -20,10 +22,21 @@ USE_HF_INFERENCE_API = True
 DEFAULT_MODEL = "PaDEL+Morgan LGBM"
 
 # Hugging Face API Configuration
+# HF_TOKEN is the canonical Streamlit secret. Keep the former
+# HUGGINGFACE_API_TOKEN name as a deployment-compatible fallback.
 try:
-    HF_API_TOKEN = st.secrets.get("HF_TOKEN", "")
+    _HF_SECRET_TOKEN = (
+        st.secrets.get("HF_TOKEN", "")
+        or st.secrets.get("HUGGINGFACE_API_TOKEN", "")
+    )
 except Exception:
-    HF_API_TOKEN = ""
+    _HF_SECRET_TOKEN = ""
+
+HF_API_TOKEN = (
+    _HF_SECRET_TOKEN
+    or os.getenv("HF_TOKEN", "")
+    or os.getenv("HUGGINGFACE_API_TOKEN", "")
+)
 
 # Generation Parameters for OpenAI client
 API_GENERATION_CONFIG = {

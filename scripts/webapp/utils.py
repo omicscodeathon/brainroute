@@ -60,11 +60,31 @@ def load_ml_models():
     status_text.empty()
     return models, errors
 
+def _format_hf_connection_error(error):
+    """Return a safe, actionable message without exposing credentials."""
+    status_code = getattr(error, "status_code", None)
+    error_text = str(error).lower()
+
+    if status_code == 401:
+        return "Hugging Face rejected the configured token (HTTP 401). Update HF_TOKEN in the Streamlit app secrets."
+    if status_code == 402:
+        return "The Hugging Face account has no remaining Inference Providers credits (HTTP 402)."
+    if status_code == 403:
+        return "HF_TOKEN is not allowed to call Inference Providers (HTTP 403). Enable the 'Make calls to Inference Providers' permission."
+    if "model not available" in error_text or "model_not_available" in error_text:
+        return f"The configured model is not available from Hugging Face: {AI_MODEL_NAME}."
+    if status_code:
+        return f"Hugging Face returned HTTP {status_code} while connecting to {AI_MODEL_NAME}."
+    if "timeout" in error_text:
+        return "The Hugging Face connection timed out. Please try again."
+    return f"Could not connect to Hugging Face for {AI_MODEL_NAME}. Check the Streamlit Cloud logs for details."
+
+
 def check_hf_api_status():
-    """Check if Hugging Face API is available using OpenAI client"""
+    """Check whether the configured Hugging Face chat route is available."""
     try:
         if not HF_API_TOKEN:
-            return False
+            return False, "HF_TOKEN is not configured in the Streamlit app secrets."
             
         client = OpenAI(
             base_url="https://router.huggingface.co/v1",
@@ -84,11 +104,13 @@ def check_hf_api_status():
             timeout=10
         )
         
-        return completion.choices[0].message.content is not None
+        if completion.choices[0].message.content is not None:
+            return True, None
+        return False, "Hugging Face returned an empty response during the connection check."
         
     except Exception as e:
         logger.error(f"API status check failed: {str(e)}")
-        return False
+        return False, _format_hf_connection_error(e)
 
 def generate_with_hf_api(prompt, max_retries=3):
     """Generate text using OpenAI client with Hugging Face router"""
@@ -190,11 +212,11 @@ def load_ai_model():
             return None, None, "Please configure the HF_TOKEN Streamlit secret"
         
         # Test API connectivity
-        if check_hf_api_status():
+        is_available, connection_error = check_hf_api_status()
+        if is_available:
             logger.info(f"Successfully connected to HF API for {AI_MODEL_NAME}")
             return "api_ready", "api_ready", None
-        else:
-            return None, None, "Cannot connect to Hugging Face API. Please check your token and try again."
+        return None, None, connection_error
     
     except Exception as e:
         error_msg = f"Failed to initialize AI model: {str(e)}"
