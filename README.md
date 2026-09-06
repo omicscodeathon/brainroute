@@ -57,8 +57,14 @@ The ordered scripts are:
 9. `09_external_validation.py`
 10. `10_statistical_comparison.py`
 11. `11_make_summary_tables.py`
+12. `13_reconstruct_provenance.py`
+13. `14_revision_reanalysis.py`
 
-The workflow includes molecule standardization, duplicate and label-conflict checks, PaDEL descriptors, Morgan fingerprints, optional ChemBERTa embeddings, random and duplicate-aware splits, scaffold-based validation, near-duplicate Tanimoto analysis, leakage controls, model training, external validation, statistical comparisons, and final summary tables.
+The workflow includes molecule standardization, exact-identity and label-conflict checks, PaDEL descriptors, Morgan fingerprints, optional ChemBERTa embeddings, scaffold-grouped validation, secondary repeated random holdouts, near-neighbor Tanimoto analysis, leakage controls, model training, external validation, statistical comparisons, and final summary tables. Five-fold scaffold-grouped cross-validation is the primary internal performance estimate. Historical files named `duplicate_aware_seed*` are retained for artifact compatibility, but because the modeling cohort already contains one row per InChIKey, they are reported as repeated random holdouts on the deduplicated cohort rather than as a separate duplicate-control validation strategy.
+
+The final two steps do not retrain models. They reconstruct molecule-level links to the bundled B3DB and MoleculeNet source files, record file hashes and the unrecoverable retrieval-date limitation, and perform supplementary analyses from saved out-of-fold and external predictions. These analyses include common-test-molecule feature comparisons, scaffold-cluster bootstrap sensitivity analyses, exact fold-level p-values, reliability-bin data, Brier scores, and external-cohort attrition audits.
+
+Submission-ready Supplementary Tables S1-S6, their principal machine-readable tables, and manuscript figures are collected in [`supplementary/`](supplementary/). The matched GFN2-xTB and frozen Uni-Mol v1 benchmark includes final input artifacts, all 15 fitted outer-fold models, prediction-level outputs, statistical comparisons, and a machine-readable verification record. See [`brainroute_ml_validation/3D_QM_BENCHMARK.md`](brainroute_ml_validation/3D_QM_BENCHMARK.md) for the design and reproduction procedure.
 
 ## Reproducibility
 

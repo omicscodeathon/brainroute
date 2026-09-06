@@ -1,0 +1,37 @@
+benchmark_name: matched_3d_qm_benchmark
+random_seed: 42
+
+paths:
+  internal_index: data/processed/features_padel_morgan_index.csv
+  internal_provenance: data/processed/standardized_molecules_with_provenance.csv
+  internal_features: data/processed/features_padel_morgan.csv
+  external_cohort: results/external_results_new_full_padel_parallel2/cleaned_non_overlapping_external_validation_dataframe.csv
+  external_padel: results/external_results_new_full_padel_parallel2/external_padel_features_raw.csv
+  external_padel_failed_positions: results/external_results_new_full_padel_parallel2/external_padel_failed_positions.json
+  external_workspace: data/benchmarks/matched_3d_qm
+
+representation:
+  unimol_model: unimolv1
+  unimol_batch_size: 32
+  unimol_max_atoms: 256
+  xtb_method: GFN2-xTB
+  xtb_workers: 4
+  xtb_timeout_seconds: 240
+  conformer_method: ETKDGv3
+  conformer_force_field: MMFF94s_with_UFF_fallback
+
+validation:
+  outer_scaffold_folds: 5
+  inner_stratified_group_folds: 3
+  primary_metric: balanced_accuracy
+  threshold: 0.5
+  bootstrap_repeats: 2000
+
+models:
+  classifier: xgboost
+  n_estimators: [250, 500]
+  max_depth: [3, 5]
+  learning_rate: 0.05
+  subsample: 0.8
+  colsample_bytree: 0.8
+  n_jobs: 4

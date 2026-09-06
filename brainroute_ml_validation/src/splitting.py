@@ -34,11 +34,27 @@ def create_splits(std: pd.DataFrame, cfg: dict) -> pd.DataFrame:
         write_split(std, train_idx, test_idx, f"random80_seed{seed}", cfg)
         rows.append({"split": f"random80_seed{seed}", "type": "baseline_random", "train_n": len(train_idx), "test_n": len(test_idx)})
 
-    for split_seed in validation.get("duplicate_aware_repeated_seeds", [1, 2, 3, 4, 5]):
+    # Compatibility note: historical model artifacts use the
+    # "duplicate_aware_seed*" filename. At this stage every InChIKey is unique,
+    # so GroupShuffleSplit is mathematically a repeated random group holdout.
+    # Exact-molecule leakage is prevented during curation, while scaffold CV
+    # below is the primary structural generalization assessment.
+    repeated_seeds = validation.get(
+        "repeated_random_holdout_seeds",
+        validation.get("duplicate_aware_repeated_seeds", [1, 2, 3, 4, 5]),
+    )
+    for split_seed in repeated_seeds:
         splitter = GroupShuffleSplit(n_splits=1, test_size=test_size, random_state=int(split_seed))
         for train_idx, test_idx in splitter.split(std, y, groups=std["inchikey"]):
             write_split(std, train_idx, test_idx, f"duplicate_aware_seed{split_seed}", cfg)
-            rows.append({"split": f"duplicate_aware_seed{split_seed}", "type": "duplicate_aware", "train_n": len(train_idx), "test_n": len(test_idx)})
+            rows.append(
+                {
+                    "split": f"duplicate_aware_seed{split_seed}",
+                    "type": "secondary_repeated_random_holdout_after_inchikey_deduplication",
+                    "train_n": len(train_idx),
+                    "test_n": len(test_idx),
+                }
+            )
 
     splitter = GroupShuffleSplit(n_splits=1, test_size=test_size, random_state=seed)
     for train_idx, test_idx in splitter.split(std, y, groups=std["murcko_scaffold"]):

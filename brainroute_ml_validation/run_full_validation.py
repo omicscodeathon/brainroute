@@ -22,6 +22,8 @@ STEPS = [
     "09_external_validation.py",
     "10_statistical_comparison.py",
     "11_make_summary_tables.py",
+    "13_reconstruct_provenance.py",
+    "14_revision_reanalysis.py",
 ]
 
 

@@ -1,0 +1,19 @@
+# GFN2-xTB feature environment (Python 3.11.16)
+xtb==6.7.1
+rdkit==2026.03.5
+pandas==3.0.5
+
+# Uni-Mol representation environment (Python 3.10.21)
+unimol_tools==0.1.6
+torch==2.11.0
+rdkit==2026.03.6
+numpy==2.2.6
+pandas==2.3.3
+
+# Matched benchmark environment (Python 3.11.15)
+scikit-learn==1.9.0
+xgboost==3.2.0
+rdkit==2026.03.3
+numpy==2.4.6
+pandas==3.0.3
+scipy==1.17.1

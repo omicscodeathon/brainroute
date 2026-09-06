@@ -58,6 +58,25 @@ def load_padel_dataframe(cfg: dict) -> tuple[pd.DataFrame, pd.DataFrame, pd.Data
         return pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
     padel = read_table(padel_path)
     keep, excluded = numeric_model_columns(padel)
+    compatibility_exclusions = set(
+        cfg.get("feature_selection", {}).get("padel_legacy_compatibility_exclusions", [])
+    )
+    if compatibility_exclusions:
+        explicitly_excluded = [column for column in keep if column in compatibility_exclusions]
+        keep = [column for column in keep if column not in compatibility_exclusions]
+        if explicitly_excluded:
+            excluded = pd.concat(
+                [
+                    excluded,
+                    pd.DataFrame(
+                        {
+                            "column": explicitly_excluded,
+                            "reason": "explicit legacy model compatibility exclusion",
+                        }
+                    ),
+                ],
+                ignore_index=True,
+            )
     X = padel[keep].apply(pd.to_numeric, errors="coerce")
 
     std = load_standardized(cfg)

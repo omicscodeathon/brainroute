@@ -5,6 +5,10 @@
 # macOS
 .DS_Store
 **/.DS_Store
+*.code-workspace
+logs/
+.benchmark_workspaces/
+brainroute_ml_validation/data/benchmarks/matched_3d_qm/cache/
 
 # Jupyter
 .ipynb_checkpoints/

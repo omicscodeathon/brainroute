@@ -22,7 +22,7 @@ NON_MODEL_PATTERNS = [
     r"name",
     r"compound",
     r"iupac",
-    r"cid",
+    r"^cid$",
     r"reference",
     r"comment",
     r"tag",

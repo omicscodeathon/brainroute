@@ -1,0 +1,18 @@
+{
+  "source_workspace": "brainroute_ml_validation/data/benchmarks/matched_3d_qm",
+  "target_workspace": "brainroute_ml_validation/data/benchmarks/matched_3d_qm_conflict_excluded",
+  "source_provenance_table": "brainroute_ml_validation/data/processed/standardized_molecules_with_provenance.csv",
+  "source_conflicting_internal_molecules_excluded": 24,
+  "manifest_rows_before": 8292,
+  "manifest_rows_after": 8268,
+  "xtb_rows_before": 8292,
+  "xtb_rows_after": 8268,
+  "unimol_rows_before": 8292,
+  "unimol_rows_after": 8268,
+  "output_sha256": {
+    "benchmark_manifest": "d03a0be473b787aa75383c5ae517f220f2883d6ee55fc3453ac6502602d572bb",
+    "xtb_features": "2eab68efc059f65e282032b20308c8cb7885d4df5230cb5c11dd03e0edd98691",
+    "unimol_index": "b34d6cfee9860e1a27f3ffd8cd4704c77ff7e597c9ac973a8c86f77e0315ff1f",
+    "unimol_representations": "7b315f2145e6f9d1fed0cf8a042a95b365540b76f27d56d15517dd0e343115a4"
+  }
+}

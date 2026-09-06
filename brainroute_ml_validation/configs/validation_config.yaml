@@ -6,6 +6,8 @@ quick_mode: false
 paths:
   input_data: ../../legacy/data/padel_loop_results_BBB.csv
   padel_descriptor_path: ../../legacy/data/padel_loop_results_BBB.csv
+  b3db_source_data: ../../legacy/data/B3DB/B3DB_classification.tsv
+  moleculenet_bbbp_source_data: ../../legacy/data/BBBP_moleculenet_pande.csv
   legacy_padel_split_dir: ../../legacy/data/split
   external_validation_path: null
   output_dir: ..
@@ -34,7 +36,10 @@ pretrained_embeddings:
 validation:
   random_seed: 42
   test_size: 0.2
-  duplicate_aware_repeated_seeds: [1, 2, 3, 4, 5]
+  # These seeds reproduce the legacy files named "duplicate_aware_seed*".
+  # The modeling cohort already contains one row per InChIKey, so these are
+  # secondary repeated random holdouts, not a separate duplicate-control method.
+  repeated_random_holdout_seeds: [1, 2, 3, 4, 5]
   scaffold_cv_folds: 5
   near_duplicate_tanimoto_thresholds: [0.80, 0.85, 0.90]
   performance_similarity_bins: [0.0, 0.40, 0.60, 0.80, 1.01]
@@ -44,6 +49,9 @@ feature_selection:
   correlation_threshold: 0.95
   variance_threshold: 0.0
   max_features_after_selection: null
+  # Explicitly preserves the 1,874-column PaDEL matrix used by the saved models.
+  # Earlier code excluded nAcid through an over-broad "cid" metadata pattern.
+  padel_legacy_compatibility_exclusions: [nAcid]
 
 modeling:
   models_to_train:

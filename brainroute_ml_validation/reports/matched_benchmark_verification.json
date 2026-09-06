@@ -1,0 +1,16 @@
+{
+  "status": "passed",
+  "internal_matched_molecules": 7740,
+  "external_matched_molecules": 410,
+  "configurations": [
+    "padel_morgan_control",
+    "padel_morgan_plus_gfn2_xtb",
+    "unimol_v1_frozen_representation"
+  ],
+  "outer_scaffold_folds": 5,
+  "nested_tuning_rows": 15,
+  "source_validation_rows": 6,
+  "source_label_conflicts_excluded": 24,
+  "inchikey_overlap_total": 0,
+  "scaffold_overlap_total": 0
+}
